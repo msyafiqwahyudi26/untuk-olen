@@ -48,7 +48,9 @@ export function db(): DatabaseSync {
          sungguhan di sini — lihat catatan panjang di hapusNote(). */
       dihapus TEXT,
       penting INTEGER NOT NULL DEFAULT 0,
-      diubah TEXT
+      diubah TEXT,
+      judul TEXT,
+      subjudul TEXT
     );
 
     /*
@@ -76,6 +78,30 @@ export function db(): DatabaseSync {
       pada     TEXT    NOT NULL DEFAULT (datetime('now'))
     );
     CREATE INDEX IF NOT EXISTS idx_revisi_note ON note_revisi (note_id, id DESC);
+
+    /*
+     * ═══ ACARA — kalender yang sebenarnya ═══
+     *
+     * Terpisah dari tabel notes, dan itu disengaja. Catatan adalah sesuatu yang
+     * SUDAH terjadi dan ditulis sesudahnya; acara adalah sesuatu yang akan
+     * atau selalu terjadi — ulang tahun teman, tanggal yang perlu diingat.
+     * Keduanya muncul di kalender yang sama, tapi menyatukannya dalam satu
+     * tabel berarti tiap pembacaan harus menebak mana yang mana.
+     *
+     * Kolom tiap_tahun untuk ulang tahun: tanggalnya disimpan sekali, dan tahun
+     * berapa pun yang sedang dilihat kalender akan menampilkannya. Tanpa itu,
+     * ulang tahun harus dimasukkan ulang setiap tahun — dan yang paling
+     * mungkin terjadi adalah lupa.
+     */
+    CREATE TABLE IF NOT EXISTS acara (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      tanggal    TEXT    NOT NULL,
+      judul      TEXT    NOT NULL,
+      jenis      TEXT    NOT NULL DEFAULT 'acara',
+      tiap_tahun INTEGER NOT NULL DEFAULT 0,
+      dibuat     TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_acara_tgl ON acara (tanggal);
 
     /* PIN empat angka. Satu baris saja, selamanya — CHECK (id = 1) membuat
      * baris kedua mustahil, jadi tidak akan pernah ada dua kunci yang
@@ -108,6 +134,8 @@ export function db(): DatabaseSync {
     "ALTER TABLE notes ADD COLUMN dihapus TEXT",
     "ALTER TABLE notes ADD COLUMN penting INTEGER NOT NULL DEFAULT 0",
     "ALTER TABLE notes ADD COLUMN diubah TEXT",
+    "ALTER TABLE notes ADD COLUMN judul TEXT",
+    "ALTER TABLE notes ADD COLUMN subjudul TEXT",
   ]) {
     try {
       d.exec(kolom);
@@ -142,6 +170,16 @@ export type NoteRow = {
   penting: number;
   diubah: string | null;
   dihapus: string | null;
+  judul: string | null;
+  subjudul: string | null;
+};
+
+export type AcaraRow = {
+  id: number;
+  tanggal: string;
+  judul: string;
+  jenis: string;
+  tiap_tahun: number;
 };
 
 export type RevisiRow = {
@@ -166,7 +204,7 @@ export const getShifts  = () => all<ShiftRow>("SELECT then_text,now_text FROM sh
 export const getQuotes  = () => all<QuoteRow>("SELECT text,date,weight FROM quotes ORDER BY ord");
 export const getStars   = () => all<StarRow>("SELECT key,title,date,body,photo,audio,ra,dec,mag,grp FROM stars ORDER BY ord");
 export const getStarLinks = () => all<{ a: string; b: string }>("SELECT a,b FROM star_links");
-const KOLOM = "id,body,created_at,mood,penting,diubah,dihapus";
+const KOLOM = "id,body,created_at,mood,penting,diubah,dihapus,judul,subjudul";
 
 /** Yang masih ada. Yang dihapus tidak ikut, tapi tidak hilang. */
 export const getNotes = () =>
@@ -197,22 +235,72 @@ function rekam(id: number, sebab: "diubah" | "dihapus") {
     .run(n.id, n.body, n.mood, sebab);
 }
 
-export function addNote(body: string, mood?: string | null) {
+const potong = (v: unknown, n: number) =>
+  typeof v === "string" && v.trim() ? v.trim().slice(0, n) : null;
+
+export function addNote(
+  body: string,
+  mood?: string | null,
+  judul?: string | null,
+  subjudul?: string | null,
+) {
   const trimmed = body.trim().slice(0, 4000);
   if (!trimmed) return null;
-  const m = tulisMood(bacaMood(mood));
-  db().prepare("INSERT INTO notes (body, mood) VALUES (?, ?)").run(trimmed, m);
+  db()
+    .prepare("INSERT INTO notes (body, mood, judul, subjudul) VALUES (?, ?, ?, ?)")
+    .run(trimmed, tulisMood(bacaMood(mood)), potong(judul, 160), potong(subjudul, 240));
   return getNotes()[0] ?? null;
 }
 
-export function ubahNote(id: number, body: string, mood?: string | null) {
+export function ubahNote(
+  id: number,
+  body: string,
+  mood?: string | null,
+  judul?: string | null,
+  subjudul?: string | null,
+) {
   const trimmed = body.trim().slice(0, 4000);
   if (!trimmed) return null;
   rekam(id, "diubah");
   db()
-    .prepare("UPDATE notes SET body = ?, mood = ?, diubah = datetime('now') WHERE id = ?")
-    .run(trimmed, tulisMood(bacaMood(mood)), id);
+    .prepare(
+      "UPDATE notes SET body = ?, mood = ?, judul = ?, subjudul = ?, diubah = datetime('now') WHERE id = ?",
+    )
+    .run(trimmed, tulisMood(bacaMood(mood)), potong(judul, 160), potong(subjudul, 240), id);
   return satu(id);
+}
+
+/* ═══════════════ acara ═══════════════ */
+
+export const getAcara = () =>
+  (db().prepare("SELECT id,tanggal,judul,jenis,tiap_tahun FROM acara ORDER BY tanggal").all() as unknown[])
+    .map((r) => ({ ...(r as object) })) as AcaraRow[];
+
+export function addAcara(
+  tanggal: string,
+  judul: string,
+  jenis = "acara",
+  tiapTahun = false,
+) {
+  /* Tanggalnya harus berbentuk YYYY-MM-DD. Bentuk lain ditolak di sini, bukan
+     dibetulkan diam-diam — tanggal yang ditebak lebih berbahaya daripada
+     tanggal yang ditolak. */
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(tanggal)) return null;
+  const j = potong(judul, 120);
+  if (!j) return null;
+  db()
+    .prepare("INSERT INTO acara (tanggal, judul, jenis, tiap_tahun) VALUES (?, ?, ?, ?)")
+    .run(tanggal, j, jenis === "ulang-tahun" ? "ulang-tahun" : "acara", tiapTahun ? 1 : 0);
+  return getAcara().find((a) => a.tanggal === tanggal && a.judul === j) ?? null;
+}
+
+export function hapusAcara(id: number) {
+  /* Acara BUKAN tulisan Olen — ia keterangan tanggal, bukan sesuatu yang
+     pernah ia rasakan. Jadi di sini penghapusan memang penghapusan, dan
+     jaminan "tidak ada yang hilang" tidak berlaku. Kalau kelak acara boleh
+     berisi catatan pribadi, aturan ini harus ditinjau ulang. */
+  db().prepare("DELETE FROM acara WHERE id = ?").run(id);
+  return true;
 }
 
 /**

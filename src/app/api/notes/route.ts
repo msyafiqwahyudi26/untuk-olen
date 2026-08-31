@@ -35,17 +35,26 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   let body = "";
   let mood: string | null = null;
+  let judul: string | null = null;
+  let subjudul: string | null = null;
   try {
-    const json = (await req.json()) as { body?: unknown; mood?: unknown };
+    const json = (await req.json()) as {
+      body?: unknown;
+      mood?: unknown;
+      judul?: unknown;
+      subjudul?: unknown;
+    };
     body = typeof json.body === "string" ? json.body : "";
     mood = typeof json.mood === "string" ? json.mood : null;
+    judul = typeof json.judul === "string" ? json.judul : null;
+    subjudul = typeof json.subjudul === "string" ? json.subjudul : null;
   } catch {
     return NextResponse.json({ error: "bad request" }, { status: 400 });
   }
   /* addNote sendiri yang menyaring moodnya terhadap daftar yang sah; di sini
      cukup diteruskan. Menyaring di dua tempat berarti dua tempat yang bisa
      berbeda. */
-  const note = addNote(body, mood);
+  const note = addNote(body, mood, judul, subjudul);
   if (!note) return NextResponse.json({ error: "kosong" }, { status: 400 });
   return NextResponse.json(note, { status: 201 });
 }
@@ -56,7 +65,15 @@ export async function POST(req: Request) {
  * jadi satu jalan cukup — dibedakan oleh medan mana yang dikirim.
  */
 export async function PATCH(req: Request) {
-  let d: { id?: unknown; body?: unknown; mood?: unknown; penting?: unknown; pulih?: unknown };
+  let d: {
+    id?: unknown;
+    body?: unknown;
+    mood?: unknown;
+    penting?: unknown;
+    pulih?: unknown;
+    judul?: unknown;
+    subjudul?: unknown;
+  };
   try {
     d = (await req.json()) as typeof d;
   } catch {
@@ -77,7 +94,13 @@ export async function PATCH(req: Request) {
   }
 
   if (typeof d.body === "string") {
-    const n = ubahNote(id, d.body, typeof d.mood === "string" ? d.mood : null);
+    const n = ubahNote(
+      id,
+      d.body,
+      typeof d.mood === "string" ? d.mood : null,
+      typeof d.judul === "string" ? d.judul : null,
+      typeof d.subjudul === "string" ? d.subjudul : null,
+    );
     return n
       ? NextResponse.json(n)
       : NextResponse.json({ error: "kosong atau tidak ada" }, { status: 400 });

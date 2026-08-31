@@ -96,12 +96,12 @@
  * jatuh sungguhan padam pelan sesudah puncaknya.
  */
 @keyframes jrJatuh {
-  0%   { opacity: 0; translate: -20vmax 0; }
-  2%   { opacity: 0.9; }
-  5%   { opacity: 1; }
-  9%   { opacity: 0.55; }
-  12%  { opacity: 0; translate: 110vmax 0; }
-  100% { opacity: 0; translate: 110vmax 0; }
+  0%   { opacity: 0; translate: -25vmax 0; }
+  1.5% { opacity: 0.9; }
+  3%   { opacity: 1; }
+  5.5% { opacity: 0.5; }
+  7%   { opacity: 0; translate: 130vmax 0; }
+  100% { opacity: 0; translate: 130vmax 0; }
 }
 
 /* ── lembar ── */
@@ -113,14 +113,77 @@
   margin: 0 auto;
 }
 
+/* Judul di TENGAH, menu tiga garis di kanan. Menunya diposisikan mutlak
+   supaya keberadaannya tidak menggeser judul dari tengah — itu yang membuat
+   menambah tujuan baru nanti tidak menuntut menata ulang kepalanya. */
 .jr-kepala {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
+  position: relative;
   padding-bottom: 1.4rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  text-align: center;
 }
+
+.jr-menu-tombol {
+  position: absolute;
+  right: 0;
+  top: -0.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  padding: 0 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.jr-menu-tombol span {
+  display: block;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.8;
+  transition: transform 220ms ease, opacity 220ms ease;
+}
+.jr-menu-tombol[aria-expanded="true"] span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.jr-menu-tombol[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.jr-menu-tombol[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+.jr-menu-tombol:focus-visible { outline: 2px solid rgba(244, 228, 176, 0.9); outline-offset: 2px; }
+
+.jr-menu {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-width: 11rem;
+  padding: 0.4rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(8, 20, 40, 0.9);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  text-align: left;
+}
+
+.jr-menu-isi {
+  min-height: 44px;
+  padding: 0.6rem 0.8rem;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  text-align: left;
+  cursor: pointer;
+}
+.jr-menu-isi:hover { background: rgba(255, 255, 255, 0.09); }
 
 .jr-kop {
   margin: 0;
@@ -589,4 +652,164 @@
 
   .jr-kal-tgl { font-size: 0.8rem; }
   .jr-garis { --baris: 2.3rem; font-size: 1.06rem; }
+}
+
+
+/* ═══ JUDUL TULISAN ═══
+ *
+ * Judul lebih dulu, dan besar. Yang ditulis orang pertama kali biasanya inti
+ * harinya; menaruh kotak judul di bawah pertanyaan mood membuat inti itu
+ * antre di belakang.
+ *
+ * Sub-judul boleh kosong dan sengaja tidak diberi tanda "opsional" — kotak
+ * yang dilabeli opsional justru mengundang orang berpikir apakah ia perlu.
+ * Kalimat ajakannya sudah menyebutnya sendiri. */
+
+.jr-judul-isian,
+.jr-subjudul-isian {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #f6fbff;
+  font-family: var(--huruf-judul, Georgia, serif);
+  caret-color: #f4e4b0;
+}
+
+.jr-judul-isian {
+  margin-top: 1.6rem;
+  font-size: clamp(1.5rem, 6vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+.jr-judul-isian::placeholder { color: rgba(230, 242, 255, 0.32); font-weight: 400; }
+
+.jr-subjudul-isian {
+  margin-top: 0.5rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.95rem;
+  font-style: italic;
+  opacity: 0.85;
+}
+.jr-subjudul-isian::placeholder { color: rgba(230, 242, 255, 0.28); font-style: italic; }
+
+.jr-judul-baca {
+  margin: 0 0 0.4rem;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: clamp(1.4rem, 5.5vw, 1.9rem);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.jr-subjudul-baca {
+  margin: 0 0 1.4rem;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: 0.95rem;
+  font-style: italic;
+  opacity: 0.72;
+}
+
+/* ═══ KALENDER SEBAGAI KALENDER ═══
+ *
+ * Sekarang SETIAP tanggal bisa ditekan, bukan cuma yang ada catatannya —
+ * tanggal kosong pun perlu bisa dipilih untuk menaruh ulang tahun teman. */
+
+.jr-kal-tgl { position: relative; cursor: pointer; }
+.jr-kal-tgl:hover { background: rgba(255, 255, 255, 0.08); }
+.jr-kal-tgl.acara { opacity: 1; }
+.jr-kal-tgl.pilih { box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.6); }
+
+.jr-kal-titik {
+  position: absolute;
+  right: 2px;
+  top: 1px;
+  font-size: 0.5rem;
+  line-height: 1;
+}
+
+.jr-kal-panel {
+  margin-top: 0.9rem;
+  padding: 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.jr-kal-panel-tgl {
+  margin: 0 0 0.7rem;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: 0.92rem;
+}
+
+.jr-kal-acara,
+.jr-kal-catatan {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 40px;
+  padding: 0.35rem 0;
+  font-size: 0.82rem;
+  text-align: left;
+}
+
+.jr-kal-catatan {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-family: var(--huruf-judul, Georgia, serif);
+  cursor: pointer;
+  opacity: 0.85;
+}
+.jr-kal-catatan:hover { opacity: 1; }
+
+.jr-kal-acara-judul { flex: 1 1 auto; }
+
+.jr-kal-buang {
+  flex: 0 0 auto;
+  min-width: 32px;
+  min-height: 32px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  opacity: 0.45;
+  cursor: pointer;
+}
+.jr-kal-buang:hover { opacity: 1; }
+
+.jr-kal-tambah {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.jr-kal-tambah input[type="text"],
+.jr-kal-tambah input:not([type]) {
+  flex: 1 1 9rem;
+  min-height: 40px;
+  padding: 0.4rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  font: inherit;
+  font-size: 0.8rem;
+  outline: none;
+}
+
+.jr-kal-ultah {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+  cursor: pointer;
 }

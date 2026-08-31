@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { NoteRow } from "@/lib/db";
+import type { AcaraRow, NoteRow } from "@/lib/db";
 /* MOOD dari lib/mood, BUKAN dari lib/db. Mengimpor nilai dari db.ts ke
    komponen klien menyeret node:sqlite ke bundel peramban dan build-nya gagal.
    Impor TIPE di baris atas aman — ia hilang saat dikompilasi. */
@@ -97,6 +97,21 @@ export default function Jurnal({
     const n = new Date();
     return { y: n.getFullYear(), b: n.getMonth() };
   });
+  const [judul, setJudul] = useState("");
+  const [subjudul, setSubjudul] = useState("");
+  const [menu, setMenu] = useState(false);
+  const [acara, setAcara] = useState<AcaraRow[]>([]);
+  /** Tanggal yang sedang dibuka dari kalender, "YYYY-MM-DD". */
+  const [tglDipilih, setTglDipilih] = useState<string | null>(null);
+  const [acaraBaru, setAcaraBaru] = useState("");
+  const [acaraUltah, setAcaraUltah] = useState(false);
+
+  useEffect(() => {
+    fetch(aset("/api/acara"))
+      .then((r) => r.json())
+      .then((a: AcaraRow[]) => setAcara(a))
+      .catch(() => {});
+  }, []);
 
   /* Warna langit di ketinggian nol = warna langit permukaan yang SEDANG
      berlaku, jadi ia berganti sendiri antara pagi, siang, sore, dan malam.
@@ -116,57 +131,74 @@ export default function Jurnal({
   const sedangDibaca = dibaca === null ? null : (tulisan.find((t) => t.id === dibaca) ?? null);
 
   /**
-   * Catatan hari ini, kalau sudah ada.
+   * ═══ SATU HARI BOLEH BANYAK CATATAN ═══
    *
-   * Satu hari satu halaman. Menulis lagi di hari yang sama MENGUBAH halaman
-   * itu, bukan membuat halaman kedua — dan itu yang membuat mood bisa
-   * diperbaiki sepanjang hari masih berjalan. Kalau tiap penyimpanan membuat
-   * catatan baru, "ganti mood" akan berarti "buat catatan lagi", dan
-   * kalendernya jadi penuh entri kembar.
+   * Versi sebelumnya mengunci satu halaman per hari: menulis lagi di hari
+   * yang sama MENGUBAH yang sudah ada. Itu keliru, dan alasannya sederhana —
+   * satu hari bisa punya beberapa hal yang layak ditulis terpisah, dan
+   * memaksanya jadi satu halaman berarti yang kedua menimpa yang pertama.
+   *
+   * Yang tetap dipertahankan dari versi itu: mood bisa diubah kapan saja
+   * lewat layar baca tiap catatan, jadi salah pencet tidak permanen.
    */
-  const catatanHariIni = useMemo(() => {
-    const n = new Date();
-    const kunci = `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(
-      n.getDate(),
-    ).padStart(2, "0")}`;
-    return tulisan.find((t) => t.created_at.startsWith(kunci)) ?? null;
-  }, [tulisan]);
-
-  /* Isi dan mood hari ini dimuat ke ruang tulis sekali, saat halaman dibuka
-     atau saat catatan hari ini baru saja tersimpan. */
-  useEffect(() => {
-    if (!catatanHariIni) return;
-    setDraft((d) => (d ? d : catatanHariIni.body));
-    setRasa((r) => (r.length ? r : bacaMood(catatanHariIni.mood)));
-  }, [catatanHariIni]);
-
-  async function simpan(rasaBaru?: string[]) {
+  async function simpan() {
     const isi = draft.trim();
-    const m = rasaBaru ?? rasa;
-    /* Mood boleh disimpan tanpa tulisan HANYA kalau halaman hari ini sudah
-       ada; catatan baru tetap butuh isi. */
-    if (sibuk) return;
-    if (!isi && !catatanHariIni) return;
+    if (!isi || sibuk) return;
     setSibuk(true);
     setGalat(null);
     try {
-      const sudahAda = catatanHariIni;
       const r = await fetch(aset("/api/notes"), {
-        method: sudahAda ? "PATCH" : "POST",
+        method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(
-          sudahAda
-            ? { id: sudahAda.id, body: isi || sudahAda.body, mood: tulisMood(m) }
-            : { body: isi, mood: tulisMood(m) },
-        ),
+        body: JSON.stringify({ body: isi, mood: tulisMood(rasa), judul, subjudul }),
       });
       if (!r.ok) throw new Error();
       const n = (await r.json()) as NoteRow;
-      setTulisan((t) => (t.some((x) => x.id === n.id) ? t.map((x) => (x.id === n.id ? n : x)) : [n, ...t]));
+      setTulisan((t) => [n, ...t]);
+      setDraft("");
+      setJudul("");
+      setSubjudul("");
+      setRasa([]);
     } catch {
       setGalat("belum kesimpan. coba lagi sebentar.");
     } finally {
       setSibuk(false);
+    }
+  }
+
+  async function tambahAcara(tanggal: string) {
+    const j = acaraBaru.trim();
+    if (!j) return;
+    try {
+      const r = await fetch(aset("/api/acara"), {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          tanggal,
+          judul: j,
+          jenis: acaraUltah ? "ulang-tahun" : "acara",
+          /* Ulang tahun otomatis berulang tiap tahun. Tanpa itu ia harus
+             dimasukkan ulang tiap tahun, dan yang paling mungkin terjadi
+             adalah lupa. */
+          tiapTahun: acaraUltah,
+        }),
+      });
+      if (!r.ok) throw new Error();
+      const baru = (await r.json()) as AcaraRow;
+      setAcara((a) => [...a, baru]);
+      setAcaraBaru("");
+      setAcaraUltah(false);
+    } catch {
+      setGalat("acara belum tersimpan.");
+    }
+  }
+
+  async function buangAcara(id: number) {
+    try {
+      await fetch(aset(`/api/acara?id=${id}`), { method: "DELETE" });
+      setAcara((a) => a.filter((x) => x.id !== id));
+    } catch {
+      setGalat("acara belum terhapus.");
     }
   }
 
@@ -237,6 +269,7 @@ export default function Jurnal({
     const pertama = new Date(bulan.y, bulan.b, 1);
     const jumlahHari = new Date(bulan.y, bulan.b + 1, 0).getDate();
     const geser = pertama.getDay();
+
     const perHari = new Map<number, NoteRow[]>();
     for (const n of tulisan) {
       const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(n.created_at);
@@ -245,8 +278,28 @@ export default function Jurnal({
       const d = Number(m[3]);
       perHari.set(d, [...(perHari.get(d) ?? []), n]);
     }
-    return { jumlahHari, geser, perHari };
-  }, [bulan, tulisan]);
+
+    /* Acara yang jatuh di bulan ini. Yang bertanda tiap_tahun cukup cocok
+       bulan dan tanggalnya — tahunnya diabaikan, jadi ulang tahun muncul di
+       tahun berapa pun tanpa perlu dimasukkan ulang. */
+    const acaraHari = new Map<number, AcaraRow[]>();
+    for (const a of acara) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(a.tanggal);
+      if (!m) continue;
+      const cocokBulan = Number(m[2]) - 1 === bulan.b;
+      const cocokTahun = a.tiap_tahun ? true : Number(m[1]) === bulan.y;
+      if (!cocokBulan || !cocokTahun) continue;
+      const d = Number(m[3]);
+      acaraHari.set(d, [...(acaraHari.get(d) ?? []), a]);
+    }
+
+    return { jumlahHari, geser, perHari, acaraHari };
+  }, [bulan, tulisan, acara]);
+
+  const kunciTanggal = (d: number) =>
+    `${bulan.y}-${String(bulan.b + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+  const hariDipilih = tglDipilih ? Number(tglDipilih.slice(8, 10)) : null;
 
   const namaBulan = `${BULAN[bulan.b]} ${bulan.y}`;
 
@@ -256,9 +309,14 @@ export default function Jurnal({
         <div className="jr-bintang" />
         <div className="jr-jatuh">
           {[
-            { x: 16, y: 10, p: 24, s: 32, t: 17, m: 3 },
-            { x: 68, y: 18, p: 30, s: 27, t: 25, m: 11 },
-            { x: 42, y: 6, p: 20, s: 36, t: 31, m: 21 },
+            /* Sudutnya kecil — 6 sampai 14 derajat — jadi lintasannya
+               MENYAMPING, bukan menukik ke bawah. Dinilai "harusnya ke
+               samping", dan itu memang lebih benar: bintang jatuh yang
+               terlihat dari bawah melintas hampir mendatar di kubah langit,
+               bukan jatuh tegak lurus seperti benda yang dilepas. */
+            { x: 4, y: 14, p: 34, s: 8, t: 15, m: 3 },
+            { x: 4, y: 30, p: 28, s: 12, t: 23, m: 11 },
+            { x: 4, y: 8, p: 40, s: 6, t: 29, m: 20 },
           ].map((j, i) => (
             <span
               key={i}
@@ -281,18 +339,48 @@ export default function Jurnal({
 
       <div className="jr-lembar">
         <header className="jr-kepala">
-          <div>
-            <p className="jr-kop">sky notes</p>
-            <h1 className="jr-tgl serif">
-              {sedangDibaca ? pecahTanggal(sedangDibaca.created_at).panjang : hariIni.panjang}
-            </h1>
-            <p className="jr-hari">
-              {sedangDibaca ? pecahTanggal(sedangDibaca.created_at).hari : hariIni.hari}
-            </p>
-          </div>
-          <button type="button" className="jr-tombol jr-pulang" onClick={onTurun}>
-            kembali ke bumi
+          {/* Judulnya di TENGAH, dan menunya di kanan sebagai tiga garis.
+              Isi menunya masih sedikit — itu disengaja: rangkanya dibuat dulu
+              supaya menambah tujuan baru nanti tidak menuntut menata ulang
+              kepala halaman. */}
+          <p className="jr-kop">sky notes</p>
+          <button
+            type="button"
+            className="jr-menu-tombol"
+            aria-expanded={menu}
+            aria-label="Menu"
+            onClick={() => setMenu((m) => !m)}
+          >
+            <span />
+            <span />
+            <span />
           </button>
+
+          {menu && (
+            <div className="jr-menu" role="menu">
+              <button type="button" className="jr-menu-isi" role="menuitem" onClick={onTurun}>
+                kembali ke bumi
+              </button>
+              <button
+                type="button"
+                className="jr-menu-isi"
+                role="menuitem"
+                onClick={() => {
+                  setMenu(false);
+                  void bukaLaci();
+                }}
+              >
+                yang dihapus
+              </button>
+            </div>
+          )}
+
+          <h1 className="jr-tgl serif">
+            {sedangDibaca ? pecahTanggal(sedangDibaca.created_at).panjang : hariIni.panjang}
+          </h1>
+          <p className="jr-hari">
+            {sedangDibaca ? pecahTanggal(sedangDibaca.created_at).hari : hariIni.hari}
+          </p>
         </header>
 
         {sedangDibaca ? (
@@ -317,6 +405,9 @@ export default function Jurnal({
                 {sedangDibaca.penting ? "★" : "☆"}
               </button>
             </div>
+
+            {sedangDibaca.judul && <h2 className="jr-judul-baca serif">{sedangDibaca.judul}</h2>}
+            {sedangDibaca.subjudul && <p className="jr-subjudul-baca">{sedangDibaca.subjudul}</p>}
 
             {sunting === sedangDibaca.id ? (
               <>
@@ -385,6 +476,26 @@ export default function Jurnal({
           </article>
         ) : (
           <>
+            {/* Judul lebih dulu, dan besar. Yang ditulis orang pertama kali
+                biasanya inti harinya; menaruh kotak isian di bawah pertanyaan
+                mood membuat inti itu antre di belakang. */}
+            <input
+              className="jr-judul-isian"
+              value={judul}
+              onChange={(e) => setJudul(e.target.value)}
+              maxLength={160}
+              placeholder="judul hari ini"
+              aria-label="Judul"
+            />
+            <input
+              className="jr-subjudul-isian"
+              value={subjudul}
+              onChange={(e) => setSubjudul(e.target.value)}
+              maxLength={240}
+              placeholder="satu baris tambahan — boleh dikosongkan"
+              aria-label="Sub-judul"
+            />
+
             <section className="jr-rasa">
               <p className="jr-tanya">how is your day?</p>
               <div className="jr-rasa-baris" role="group" aria-label="Perasaan hari ini">
@@ -394,17 +505,9 @@ export default function Jurnal({
                     type="button"
                     className={`jr-rasa-tombol${rasa.includes(m) ? " on" : ""}`}
                     aria-pressed={rasa.includes(m)}
-                    onClick={() => {
-                      const baru = rasa.includes(m)
-                        ? rasa.filter((x) => x !== m)
-                        : [...rasa, m];
-                      setRasa(baru);
-                      /* Kalau halaman hari ini sudah tersimpan, moodnya ikut
-                         tersimpan seketika — tidak perlu menekan simpan lagi.
-                         Ini yang membuat "takut salah pencet" hilang: salah
-                         tekan tinggal ditekan lagi. */
-                      if (catatanHariIni) void simpan(baru);
-                    }}
+                    onClick={() =>
+                      setRasa((r) => (r.includes(m) ? r.filter((x) => x !== m) : [...r, m]))
+                    }
                   >
                     <span aria-hidden>{RASA[m]}</span>
                     <span className="jr-rasa-nama">{m}</span>
@@ -426,10 +529,7 @@ export default function Jurnal({
 
             <div className="jr-kaki">
               <span className="jr-hitung">
-                {galat ??
-                  (catatanHariIni
-                    ? `${draft.trim().split(/\s+/).filter(Boolean).length} kata · halaman hari ini`
-                    : `${draft.trim() ? draft.trim().split(/\s+/).length : 0} kata`)}
+                {galat ?? `${draft.trim().split(/\s+/).filter(Boolean).length} kata`}
               </span>
               <button
                 type="button"
@@ -440,7 +540,7 @@ export default function Jurnal({
                    berarti daftar mood. Ditangkap TypeScript sebelum sempat
                    tayang. */
                 onClick={() => simpan()}
-                disabled={(!draft.trim() && !catatanHariIni) || sibuk}
+                disabled={!draft.trim() || sibuk}
               >
                 {sibuk ? "menyimpan" : "simpan"}
               </button>
@@ -485,23 +585,95 @@ export default function Jurnal({
             {Array.from({ length: kalender.jumlahHari }, (_, i) => {
               const d = i + 1;
               const isi = kalender.perHari.get(d) ?? [];
+              const ac = kalender.acaraHari.get(d) ?? [];
               const penting = isi.some((n) => n.penting);
+              const ultah = ac.some((a) => a.jenis === "ulang-tahun");
+              /* SETIAP tanggal bisa ditekan sekarang, bukan cuma yang ada
+                 catatannya — tanggal kosong pun perlu bisa dipilih untuk
+                 menaruh ulang tahun teman di sana. */
               return (
                 <button
                   key={d}
                   type="button"
-                  className={`jr-kal-tgl${isi.length ? " ada" : ""}${penting ? " penting" : ""}`}
-                  disabled={!isi.length}
-                  aria-label={
-                    isi.length ? `${d} ${BULAN[bulan.b]}, ${isi.length} catatan` : `${d}`
+                  className={
+                    `jr-kal-tgl${isi.length ? " ada" : ""}${penting ? " penting" : ""}` +
+                    `${ac.length ? " acara" : ""}${hariDipilih === d ? " pilih" : ""}`
                   }
-                  onClick={() => isi.length && setDibaca(isi[0].id)}
+                  aria-label={`${d} ${BULAN[bulan.b]}${isi.length ? `, ${isi.length} catatan` : ""}${
+                    ac.length ? `, ${ac.length} acara` : ""
+                  }`}
+                  onClick={() => setTglDipilih(tglDipilih === kunciTanggal(d) ? null : kunciTanggal(d))}
                 >
                   {d}
+                  {ac.length > 0 && (
+                    <span className="jr-kal-titik" aria-hidden>
+                      {ultah ? "🎂" : "•"}
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
+
+          {tglDipilih && (
+            <div className="jr-kal-panel">
+              <p className="jr-kal-panel-tgl">{pecahTanggal(tglDipilih).panjang}</p>
+
+              {(kalender.acaraHari.get(hariDipilih ?? 0) ?? []).map((a) => (
+                <div key={a.id} className="jr-kal-acara">
+                  <span aria-hidden>{a.jenis === "ulang-tahun" ? "🎂" : "•"}</span>
+                  <span className="jr-kal-acara-judul">{a.judul}</span>
+                  <button
+                    type="button"
+                    className="jr-kal-buang"
+                    aria-label={`Hapus ${a.judul}`}
+                    onClick={() => buangAcara(a.id)}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+
+              {(kalender.perHari.get(hariDipilih ?? 0) ?? []).map((n) => (
+                <button
+                  key={n.id}
+                  type="button"
+                  className="jr-kal-catatan"
+                  onClick={() => setDibaca(n.id)}
+                >
+                  {n.penting ? "★ " : ""}
+                  {n.judul || n.body.slice(0, 40)}
+                </button>
+              ))}
+
+              <div className="jr-kal-tambah">
+                <input
+                  value={acaraBaru}
+                  onChange={(e) => setAcaraBaru(e.target.value)}
+                  maxLength={120}
+                  placeholder="ulang tahun siapa? acara apa?"
+                  aria-label="Acara baru"
+                  onKeyDown={(e) => e.key === "Enter" && tambahAcara(tglDipilih)}
+                />
+                <label className="jr-kal-ultah">
+                  <input
+                    type="checkbox"
+                    checked={acaraUltah}
+                    onChange={(e) => setAcaraUltah(e.target.checked)}
+                  />
+                  ulang tahun
+                </label>
+                <button
+                  type="button"
+                  className="jr-tombol"
+                  disabled={!acaraBaru.trim()}
+                  onClick={() => tambahAcara(tglDipilih)}
+                >
+                  tambah
+                </button>
+              </div>
+            </div>
+          )}
         </section>
 
         {tulisan.length > 0 && (
@@ -522,7 +694,9 @@ export default function Jurnal({
                       {bacaMood(n.mood).map((m) => (
                         <span key={m} aria-hidden>{RASA[m]}</span>
                       ))}
-                      <span className="jr-arsip-cuplik">{n.body.slice(0, 42)}</span>
+                      <span className="jr-arsip-cuplik">
+                        {n.judul || n.body.slice(0, 42)}
+                      </span>
                     </button>
                   </li>
                 );
