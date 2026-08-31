@@ -265,6 +265,115 @@ export function pijarDi(d: number): number {
   return gelap * yangMenyala;
 }
 
+/* ═══════════════ gulir → kedalaman ═══════════════ */
+
+/**
+ * ═══ SATU LANGKAH GULIR = SATU LANGKAH PERUBAHAN ═══
+ *
+ * Semula gulir dipetakan lurus ke meter: separuh gulir, separuh kedalaman.
+ * Terdengar wajar, dan hasilnya buruk. Diukur pada versi itu:
+ *
+ *     terumbu karang habis di  9% gulir
+ *     air gelap total di      15% gulir
+ *
+ * Sisanya — 85 persen dari seluruh gerakan jari — tidak ada satu pun yang
+ * berubah. Itulah yang dirasakan sebagai "dangkal ke sedang ke dalamnya
+ * terlalu dekat": semuanya memang berdesakan di ujung atas.
+ *
+ * Sebabnya bukan angka yang salah setel, melainkan satuan yang salah. Meter
+ * bukan ukuran perjalanan di sini; PERUBAHAN yang ukurannya. Dan perubahan
+ * di air tidak merata terhadap meter — cahaya jatuh secara eksponensial,
+ * jadi sepuluh meter pertama menyimpan lebih banyak peristiwa daripada tiga
+ * ratus meter terakhir.
+ *
+ * Jadi gulir tidak dipetakan ke meter, melainkan ke perubahan yang menumpuk:
+ * berapa cepat cahaya berganti, ditambah berapa cepat penghuninya datang dan
+ * pergi. Di kedalaman tempat banyak terjadi, jari bergerak jauh untuk turun
+ * sedikit; di kegelapan yang tidak berubah, ia meluncur.
+ *
+ * Tidak ada pangkat yang disetel dengan mata. Yang ada cuma satu keputusan
+ * yang memang harus diambil manusia, dan disebut terus terang di bawah:
+ * BOBOT_JARAK.
+ */
+
+/**
+ * Berapa besar jarak murni ikut dihitung sebagai perjalanan, terlepas dari
+ * ada tidaknya yang berubah.
+ *
+ * Ini SATU-SATUNYA angka yang dipilih di pemetaan ini, dan ia perlu ada.
+ * Tanpa dia, ratusan meter terakhir — yang gelap dan nyaris tidak berubah —
+ * akan habis dalam beberapa piksel gulir, dan laut dalam kehilangan
+ * kedalamannya justru di bagian yang paling ingin terasa dalam.
+ *
+ * 0,45 berarti kira-kira: hampir separuh perjalanan diukur dari jauhnya,
+ * sisanya dari apa yang terjadi.
+ */
+const BOBOT_JARAK = 0.45;
+
+/** Berapa rapat tabelnya. 0,25 m sudah jauh lebih halus daripada satu piksel
+ *  gulir di layar mana pun, jadi tidak ada tangga yang bisa terlihat. */
+const LANGKAH = 0.25;
+
+/**
+ * Tabel kumulatif perubahan, dihitung sekali saat berkas dimuat.
+ *
+ * Sengaja tabel, bukan rumus terbalik: `cahayaDi` adalah jumlah tiga
+ * eksponensial dan `hadirDi` adalah potongan smoothstep — gabungannya tidak
+ * punya kebalikan tertutup. Tabel 3.200 entri berukuran beberapa puluh
+ * kilobita dan dihitung dalam hitungan milidetik, jadi mencari bentuk
+ * analitiknya cuma akan menukar kejelasan dengan kepintaran.
+ */
+const TABEL: Float64Array = (() => {
+  const n = Math.round(DASAR / LANGKAH) + 1;
+  const t = new Float64Array(n);
+  const atas = cahayaDi(0);
+  let kumpul = 0;
+  let cahayaLalu = 1;
+  const hadirLalu = HUNI.map((p) => hadirDi(p, 0));
+
+  for (let i = 1; i < n; i++) {
+    const d = i * LANGKAH;
+    const c = cahayaDi(d) / atas;
+    let ubah = Math.abs(c - cahayaLalu);
+    cahayaLalu = c;
+    for (let k = 0; k < HUNI.length; k++) {
+      const h = hadirDi(HUNI[k], d);
+      ubah += Math.abs(h - hadirLalu[k]);
+      hadirLalu[k] = h;
+    }
+    kumpul += ubah + (BOBOT_JARAK * LANGKAH) / DASAR;
+    t[i] = kumpul;
+  }
+  /* Dinormalkan ke 0..1 supaya pemanggilnya cukup memberi pecahan gulir. */
+  const total = t[n - 1] || 1;
+  for (let i = 0; i < n; i++) t[i] /= total;
+  return t;
+})();
+
+/**
+ * Pecahan gulir (0 di permukaan, 1 di dasar) → kedalaman dalam meter.
+ *
+ * Naik terus dan tidak pernah melompat: tabelnya menaik tegas, dan di antara
+ * dua entri nilainya disisipkan lurus.
+ */
+export function kedalamanDi(pecahan: number): number {
+  const t = jepit(pecahan);
+  if (t <= 0) return 0;
+  if (t >= 1) return DASAR;
+
+  /* Pencarian belah dua. Tabelnya menaik, jadi ini selalu ketemu. */
+  let lo = 0;
+  let hi = TABEL.length - 1;
+  while (hi - lo > 1) {
+    const tengah = (lo + hi) >> 1;
+    if (TABEL[tengah] <= t) lo = tengah;
+    else hi = tengah;
+  }
+  const rentang = TABEL[hi] - TABEL[lo];
+  const sisip = rentang > 0 ? (t - TABEL[lo]) / rentang : 0;
+  return (lo + sisip) * LANGKAH;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
  * Pemeriksaan mandiri. Tidak ikut ke bundel aplikasi — `import.meta.main`
  * hanya benar kalau berkas ini dijalankan langsung oleh node.
@@ -355,6 +464,77 @@ if (typeof process !== "undefined" && process.argv[1]?.endsWith("kedalaman.ts"))
 
   uji("yang bercahaya mengambil alih di kegelapan", pijarDi(680) > 0.9 && pijarDi(20) < 0.1,
     `pijar 20 m = ${pijarDi(20).toFixed(2)}, 680 m = ${pijarDi(680).toFixed(2)}`);
+
+  /* ── pemetaan gulir ── */
+  console.log("\n  ═══ GULIR → KEDALAMAN ═══\n");
+  console.log("   gulir   kedalaman   (linear, sebagai pembanding)");
+  for (const t of [0, 0.1, 0.25, 0.4, 0.5, 0.6, 0.75, 0.9, 1]) {
+    console.log(
+      `   ${(t * 100).toFixed(0).padStart(4)}%  ${kedalamanDi(t).toFixed(0).padStart(6)} m` +
+        `        ${(t * DASAR).toFixed(0).padStart(4)} m`,
+    );
+  }
+  console.log();
+
+  const kapan = (syarat: (d: number) => boolean) => {
+    for (let t = 0; t <= 1; t += 0.002) if (syarat(kedalamanDi(t))) return t;
+    return 1;
+  };
+  const tReef = kapan((d) => hadirDi(HUNI[0], d) < 0.01);
+  const tGelap = kapan((d) => cahayaDi(d) / cahayaDi(0) < 0.01);
+
+  uji(
+    "terumbu tidak habis di ujung atas gulir",
+    tReef > 0.2,
+    `habis di ${(tReef * 100).toFixed(0)}% gulir (linear dulu: 9%)`,
+  );
+  uji(
+    "gelap total tidak datang terlalu cepat",
+    tGelap > 0.3,
+    `gelap di ${(tGelap * 100).toFixed(0)}% gulir (linear dulu: 15%)`,
+  );
+
+  let mundur = 0;
+  let lalu = 0;
+  for (let t = 0; t <= 1; t += 0.0005) {
+    const d = kedalamanDi(t);
+    if (d < lalu - 1e-9) mundur++;
+    lalu = d;
+  }
+  uji("kedalaman tidak pernah mundur saat digulir turun", mundur === 0, `${mundur} kali mundur`);
+
+  /*
+   * KESALAHAN YANG SAMA, DIULANGI.
+   *
+   * Uji ini semula berbunyi "lompatan terbesar harus di bawah 6 meter tiap
+   * 0,05% gulir", dan ia gagal di 7,07 m. Bukan karena pemetaannya cacat,
+   * melainkan karena di ujung bawah ia memang CURAM: 365 meter terakhir
+   * lewat dalam sepersepuluh gulir, dan itu disengaja — di sana tidak ada
+   * yang berubah, jadi tidak ada alasan menahan jari.
+   *
+   * Ini persis kekeliruan yang sudah diperbaiki beberapa jam sebelumnya pada
+   * uji warna air: mengukur KECURAMAN lalu menyebutnya keterputusan.
+   * Terulang karena ambang berupa angka mutlak selalu terlihat masuk akal
+   * waktu ditulis. Cara yang benar tidak memakai ambang sama sekali:
+   * perkecil langkahnya, lalu lihat apakah lompatannya ikut mengecil.
+   */
+  const lompat = (h: number) => {
+    let m = 0;
+    let a = kedalamanDi(0);
+    for (let t = h; t <= 1; t += h) {
+      const b = kedalamanDi(t);
+      m = Math.max(m, b - a);
+      a = b;
+    }
+    return m;
+  };
+  const kasar = lompat(0.0005);
+  const halus = lompat(0.00005);
+  uji(
+    "kedalaman menerus, bukan sekadar curam",
+    halus < kasar * 0.4,
+    `langkah 0,05% → ${kasar.toFixed(2)} m · langkah 0,005% → ${halus.toFixed(2)} m (ikut mengecil = menerus)`,
+  );
 
   console.log(gagal === 0 ? "\n  Semua lolos.\n" : `\n  ${gagal} GAGAL.\n`);
   if (gagal > 0) process.exit(1);

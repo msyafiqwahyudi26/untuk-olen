@@ -3,10 +3,10 @@
 import { useEffect, useRef } from "react";
 import { PALET, type Waktu } from "./waktu";
 import {
-  DASAR,
   HUNI,
   cahayaDi,
   hadirDi,
+  kedalamanDi,
   keruhDi,
   pijarDi,
   suhuDi,
@@ -131,7 +131,11 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
       menunggu = false;
       const bisaGulir = document.documentElement.scrollHeight - window.innerHeight;
       const maju = bisaGulir > 0 ? Math.min(1, Math.max(0, window.scrollY / bisaGulir)) : 0;
-      const d = maju * DASAR;
+      /* BUKAN `maju * DASAR`. Gulir dipetakan ke perubahan, bukan ke meter —
+         lihat catatan panjang di kedalamanDi(). Dengan pemetaan lurus,
+         terumbunya habis di 9% gulir dan airnya gelap total di 15%, jadi 85%
+         gerakan jari tidak mengubah apa pun. */
+      const d = kedalamanDi(maju);
 
       const g = el.style;
       g.setProperty("--air", warnaAirDi(d, permukaan));
