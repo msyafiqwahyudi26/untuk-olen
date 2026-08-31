@@ -231,12 +231,26 @@
 .op-sound { top: max(var(--tepi-y), env(safe-area-inset-top)); }
 
 @media (max-width: 560px) {
-  /* Tulisan diangkat lebih sedikit. -14svh disetel untuk layar lebar; di
-     layar tinggi ia mendorong nama sampai menabrak tombol di pojok atas. */
+  /*
+   * Tulisan diangkat LEBIH TINGGI daripada di layar lebar, bukan lebih
+   * rendah — dan itu kebalikan dari tebakan pertama saya.
+   *
+   * Sejak kamera berdiri lebih dekat di layar tegak (lihat Bingkai di
+   * OpeningScene.tsx), pasir mengisi jauh lebih banyak bingkai dan pita
+   * langit menyempit. Dengan -8svh, nama dan tombolnya duduk tepat di garis
+   * air dan menimpa piknik — persis yang terlihat di tangkapan layar 31
+   * Agustus, di mana "whenever you're ready" jatuh di atas tikarnya.
+   *
+   * -17svh menaruhnya kembali di langit, dan piknik di bawahnya bebas.
+   */
   .op-ui {
     padding: 0 5vw;
-    transform: translateY(-8svh);
+    transform: translateY(-17svh);
   }
+
+  /* Nama sedikit dikecilkan supaya kenaikan itu tidak membuatnya menabrak
+     tombol suara dan pengaturan di pojok atas. */
+  .op-nama { font-size: clamp(4rem, 17vw, 7rem); }
 
   /* Ikon saja. Kata "sound on" dan "muted" memakan lebar yang, bersama tombol
      pengaturan di sebelahnya, tidak muat di layar 360px. Keterangannya tetap

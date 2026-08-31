@@ -728,65 +728,56 @@ function Drift() {
   return null;
 }
 
-/* ═══ BINGKAI — lebar pemandangan tidak boleh ikut bentuk layar ═══
+/* ═══ BINGKAI — menyesuaikan pemandangan dengan bentuk layar ═══
  *
- * `fov` di three.js adalah bidang pandang TEGAK. Bidang mendatarnya diturunkan
- * dari nisbah layar, jadi ia menyusut sendiri di layar tegak:
- *
- *     desktop 16:9   → sekitar 74° melintang
- *     HP 390 × 844   → sekitar 22° melintang
- *
- * Dengan angka tetap `fov: 46, z: 48`, HP hanya melihat sekitar seperempat
- * lebar yang dilihat desktop. Tikar, keranjang, kepiting, dan flamingo berada
- * di luar layar — pemandangannya "terpotong", persis yang dilaporkan saat
- * dibuka dari HP.
- *
- * Yang dipertahankan di sini adalah LEBAR MELINTANG, bukan angka fov-nya.
- * Sesuai aturan proyek: kalau sebuah angka bisa diturunkan dari angka lain,
- * turunkan.
- *
- * Dua rem, dan keduanya perlu:
- *
- *   FOV_MAKS   — melebarkan fov saja akan menjulurkan benda di tepi layar.
- *                Di atas sekitar 64° distorsinya terbaca sebagai lensa lebar,
- *                bukan sebagai "lebih banyak yang terlihat".
- *   Z_MAKS     — batas mundurnya kamera, dan ini BUKAN angka selera.
+ * `fov` di three.js adalah bidang pandang TEGAK; bidang mendatarnya ikut
+ * nisbah layar. Dengan angka tetap `fov 46, z 48`, HP tegak hanya melihat
+ * sekitar 22 derajat melintang lawan 74 derajat di desktop — seperempat
+ * lebarnya. Tikar, keranjang, kepiting, dan flamingo semua di luar layar.
  *
  *
- * ── KENAPA Z_MAKS = 72, DAN KENAPA 91 SALAH ──
+ * ── PERCOBAAN PERTAMA MENGEJAR LEBAR, DAN ITU PILIHAN YANG SALAH ──
  *
- * Percobaan pertama memakai batas 1,9 × Z_DASAR = 91. Di HP hasilnya cacat
- * yang langsung terlihat: pita biru polos di bawah pasir, warna #7A9AB4 —
- * yaitu warna paling bawah gradien langit malam, tampak menembus kanvas yang
- * transparan.
+ * Versi sebelumnya mempertahankan lebar melintang dengan memundurkan kamera
+ * sampai z = 72. Lebarnya memang kembali, tapi ongkosnya baru terlihat di
+ * layar sungguhan: piknik ada di z ≈ 34, jadi jaraknya melar dari 14 satuan
+ * (desktop) jadi 38. Semua bendanya tampil 2,7 kali lebih kecil, dan yang
+ * dilaporkan justru "objek masih terlalu jauh".
  *
- * Sebabnya bukan CSS. Pasir membentang z = 20 … 84 (`world.ts`, dan
- * `PlaneGeometry(620, 64)` di `Shore`). Kamera di z = 91 berada DI BELAKANG
- * tepi pasir: dunia sudah habis sebelum layar habis.
+ * Yang salah bukan angkanya melainkan yang dikejar. Di layar selebar telapak
+ * tangan, yang berharga bukan seberapa luas laut yang terlihat melainkan
+ * seberapa terbaca benda-bendanya. Melihat pantai yang lapang tapi semua
+ * isinya sebesar kuku bukan kemenangan.
  *
- * Jadi batasnya diturunkan dari geometri, bukan ditebak. Di tepi itu pasir
- * setinggi sandAt ≈ 2,8, kamera setinggi 6,5, jadi bedanya 3,7. Dengan sudut
- * tunduk ± 7° dan setengah fov 32°, sinar bawah layar menyentuh tanah sekitar
- * 4,7 satuan di depan kamera. Supaya titik sentuh itu tetap jauh di dalam
- * pasir, bukan pas di bibirnya, kamera berhenti di 72 — menyisakan sekitar
- * 17 satuan pasir di luar bawah layar.
  *
- * Konsekuensinya jujur: lebar yang didapat jadi sekitar 2,1× dari semula,
- * bukan 2,7×. Itu harga yang benar. Melihat lebih banyak dunia tidak ada
- * gunanya kalau yang ikut terlihat adalah ujung dunianya.
+ * ── YANG DIKEJAR SEKARANG: JARAK KE SUBJEK ──
  *
- * Kalau kelak ingin lebih lebar lagi, yang harus dibesarkan bidang pasirnya
- * di `Shore`, bukan batas ini.
+ * Isi pantai membentang dari x = −9 (tepi tikar) sampai x = +10,5 (flamingo).
+ * Jadi yang dibutuhkan cuma setengah-lebar 12, bukan 36 seperti desktop.
+ * Terukur:
  *
- * Aman berdampingan dengan `Drift`: Drift hanya menyentuh position.x dan .y,
- * tidak pernah .z maupun fov.
+ *     desktop 16:9   fov 46  z 48   jarak 14,0   setengah-lebar 36,2
+ *     HP (dulu)      fov 64  z 72   jarak 38,0   setengah-lebar 20,8
+ *     HP (sekarang)  fov 64  z 44   jarak 10,0   setengah-lebar 12,7
+ *
+ * Di HP kamera justru berdiri LEBIH DEKAT daripada di desktop, dan fov yang
+ * melebar mengurus lebarnya. Hasilnya bendanya sekitar 40 persen lebih besar
+ * daripada di desktop — sepadan, karena layarnya jauh lebih kecil.
+ *
+ * FOV_MAKS 64 tetap jadi rem: di atas itu benda di tepi layar mulai
+ * menjulur dan terbaca sebagai lensa lebar, bukan sebagai "lebih banyak yang
+ * terlihat".
+ *
+ * Aman berdampingan dengan `Drift`: Drift hanya menyentuh position.x dan .y.
  */
 const FOV_DASAR = 46;
 const NISBAH_DASAR = 16 / 9;
 const Z_DASAR = 48;
 const FOV_MAKS = 64;
-/** Tepi pasir ada di z = 84. Ini batas keras, bukan selera. Lihat catatan. */
-const Z_MAKS = 72;
+/** Sedekat apa kamera boleh berdiri di layar paling tegak. */
+const Z_DEKAT = 44;
+/** Nisbah tempat penyesuaiannya sudah mentok — kira-kira HP tegak. */
+const NISBAH_SEMPIT = 0.5;
 
 function Bingkai() {
   const { camera, size } = useThree();
@@ -794,26 +785,17 @@ function Bingkai() {
   useEffect(() => {
     const cam = camera as THREE.PerspectiveCamera;
     const nisbah = size.width / Math.max(1, size.height);
-    const rad = (d: number) => (d * Math.PI) / 180;
 
-    if (nisbah >= NISBAH_DASAR) {
-      cam.fov = FOV_DASAR;
-      cam.position.z = Z_DASAR;
-    } else {
-      /* Lebar melintang yang ingin dipertahankan, diukur di jarak dasar. */
-      const lebarTarget = Z_DASAR * Math.tan(rad(FOV_DASAR / 2)) * NISBAH_DASAR;
+    /* 0 di layar selebar desktop, 1 di layar setegak HP. Smoothstep supaya
+       layar di antaranya (tablet, jendela setengah) berubah halus dan tidak
+       ada ukuran tertentu yang jadi patahan. */
+    const t = (() => {
+      const x = Math.min(1, Math.max(0, (NISBAH_DASAR - nisbah) / (NISBAH_DASAR - NISBAH_SEMPIT)));
+      return x * x * (3 - 2 * x);
+    })();
 
-      /* fov melebar sebanding AKAR dari kesempitan layar, bukan lurus, supaya
-         layar yang cuma sedikit lebih sempit tidak langsung melompat ke fov
-         maksimum. */
-      const fov = Math.min(FOV_MAKS, FOV_DASAR * Math.sqrt(NISBAH_DASAR / nisbah));
-
-      /* Sisa lebar yang belum tertutup, ditutup dengan memundurkan kamera. */
-      const perlu = lebarTarget / (Math.tan(rad(fov / 2)) * nisbah);
-
-      cam.fov = fov;
-      cam.position.z = Math.min(perlu, Z_MAKS);
-    }
+    cam.fov = FOV_DASAR + (FOV_MAKS - FOV_DASAR) * t;
+    cam.position.z = Z_DASAR + (Z_DEKAT - Z_DASAR) * t;
     cam.updateProjectionMatrix();
   }, [camera, size.width, size.height]);
 

@@ -262,61 +262,26 @@ const LITTER: { x: number; z: number; jenis: 0 | 1 | 2; r: number; rot: number }
   { x: -20.4, z: 36.2, jenis: 0, r: 0.19, rot: 0.2 },
 ];
 
-/**
- * ═══ PASIR DEKAT — lapisan yang hanya terlihat di layar tegak ═══
+/*
+ * LAPISAN "PASIR DEKAT" DIBUANG 31 AGUSTUS, dan alasannya perlu dicatat
+ * supaya tidak dibangun ulang oleh orang berikutnya yang melihat pasir
+ * kosong dan berpikir hal yang sama.
  *
- * Seluruh isi pantai berdiri di pita z yang sangat sempit:
+ * Ia ditambahkan waktu kamera di HP berdiri jauh di belakang (z = 72) demi
+ * mengejar lebar pandangan. Di situ bingkai bawah layar menyentuh tanah di
+ * z ≈ 67, jadi ada hamparan pasir kosong sepanjang 30 satuan yang perlu
+ * diisi, dan sebelas kerang serta dua bintang laut di z 44 sampai 63
+ * mengisinya.
  *
- *     garis air      28
- *     kepiting       29,9
- *     flamingo       30,6
- *     bintang laut   32,2 … 33,6
- *     tikar          34,6
- *     kerang         31,4 … 38,2
+ * Kamera sekarang berdiri di z = 44 supaya bendanya terbaca besar (lihat
+ * catatan Bingkai di OpeningScene.tsx). Bingkai bawah menyentuh tanah di
+ * z ≈ 37, dan seluruh lapisan itu berada DI BELAKANG kamera — tidak
+ * tergambar sama sekali, cuma menambah geometri yang dihitung tiap bingkai.
  *
- * Di layar lebar itu pas: pasir yang terlihat cuma z 28 … 41,6, jadi pita itu
- * mengisi tengah bingkai. Di HP tegak kamera berdiri lebih mundur dan pasir
- * terlihat sampai z 67,4 — pita yang sama tinggal menempati sekitar 13 persen
- * teratas, sisanya hamparan kosong. Persis itu yang terlihat di tangkapan
- * layar 31 Agustus.
- *
- * Kuncinya: apa pun di z > 42 berada DI BAWAH bingkai layar lebar, jadi tidak
- * terlihat di sana sama sekali. Lapisan ini karena itu bisa ditambahkan tanpa
- * menyentuh satu pun penempatan yang sudah disetel dengan mata — tikar,
- * flamingo, dan jalur kepiting dibiarkan persis seperti semula. Penempatan
- * yang sudah lolos penilaian mata adalah hal termahal di proyek ini; kalau
- * ada cara memperbaiki tanpa mengusiknya, itu yang dipakai.
- *
- * Isinya sengaja hanya kerang dan bintang laut, bukan makhluk baru. Yaya
- * meminta objeknya jangan banyak-banyak, dan yang kurang di sini memang bukan
- * tokoh baru melainkan alasan bagi mata untuk membaca jarak.
- *
- * Jari-jarinya TIDAK dikecilkan meski jauh lebih dekat ke kamera, dan itu
- * disengaja: kerang r = 0,15 di z = 60 tampil sekitar 17 piksel di layar
- * setinggi 844 piksel, sementara kerang yang sama di z = 32 tampil sekitar 5
- * piksel. Selisih itulah yang membuat hamparannya terbaca sebagai kedalaman,
- * bukan sebagai bidang rata bertabur titik.
+ * Pasir kosong yang dulu ada juga ikut hilang dengan sendirinya: dari z 37
+ * ke garis air di z 28 tinggal sembilan satuan, dan piknik ada tepat di
+ * tengahnya.
  */
-const LITTER_DEKAT: { x: number; z: number; jenis: 0 | 1 | 2; r: number; rot: number }[] = [
-  { x: -19.0, z: 44.5, jenis: 1, r: 0.16, rot: 1.4 },
-  { x: -9.4, z: 47.2, jenis: 0, r: 0.13, rot: -0.7 },
-  { x: 4.2, z: 43.8, jenis: 2, r: 0.15, rot: 2.3 },
-  { x: 14.6, z: 46.4, jenis: 0, r: 0.18, rot: 0.6 },
-  { x: -14.2, z: 52.6, jenis: 2, r: 0.12, rot: -1.9 },
-  { x: 1.8, z: 54.1, jenis: 1, r: 0.17, rot: 0.9 },
-  { x: 11.2, z: 51.8, jenis: 0, r: 0.14, rot: 2.8 },
-  { x: -5.6, z: 58.3, jenis: 0, r: 0.15, rot: -0.4 },
-  { x: 17.8, z: 57.6, jenis: 1, r: 0.13, rot: 1.7 },
-  { x: -18.4, z: 61.2, jenis: 2, r: 0.16, rot: 0.3 },
-  { x: 7.4, z: 62.7, jenis: 2, r: 0.12, rot: -2.4 },
-];
-
-/** Dua bintang laut di pasir dekat. Cukup dua — lebih dari itu mulai terbaca
- *  sebagai tebaran yang disengaja, bukan sebagai barang yang terbawa ombak. */
-const BINTANG_DEKAT = [
-  { x: -11.8, z: 49.4, r: 0.5, rot: -0.3 },
-  { x: 9.2, z: 59.8, r: 0.44, rot: 1.2 },
-];
 
 /* ═══════════════ susunan lengkap ═══════════════ */
 
@@ -468,19 +433,6 @@ export default function Beach() {
         </group>
       ))}
 
-      {/* pasir dekat — di bawah bingkai layar lebar, mengisi layar tegak */}
-      {LITTER_DEKAT.map((o, i) => (
-        <group key={`d${i}`} position={[o.x, sandAt(o.x, o.z), o.z]} rotation={[0, o.rot, 0]}>
-          <Kerang jenis={o.jenis} r={o.r} />
-        </group>
-      ))}
-
-      {BINTANG_DEKAT.map((s, i) => (
-        <group key={`bd${i}`} position={[s.x, sandAt(s.x, s.z), s.z]} rotation={[0, s.rot, 0]} scale={s.r}>
-          <BintangLaut />
-          <Contact r={1.05} o={0.14} />
-        </group>
-      ))}
 
       <KepitingBerjalan />
 
