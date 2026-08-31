@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start -p 3000",
     "seed": "node scripts/seed.mjs",
-    "periksa:kontras": "node --experimental-strip-types src/design/periksa-kontras.ts"
+    "periksa:kontras": "node --experimental-strip-types src/design/periksa-kontras.ts",
+    "periksa:kedalaman": "node --experimental-strip-types src/components/v2/kedalaman.ts"
   },
   "dependencies": {
     "@react-three/drei": "10.7.6",
