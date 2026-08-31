@@ -280,6 +280,10 @@ tapi **jangan menampilkan ulang kalimat lukanya** — tampilkan bantahannya.
 | RSC menolak data SQLite | `node:sqlite` mengembalikan objek ber-prototype null | Salin dengan spread sebelum dioper ke client component |
 | Warning MODULE_TYPELESS saat seed | `npm install` menghapus `"type": "module"` | Pasang lagi di `package.json` |
 | `taskkill` ditolak | Perlu hak admin | PowerShell → Run as administrator |
+| Halaman berhenti bergulir dengan roda mouse, tapi `window.scrollTo()` lewat konsol tetap jalan | `overflow-x: hidden` di `<body>`. Menurut spesifikasi, kalau satu sumbu bukan `visible`, sumbu satunya ikut jadi `auto` — jadi `<body>` berubah jadi wadah gulirnya sendiri dan menelan rodanya | Pasang `overflow-x: hidden` di `<html>`, bukan di `<body>`. **Jangan** menggantinya jadi `overflow-x: clip` di `<body>`: Turbopack menurunkannya kembali jadi `hidden`, jadi berkasnya kelihatan sudah benar sementara yang disajikan masih salah |
+| Pengukuran lewat `javascript_tool` memberi hasil yang tidak berubah padahal tampilan jelas berubah | Tab Chrome-nya tidak di depan, jadi rAF ditangguhkan dan peristiwa gulir tidak dikirim | Periksa dulu apakah alat ukurnya hidup (`requestAnimationFrame` menyala dalam 1 detik?). Kalau mati, ukur lewat `computer` (scroll/screenshot) yang memaksa tabnya aktif. Ini kedua kalinya rAF yang tertangguh menyamar jadi bug halaman |
+| Blok teks saling menindih waktu isinya diperpanjang | Letaknya dihitung dari satu sumber (kurva kedalaman) sementara tingginya dari sumber lain (panjang teks) | Taruh di alir dokumen dengan jarak yang dijamin CSS, lalu turunkan angka yang lain dari letak yang **diukur**. Lihat `tabelPita()` dan `kedalamanGulir()` di `Turunan.tsx` |
+| Di HP ada pita hitam di bawah pemandangan waktu digulir | Lapisan latar diberi tinggi `100svh`; begitu bilah alamat naik, layar jadi setinggi `lvh` dan sisanya kosong | Lapisan **latar** pakai `100lvh`. `svh` cuma untuk jarak baca, bukan untuk tutupan |
 
 ---
 

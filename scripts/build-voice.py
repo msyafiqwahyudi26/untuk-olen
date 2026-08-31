@@ -587,6 +587,87 @@ def level_ride(x):
     return x * full
 
 
+JEDA_MAKS = 0.30
+
+
+def rapikan_jeda(x, maks=JEDA_MAKS):
+    """
+    Memendekkan jeda yang terlalu panjang SESUDAH semuanya disambung.
+
+    ── Kenapa tidak cukup mengecilkan JEDA saja ──
+
+    `JEDA` mengatur jarak yang SENGAJA dipasang antar potongan. Tapi jeda yang
+    benar-benar terdengar bukan cuma itu: tiap potongan juga membawa sisa
+    hening di kedua ujungnya — dari `fit_slot` yang melebarkan jendela waktu
+    kalimatnya lebih pendek daripada slot, dan dari `EDGE` yang menurunkan
+    volumenya di ujung. Ketiganya bertumpuk.
+
+    Yaya: "beberapa jedanya masih terlalu ada yang jauh gitu". Diukur pada
+    hasilnya: 35 jeda di atas 0,2 detik, yang terpanjang 0,56 detik — dua kali
+    lipat yang dimaksudkan. Mengecilkan `JEDA` tidak akan menyentuh dua sumber
+    lainnya, dan menebak nilai baru sampai kedengarannya pas adalah persis
+    cara kerja yang dilarang di proyek ini.
+
+    Jadi yang diukur dan dipotong adalah HASILNYA, bukan salah satu bahannya:
+    tiap keheningan yang lebih panjang dari `maks` dipendekkan jadi `maks`.
+    Jeda yang sudah wajar tidak disentuh sama sekali.
+
+    Sambungannya disilangkan 12 ms. Memotong begitu saja di tengah keheningan
+    pun bisa berbunyi 'tik', karena lantai derau di kedua sisi tidak pernah
+    persis sama tingginya.
+    """
+    e = envelope(x)
+    if len(e) < 50:
+        return x, []
+    med = float(np.median(e[e > np.percentile(e, 55)]))
+    amb = med * 0.06
+    batas = int(maks * 100)          # envelope 100 bingkai/detik
+    xf = int(0.012 * SR)
+
+    potong = []                      # (mulai, selesai) dalam sampel
+    run = 0
+    for i, sepi in enumerate(e < amb):
+        if sepi:
+            run += 1
+            continue
+        if run > batas:
+            # sisakan `batas` bingkai, buang selebihnya dari TENGAH jeda —
+            # supaya ekor kalimat sebelumnya dan napas sebelum kalimat
+            # berikutnya sama-sama utuh
+            lebih = run - batas
+            tengah = i - run // 2
+            potong.append(((tengah - lebih // 2) * HOP, (tengah + (lebih - lebih // 2)) * HOP))
+        run = 0
+
+    if not potong:
+        return x, []
+
+    bagian = []
+    lalu = 0
+    for a, b in potong:
+        a, b = max(0, a), min(len(x), b)
+        if b - a < xf * 2:
+            continue
+        bagian.append(x[lalu:a])
+        lalu = b
+    bagian.append(x[lalu:])
+
+    hasil = bagian[0]
+    for seg in bagian[1:]:
+        if len(hasil) < xf or len(seg) < xf:
+            hasil = np.concatenate([hasil, seg])
+            continue
+        naik = np.linspace(0, 1, xf, dtype=np.float32)
+        sambung = hasil[-xf:] * (1 - naik) + seg[:xf] * naik
+        hasil = np.concatenate([hasil[:-xf], sambung, seg[xf:]])
+
+    # Daftar potongan dikembalikan supaya waktu di manifes bisa DIPETAKAN
+    # ULANG. Kalau tidak, `voice-of-olen.json` tetap memakai waktu sebelum
+    # jedanya dipendekkan — dan peta yang meleset beberapa detik lebih buruk
+    # daripada tidak ada peta, karena orang percaya padanya.
+    return hasil, potong
+
+
 def audit(x):
     """
     Pemeriksaan akhir. Yang selama ini lolos ke telinga Yaya, di sini harus
@@ -774,10 +855,24 @@ def main():
             dropped.append((m["file"], f"nada tidak stabil ({g:.0f}% > {ambang:.0f}%)"))
             continue
 
-        # Klip `utuh`: panjang potongan MENGIKUTI kalimatnya. Ditetapkan di
-        # sini, sesudah rentang bersuaranya diketahui — bukan ditebak di depan.
+        # ── Klip `utuh`: JANGAN DIPOTONG, bukan "ikut panjang kalimatnya" ──
+        #
+        # Versi pertama menulis `slot = panjang kalimat` begitu saja. Akibatnya
+        # bukan cuma kalimat panjang yang tidak terpotong — kalimat PENDEK juga
+        # ikut menyusut. `fit_slot` biasanya melebarkan jendela ke suara di
+        # sekitarnya kalau kalimatnya lebih pendek daripada slot; dengan slot
+        # yang disamakan persis, pelebaran itu tidak pernah terjadi.
+        #
+        # Hasilnya terukur: potongan sependek 0,66 detik, dan montase yang
+        # justru MEMENDEK dari 160 ke 151 detik padahal 51 klip ditandai utuh.
+        # Perkiraan sebelumnya 3,5 menit; yang keluar 2,4 menit. Selisih sebesar
+        # itu antara ramalan dan hasil adalah tanda salah rumus, bukan tanda
+        # ramalannya kurang teliti.
+        #
+        # Yang diminta cuma satu: ekornya tidak dipangkas. Jadi slotnya diambil
+        # yang lebih BESAR antara slot babak dan panjang kalimatnya.
         if utuh:
-            slot = (picked[1] - picked[0]) / SR
+            slot = max(slot, (picked[1] - picked[0]) / SR)
 
         # Dicatat untuk laporan di akhir: kalimat yang lebih panjang daripada
         # slotnya PASTI terpotong ekornya. Tanpa daftar ini, "ada yang kepotong"
@@ -881,6 +976,7 @@ def main():
     out = repair_transients(out)
     out = level_ride(out)
     out = repair_transients(out)
+    out, jeda_dipotong = rapikan_jeda(out)
 
     # ── masuk pelan-pelan; lagunya sudah jalan duluan ──
     lead = int(LEAD_IN * SR)
@@ -900,6 +996,20 @@ def main():
     out = limit(out, CEIL)
     peak = float(np.max(np.abs(out)))
 
+    def geser(t):
+        """
+        Waktu LAMA (sebelum jeda dipendekkan) → waktu BARU.
+
+        Tiap potongan jeda yang dibuang dan letaknya sebelum `t` menggeser
+        `t` maju sebanyak panjangnya. Tanpa ini, `voice-of-olen.json` dan
+        PETA-SUARA-OLEN.txt akan menunjuk detik yang meleset makin jauh ke
+        arah belakang berkas — dan peta yang meleset lebih berbahaya daripada
+        tidak ada peta.
+        """
+        s = t * SR
+        buang = sum(min(b, s) - a for a, b in jeda_dipotong if a < s)
+        return max(0.0, (s - buang) / SR)
+
     problems = audit(out)
 
     raw_path = os.path.join(tmp, "_voice.f32")
@@ -913,7 +1023,7 @@ def main():
 
     dur = len(out) / SR
     json.dump(
-        [{"file": f, "date": d, "mood": mo, "babak": b, "at": round(t, 2)}
+        [{"file": f, "date": d, "mood": mo, "babak": b, "at": round(geser(t), 2)}
          for (f, d, mo, b, _, _, _, _), t in zip(kept, marks)],
         open(os.path.join(OUT, "voice-of-olen.json"), "w", encoding="utf-8"),
         ensure_ascii=False, indent=1,
