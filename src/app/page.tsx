@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./v2/v2.css";
-import Opening from "@/components/v2/Opening";
+import Perjalanan from "@/components/v2/Perjalanan";
 
 export const metadata: Metadata = {
   title: "Len",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 export default function Beranda() {
   return (
     <main className="v2">
-      <Opening />
+      <Perjalanan />
     </main>
   );
 }
