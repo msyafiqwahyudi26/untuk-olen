@@ -81,6 +81,54 @@ BABAK = {
     "penutup": {"laju": 0.95, "slot": 7.5, "maks": 8.5, "goyang": 3.5},
 }
 
+# ── Ambang kestabilan nada per SUASANA ──
+#
+# Ambang per babak di atas ternyata belum cukup, dan cara ketahuannya mahal:
+# Yaya bilang "kompilasi olen ketawa juga nggak ada". Setelah 570 VN Olen
+# diukur ulang (`scripts/cari-vn.py`), sebabnya kelihatan — **tawa adalah
+# nada yang melompat-lompat. Itu definisinya.** Klip tawa Olen bergoyang
+# 5–16%, sedangkan ambang babak `harian` 3,5% dan `pulih` 4,5%. Jadi tiap
+# kali Olen tertawa, pagar ini membuangnya dan mencatat alasannya sebagai
+# "nada tidak stabil", seolah rekamannya rusak.
+#
+# Ini pengulangan pelajaran yang SUDAH ada di berkas ini soal menangis dan
+# marah. Waktu itu jawabannya membuat ambang berbeda per babak. Yang
+# terlewat: suasana tidak selalu sejalan dengan babak — Olen tertawa di
+# babak `harian` dan `pulih`, dua babak yang ambangnya justru paling ketat.
+#
+# Jadi ambangnya sekarang diambil yang paling longgar antara babak dan
+# suasana. Pagar ini tetap ada gunanya: ia masih membuang rekaman yang
+# benar-benar rusak, yang bergoyang di atas 20%. Yang berubah cuma satu hal —
+# **klip tidak lagi dibuang karena Olen sedang merasakan sesuatu.**
+GOYANG_SUASANA = {
+    "tawa": 20.0,
+    "nangis": 16.0,
+    "marah": 16.0,
+    # 13,0 sempat dipakai dan menolak satu klip di angka 13% tepat — di garis
+    # batas, bukan karena rusak. Ambang yang menolak tepat di titik ukurnya
+    # sendiri terlalu ketat untuk dipercaya.
+    "sakit": 15.0,
+    "sedih": 12.0,
+    # Bahagia bukan `ringan`. Orang yang sedang senang bicaranya naik-turun
+    # jauh lebih lebar daripada orang yang sedang bercerita biasa — satu klip
+    # ditolak di 5% oleh ambang babak `pulih` yang 4,5%.
+    "bahagia": 9.0,
+}
+
+# Tawa dipotong lebih pendek daripada kalimat.
+#
+# Kalimat butuh ruang untuk selesai; tawa tidak — tawa yang diberi slot 3,5
+# detik akan berisi satu letupan lalu ekor yang memudar, dan yang terdengar
+# jadi orang yang berhenti tertawa. Slot pendek membuat letupannya saling
+# menyusul, dan ITU yang terdengar seperti kompilasi tawa.
+SLOT_SUASANA = {"tawa": 2.9}
+
+# Batas atas untuk klip bertanda `"utuh": true`. Cukup panjang untuk memuat
+# satu kalimat penuh yang diucapkan pelan, tapi tetap ada batasnya — VN Olen
+# ada yang lebih dari satu menit, dan satu menit tanpa jeda di tengah montase
+# akan menenggelamkan sisanya.
+UTUH_MAKS = 16.0
+
 # Potongan PERTAMA di babak pembuka lebih panjang, supaya suaranya bisa muncul
 # pelan-pelan dari kesunyian alih-alih langsung ada.
 SLOT_PEMBUKA_PERTAMA = 6.5
@@ -330,8 +378,22 @@ def fit_slot(x, s, e, slot=SLOT):
     want = int(slot * SR)
     have = e - s
     if have >= want:
-        extra = have - want
-        return x[s + extra // 2 : s + extra // 2 + want]
+        # ── Dipangkas dari BELAKANG saja, tidak pernah dari depan ──
+        #
+        # Versi sebelumnya memusatkan jendela: `s + extra//2`. Artinya kalimat
+        # yang lebih panjang daripada slot kehilangan kata-kata PEMBUKANYA.
+        # Yaya: "beberapa bagian yang dia ngomong blm selesai itu kepotong di
+        # awal".
+        #
+        # Kalimat yang mulai utuh lalu mengabur di ujung masih terdengar
+        # seperti kalimat. Kalimat yang mulai di tengah kata terdengar seperti
+        # berkas rusak — dan yang hilang justru bagian yang membawa maksudnya,
+        # karena orang menaruh pokok kalimat di depan.
+        #
+        # Kalau sebuah kalimat memang harus utuh seluruhnya, tandai klipnya
+        # dengan `"utuh": true` di voice-sources.json; slotnya akan mengikuti
+        # panjang kalimatnya, bukan sebaliknya.
+        return x[s : s + want]
 
     need = want - have
     left = min(s, need // 2)
@@ -537,9 +599,46 @@ def audit(x):
     """
     problems = []
     hits, e, _ = find_transients(x)
-    if hits:
-        problems.append(
-            f"hentakan di detik {sorted({round(i / 100, 1) for i, _, _ in hits})[:8]}"
+
+    # ── Hentakan yang BERSUARA bukan cacat ──
+    #
+    # `find_transients` bersandar pada satu fakta: suara manusia tidak
+    # mencapai puncaknya dalam kurang dari 4 milidetik. Itu benar untuk
+    # kalimat. Ternyata tidak benar untuk TAWA: satu letupan "ha!" sesudah
+    # jeda naik hampir secepat benturan mikrofon.
+    #
+    # Ketahuannya sesudah klip tawa ditambahkan — pemeriksa melaporkan
+    # hentakan di detik 138,8, dan setelah dibongkar, di situ Olen sedang
+    # tertawa. Persis kelas kesalahan yang sama dengan pagar `goyang` di
+    # atas: alat yang dibuat untuk menangkap cacat menuduh emosi.
+    #
+    # Pembedanya bisa diukur, tidak perlu ditebak: benturan mikrofon,
+    # sambungan berkas, dan cacat codec TIDAK punya nada dasar. Suara punya.
+    # Jadi tiap hentakan diperiksa 150 ms sesudahnya — kalau di situ ada nada
+    # yang terbaca, itu Olen, dan dibiarkan.
+    #
+    # Ini penting bukan karena laporannya jelek dilihat, tapi karena
+    # peringatan palsu yang muncul terus membuat peringatan SUNGGUHAN jadi
+    # tidak terlihat. Alasan yang sama dengan suppressHydrationWarning di
+    # layout.tsx.
+    # `nada()` mengambil SATU bingkai dan mengembalikan satu angka, jadi
+    # bingkainya dibuat di sini: 150 ms sesudah hentakan, dibagi jendela
+    # 2048 sampel. Bersuara kalau setidaknya sepertiga bingkainya punya nada.
+    WIN, LANGKAH = 2048, 512
+    keras, bersuara = [], []
+    for i, _, _ in hits:
+        j = i * HOP
+        w = x[j : j + int(0.15 * SR)]
+        n = max(0, 1 + (len(w) - WIN) // LANGKAH)
+        ada = sum(1 for b in range(n) if nada(w[b * LANGKAH : b * LANGKAH + WIN]) > 0)
+        (bersuara if n and ada >= max(1, n // 3) else keras).append(i)
+
+    if keras:
+        problems.append(f"hentakan di detik {sorted({round(i / 100, 1) for i in keras})[:8]}")
+    if bersuara:
+        print(
+            f"  (catatan: {len(bersuara)} letupan bersuara dilewati — itu tawa Olen, "
+            f"bukan cacat: detik {sorted({round(i / 100, 1) for i in bersuara})[:6]})"
         )
 
     # lubang senyap di tengah montase
@@ -576,7 +675,7 @@ def main():
     # dari daftar — jalan tiga kali, tinggal separuhnya, dan urutan suasana
     # hatinya rusak tanpa ada yang sadar.
     man = json.load(open(os.path.join(HERE, "scripts", "voice-sources.json"), encoding="utf-8"))
-    segs, penutup, kept, dropped = [], [], [], []
+    segs, penutup, kept, dropped, terpotong = [], [], [], [], []
 
     for m in man:
         path = locate(m["file"])
@@ -626,8 +725,24 @@ def main():
         pertama_pembuka = nama_babak == "pembuka" and not any(
             k[3] == "pembuka" for k in kept
         )
-        slot = SLOT_PEMBUKA_PERTAMA if pertama_pembuka else babak["slot"]
-        maks = max(babak["maks"], slot + 1.0)
+        suasana = m.get("mood", "ringan")
+        if pertama_pembuka:
+            slot = SLOT_PEMBUKA_PERTAMA
+        else:
+            slot = SLOT_SUASANA.get(suasana, babak["slot"])
+
+        # ── Klip yang ditandai `"utuh": true` ──
+        #
+        # Beberapa kalimat tidak boleh dipotong sama sekali. Yang Yaya sebut:
+        # momen Olen mengafirmasi dirinya sendiri. Kalimat seperti itu kehilangan
+        # seluruh maksudnya kalau berhenti di tengah — dan tidak ada slot yang
+        # cukup panjang untuk semuanya tanpa membuat sisa montase terasa lamban.
+        #
+        # Jadi slotnya yang mengikuti kalimatnya, bukan sebaliknya: klip `utuh`
+        # boleh mengambil rentang bersuara sepanjang apa pun sampai UTUH_MAKS,
+        # dan panjang potongannya ditetapkan SESUDAH rentangnya diketahui.
+        utuh = bool(m.get("utuh"))
+        maks = UTUH_MAKS if utuh else max(babak["maks"], slot + 1.0)
 
         # Lantai derau diukur SEBELUM jeda dipangkas.
         #
@@ -652,10 +767,24 @@ def main():
         # Gerbang kestabilan nada — diukur pada rentang yang benar-benar
         # dipakai. Ambangnya beda per babak: bagian sedih memang goyang, dan
         # itu memang bunyi emosinya.
+        # Ambang paling longgar antara babak dan suasana — lihat GOYANG_SUASANA.
         g = goyang(x[picked[0] : picked[1]])
-        if g > babak["goyang"]:
-            dropped.append((m["file"], f"nada tidak stabil ({g:.0f}%)"))
+        ambang = max(babak["goyang"], GOYANG_SUASANA.get(suasana, 0.0))
+        if g > ambang:
+            dropped.append((m["file"], f"nada tidak stabil ({g:.0f}% > {ambang:.0f}%)"))
             continue
+
+        # Klip `utuh`: panjang potongan MENGIKUTI kalimatnya. Ditetapkan di
+        # sini, sesudah rentang bersuaranya diketahui — bukan ditebak di depan.
+        if utuh:
+            slot = (picked[1] - picked[0]) / SR
+
+        # Dicatat untuk laporan di akhir: kalimat yang lebih panjang daripada
+        # slotnya PASTI terpotong ekornya. Tanpa daftar ini, "ada yang kepotong"
+        # cuma bisa dicari dengan mendengarkan seluruh montase berulang kali.
+        panjang_kalimat = (picked[1] - picked[0]) / SR
+        if not utuh and panjang_kalimat > slot + 0.15:
+            terpotong.append((m["file"], panjang_kalimat, slot))
 
         seg = fit_slot(x, *picked, slot=slot)
         seg = tame_bursts(seg)
@@ -797,6 +926,17 @@ def main():
         print(f"{f[:20]:<22} {b:<9} {snr:6.1f} {gain:6.2f}x {nf:9.5f} {gy:6.1f}%  {mo} ({laju}x)")
     for f, why in dropped:
         print(f"dilewati: {f[:20]} — {why}")
+
+    # ── Kalimat yang ekornya terpotong ──
+    #
+    # Daftar ini yang mengubah keluhan "ada yang kepotong" jadi sesuatu yang
+    # bisa ditunjuk. Kalau salah satu di sini ternyata kalimat yang harus utuh,
+    # tambahkan `"utuh": true` pada klipnya di voice-sources.json.
+    if terpotong:
+        print(f"\nkalimat lebih panjang daripada slotnya ({len(terpotong)}):")
+        for f, panjang, s in sorted(terpotong, key=lambda t: -(t[1] - t[2])):
+            print(f"  {f[:24]}  kalimat {panjang:4.1f} dtk → slot {s:4.1f} dtk"
+                  f"  (hilang {panjang - s:4.1f} dtk di ekor)")
     # Periksa berkas yang SUDAH dikodekan, bukan cuma larik di memori.
     # Puncak antar-sampel milik AAC baru kelihatan setelah dekode.
     back = subprocess.run(

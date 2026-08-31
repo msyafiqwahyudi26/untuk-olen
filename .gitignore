@@ -51,3 +51,10 @@ out
 .env*
 !.env.example
 !public/audio/.gitkeep
+
+# ── hasil analisis VN — berisi cuplikan percakapan Olen ──
+# `cari-vn.py` menyimpan dua pesan sebelum dan sesudah tiap VN sebagai
+# konteks suasana. Itu isi percakapan pribadi anak di bawah umur, jadi
+# berlaku aturan yang sama dengan foto dan suaranya: tidak masuk git.
+# Skripnya ikut; hasilnya tidak. Jalankan ulang kalau butuh.
+scripts/_kandidat-vn.json

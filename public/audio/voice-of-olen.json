@@ -70,171 +70,297 @@
   "at": 27.45
  },
  {
+  "file": "00021411-AUDIO-2024-12-07-18-46-37.opus",
+  "date": "07/12/24",
+  "mood": "tawa",
+  "babak": "harian",
+  "at": 30.62
+ },
+ {
   "file": "00025559-AUDIO-2024-12-14-19-42-55.opus",
   "date": "14/12/24",
   "mood": "ringan",
   "babak": "harian",
-  "at": 30.62
+  "at": 33.09
  },
  {
   "file": "00019714-AUDIO-2024-12-05-17-19-50.opus",
   "date": "05/12/24",
   "mood": "ringan",
   "babak": "harian",
-  "at": 32.35
+  "at": 34.82
+ },
+ {
+  "file": "00023623-AUDIO-2024-12-09-14-41-38.opus",
+  "date": "09/12/24",
+  "mood": "tawa",
+  "babak": "harian",
+  "at": 36.07
  },
  {
   "file": "00008713-AUDIO-2024-01-08-19-17-24.opus",
   "date": "08/01/24",
   "mood": "ringan",
   "babak": "harian",
-  "at": 33.6
+  "at": 38.54
  },
  {
   "file": "00035015-AUDIO-2024-12-29-18-54-52.opus",
   "date": "29/12/24",
   "mood": "ringan",
   "babak": "harian",
-  "at": 36.77
+  "at": 41.71
+ },
+ {
+  "file": "00001817-AUDIO-2023-12-20-19-19-25.opus",
+  "date": "20/12/23",
+  "mood": "tawa",
+  "babak": "harian",
+  "at": 44.88
+ },
+ {
+  "file": "00018992-AUDIO-2024-12-04-19-20-49.opus",
+  "date": "04/12/24",
+  "mood": "tawa",
+  "babak": "harian",
+  "at": 47.35
  },
  {
   "file": "00019676-AUDIO-2024-12-05-17-03-56.opus",
   "date": "05/12/24",
   "mood": "ringan",
   "babak": "harian",
-  "at": 39.94
+  "at": 49.82
  },
  {
   "file": "00033256-AUDIO-2024-12-28-17-53-53.opus",
   "date": "28/12/24",
   "mood": "ringan",
   "babak": "harian",
-  "at": 43.11
+  "at": 52.99
  },
  {
   "file": "00041058-AUDIO-2025-01-08-18-16-54.opus",
   "date": "08/01/25",
   "mood": "keluh",
   "babak": "keluh",
-  "at": 46.28
+  "at": 56.16
  },
  {
   "file": "00028526-AUDIO-2025-06-06-19-12-53.opus",
   "date": "06/06/25",
   "mood": "sakit",
   "babak": "keluh",
-  "at": 49.76
+  "at": 59.64
  },
  {
   "file": "00036309-AUDIO-2026-08-30-12-29-21.opus",
   "date": "30/08/26",
   "mood": "sakit",
   "babak": "keluh",
-  "at": 51.01
+  "at": 60.89
  },
  {
   "file": "00019766-AUDIO-2024-12-05-17-43-29.opus",
   "date": "05/12/24",
   "mood": "sakit",
   "babak": "keluh",
-  "at": 54.49
+  "at": 64.37
+ },
+ {
+  "file": "00041153-AUDIO-2025-01-08-18-30-24.opus",
+  "date": "08/01/25",
+  "mood": "sakit",
+  "babak": "keluh",
+  "at": 67.85
+ },
+ {
+  "file": "00036070-AUDIO-2024-12-30-21-16-06.opus",
+  "date": "30/12/24",
+  "mood": "sakit",
+  "babak": "keluh",
+  "at": 71.33
+ },
+ {
+  "file": "00041156-AUDIO-2025-01-08-18-30-49.opus",
+  "date": "08/01/25",
+  "mood": "sakit",
+  "babak": "keluh",
+  "at": 74.81
  },
  {
   "file": "00008812-AUDIO-2024-11-21-20-41-34.opus",
   "date": "21/11/24",
   "mood": "sedih",
   "babak": "sedih",
-  "at": 57.97
+  "at": 78.3
  },
  {
   "file": "00036411-AUDIO-2026-08-30-12-53-52.opus",
   "date": "30/08/26",
   "mood": "marah",
   "babak": "sedih",
-  "at": 60.33
+  "at": 80.66
  },
  {
   "file": "00036370-AUDIO-2026-08-30-12-49-22.opus",
   "date": "30/08/26",
   "mood": "nangis",
   "babak": "sedih",
-  "at": 64.2
+  "at": 84.52
  },
  {
   "file": "00028227-AUDIO-2024-11-26-17-54-40.opus",
   "date": "26/11/24",
   "mood": "sedih",
   "babak": "sedih",
-  "at": 68.06
+  "at": 88.38
+ },
+ {
+  "file": "00038841-AUDIO-2025-01-04-22-41-24.opus",
+  "date": "04/01/25",
+  "mood": "sedih",
+  "babak": "sedih",
+  "at": 92.24
+ },
+ {
+  "file": "00036349-AUDIO-2026-08-30-12-46-44.opus",
+  "date": "30/08/26",
+  "mood": "nangis",
+  "babak": "sedih",
+  "at": 93.69
+ },
+ {
+  "file": "00036365-AUDIO-2026-08-30-12-48-35.opus",
+  "date": "30/08/26",
+  "mood": "sedih",
+  "babak": "sedih",
+  "at": 97.55
+ },
+ {
+  "file": "00020146-AUDIO-2024-12-06-22-03-32.opus",
+  "date": "06/12/24",
+  "mood": "sedih",
+  "babak": "sedih",
+  "at": 101.27
+ },
+ {
+  "file": "00023627-AUDIO-2024-12-09-14-43-41.opus",
+  "date": "09/12/24",
+  "mood": "sedih",
+  "babak": "sedih",
+  "at": 105.12
  },
  {
   "file": "00019731-AUDIO-2024-12-05-17-33-16.opus",
   "date": "05/12/24",
   "mood": "ringan",
   "babak": "pulih",
-  "at": 71.91
+  "at": 108.43
+ },
+ {
+  "file": "00023603-AUDIO-2024-12-09-14-31-50.opus",
+  "date": "09/12/24",
+  "mood": "tawa",
+  "babak": "pulih",
+  "at": 111.5
+ },
+ {
+  "file": "00023602-AUDIO-2024-12-09-14-31-22.opus",
+  "date": "09/12/24",
+  "mood": "tawa",
+  "babak": "pulih",
+  "at": 113.97
+ },
+ {
+  "file": "00035836-AUDIO-2024-12-30-18-59-40.opus",
+  "date": "30/12/24",
+  "mood": "tawa",
+  "babak": "pulih",
+  "at": 116.44
+ },
+ {
+  "file": "00008824-AUDIO-2024-11-21-20-43-52.opus",
+  "date": "21/11/24",
+  "mood": "tawa",
+  "babak": "pulih",
+  "at": 118.91
+ },
+ {
+  "file": "00008825-AUDIO-2024-11-21-20-44-13.opus",
+  "date": "21/11/24",
+  "mood": "tawa",
+  "babak": "pulih",
+  "at": 121.38
+ },
+ {
+  "file": "00027807-AUDIO-2024-12-21-19-56-12.opus",
+  "date": "21/12/24",
+  "mood": "bahagia",
+  "babak": "pulih",
+  "at": 123.85
  },
  {
   "file": "00035070-AUDIO-2024-12-29-19-11-58.opus",
   "date": "29/12/24",
   "mood": "bahagia",
   "babak": "pulih",
-  "at": 74.98
+  "at": 126.92
  },
  {
   "file": "00021446-AUDIO-2024-12-07-19-05-41.opus",
   "date": "07/12/24",
   "mood": "bahagia",
   "babak": "pulih",
-  "at": 78.05
+  "at": 129.99
  },
  {
   "file": "00025524-AUDIO-2024-12-14-19-27-05.opus",
   "date": "14/12/24",
   "mood": "bahagia",
   "babak": "pulih",
-  "at": 81.12
+  "at": 133.06
  },
  {
   "file": "00019585-AUDIO-2024-12-05-16-23-38.opus",
   "date": "05/12/24",
   "mood": "bahagia",
   "babak": "pulih",
-  "at": 82.13
+  "at": 134.07
  },
  {
   "file": "00025541-AUDIO-2024-12-14-19-33-02.opus",
   "date": "14/12/24",
   "mood": "ringan",
   "babak": "pulih",
-  "at": 83.79
+  "at": 135.73
  },
  {
   "file": "00008762-AUDIO-2024-01-08-19-58-05.opus",
   "date": "08/01/24",
   "mood": "ringan",
   "babak": "pulih",
-  "at": 86.86
+  "at": 138.8
  },
  {
   "file": "00036376-AUDIO-2026-08-30-12-50-06.opus",
   "date": "30/08/26",
   "mood": "bahagia",
   "babak": "pulih",
-  "at": 88.18
+  "at": 140.12
  },
  {
   "file": "00019052-AUDIO-2024-12-04-19-59-13.opus",
   "date": "04/12/24",
   "mood": "ringan",
   "babak": "pulih",
-  "at": 91.25
+  "at": 143.19
  },
  {
   "file": "00025565-AUDIO-2024-12-14-19-45-10.opus",
   "date": "14/12/24",
   "mood": "hangat",
   "babak": "penutup",
-  "at": 93.69
+  "at": 145.63
  }
 ]
