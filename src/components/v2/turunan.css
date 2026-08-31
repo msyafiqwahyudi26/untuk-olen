@@ -13,6 +13,16 @@
 .tr {
   position: relative;
   width: 100%;
+
+  /* ═══ HURUF LAYAR CERITA ═══
+     Ditimpa DI SINI, satu tempat, bukan disebar ke tiap aturan di bawah.
+     Semua aturan di berkas ini sudah memanggil var(--huruf-judul) dan
+     var(--huruf-badan); yang berubah cuma isinya, dan cuma di dalam `.tr`.
+
+     Akibatnya halaman pembuka dan jurnal TIDAK ikut berubah, dan itu memang
+     yang diminta: yang kartunis cuma perjalanan lautnya. */
+  --huruf-judul: var(--huruf-kartun);
+  --huruf-badan: var(--huruf-cerita);
 }
 
 /* Bingkai yang menempel: pemandangannya diam, yang bergerak angkanya. */
@@ -625,13 +635,13 @@
 .kn-kutip {
   margin: 0 0 1.5rem;
   font-family: var(--huruf-judul, 'Trebuchet MS', sans-serif);
-  /* 600, bukan 400. Fredoka di bobot 400 terlihat seperti huruf antarmuka
-     biasa; yang membuatnya terasa bulat dan hangat justru ketebalannya.
-     Ini juga jawaban langsung atas "ketebalan kurang okey". */
-  font-weight: 600;
-  font-size: clamp(1.42rem, 3.9vw, 2.2rem);
-  line-height: 1.4;
-  letter-spacing: -0.005em;
+  /* 800. Baloo 2 dirancang untuk dipakai tebal; di bawah 700 ia kehilangan
+     kebulatannya dan berubah jadi huruf antarmuka biasa. Fredoka di 600
+     sempat dicoba dan Yaya bilang masih kurang kartunis dan kurang tebal. */
+  font-weight: var(--tebal-kartun, 800);
+  font-size: clamp(1.5rem, 4.2vw, 2.35rem);
+  line-height: 1.32;
+  letter-spacing: 0.002em;
   color: #f8fcff;
   text-wrap: balance;
   /* Garis di kiri, bukan kotak. Ia menandai "ini bukan suara Kakak" tanpa
@@ -645,10 +655,9 @@
 .kn-cerita {
   margin: 0 0 0.95rem;
   font-family: var(--huruf-badan, system-ui, sans-serif);
-  /* 450: Nunito 400 di atas air gelap terbaca tipis, 500 mulai berebut
-     perhatian dengan kutipannya. Huruf variabel, jadi 450 tidak menambah
-     satu pun permintaan jaringan. */
-  font-weight: 450;
+  /* 500. Naik dari 450: begitu kutipannya jadi 800, paragraf 450 terlihat
+     pucat di sebelahnya. Yang dijaga JARAKNYA, bukan angkanya. */
+  font-weight: 500;
   font-size: clamp(1rem, 2.45vw, 1.12rem);
   line-height: 1.78;
   color: rgba(242, 249, 255, 0.92);

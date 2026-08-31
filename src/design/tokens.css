@@ -43,12 +43,32 @@
      nanti ada yang ingin bobot 650, langsung tulis saja; jangan
      menambahkannya ke URL @import, itu tidak diperlukan dan justru
      memperbesar berkasnya. */
-  /* --font-judul / --font-badan dipasang oleh next/font di <html>. Nama
-     hurufnya sengaja TIDAK ditulis di sini: kalau ditulis dua kali, yang
-     satu pasti tertinggal waktu diganti — persis yang terjadi pada 'Outfit'
-     di aset.css. */
-  --huruf-judul: var(--font-judul), 'Trebuchet MS', Verdana, sans-serif;
-  --huruf-badan: var(--font-badan), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* ── BAWAAN: halaman pembuka, jurnal, halaman alat ──
+     Georgia dan huruf sistem, ditulis EKSPLISIT.
+
+     Ini bukan huruf cadangan yang kebetulan tersisa. Ini yang benar-benar
+     tampil di layar Yaya selama berbulan-bulan, karena Fraunces dan Outfit
+     yang tertulis di sini tidak pernah terunduh sama sekali (@import-nya
+     dibuang pipeline CSS Next). Waktu hurufnya akhirnya dibetulkan pada 31
+     Agustus 2026, halaman pembukanya ikut berubah, dan Yaya bilang: "untung
+     halaman depan aku lebih suka yang sebelumnya".
+
+     Jadi yang dikembalikan di sini adalah yang DILIHAT, bukan yang tertulis
+     di kode lama. Menulis 'Fraunces' lagi akan memberi tampilan KETIGA yang
+     belum pernah dilihat siapa pun.
+
+     Kalau nanti ingin mencoba Fraunces sungguhan: muat lewat next/font di
+     layout.tsx seperti Baloo dan Nunito, lalu tunjuk dari sini. Satu baris. */
+  --huruf-judul: Georgia, 'Times New Roman', serif;
+  --huruf-badan: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* ── LAYAR CERITA: turunan laut ──
+     Dipakai HANYA di dalam `.tr`, lewat penimpaan variabel di turunan.css.
+     Baloo 2 lebih gemuk dan lebih bulat daripada Fredoka; Yaya: "kurang
+     kartunis dan juga kurang Disney dan tebal". Keduanya huruf variabel,
+     jadi bobot berapa pun boleh dipakai tanpa unduhan tambahan. */
+  --huruf-kartun: var(--font-kartun), 'Trebuchet MS', Verdana, sans-serif;
+  --huruf-cerita: var(--font-cerita), -apple-system, 'Segoe UI', sans-serif;
 
   /* Fraunces punya sumbu SOFT dan WONK; Fredoka tidak. Dikosongkan, BUKAN
      dihapus, karena empat berkas memakainya lewat font-variation-settings
@@ -63,6 +83,10 @@
   --tebal-judul: 600;
   --tebal-badan: 400;
   --tebal-tegas: 700;
+  /* Bobot khusus layar cerita. Terpisah dari yang di atas karena Baloo 2
+     memang dimaksudkan dipakai tebal; angka yang pas untuknya kelewat berat
+     buat huruf sistem di halaman lain. */
+  --tebal-kartun: 800;
 
   /* Skala ukuran. Naik pelan di bawah, melompat di atas — karena teks kecil
      dibaca dan teks besar dilihat, dan keduanya tidak butuh langkah yang

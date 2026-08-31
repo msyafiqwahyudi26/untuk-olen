@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fredoka, Nunito } from "next/font/google";
+import { Baloo_2, Nunito } from "next/font/google";
 import "./globals.css";
 /* Design system. Urutannya penting: token dulu (nilai), lalu ui (bentuk yang
    memakai nilai itu), baru CSS tiap halaman (penempatan) yang dimuat sendiri
@@ -29,14 +29,14 @@ import "@/design/ui.css";
  * memuat seluruh rentang bobot (Fredoka 300..700, Nunito 200..1000). Menulis
  * daftar bobot justru memaksa Next mengunduh berkas statis satu per satu.
  */
-const fredoka = Fredoka({
+const baloo = Baloo_2({
   subsets: ["latin"],
-  variable: "--font-judul",
+  variable: "--font-kartun",
   display: "swap",
 });
 const nunito = Nunito({
   subsets: ["latin"],
-  variable: "--font-badan",
+  variable: "--font-cerita",
   display: "swap",
 });
 
@@ -55,7 +55,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${fredoka.variable} ${nunito.variable}`}>
+    <html lang="id" className={`${baloo.variable} ${nunito.variable}`}>
       <head>
         {/* Kalau JavaScript mati atau gagal dimuat, semua yang menunggu
             animasi masuk tetap harus terbaca. */}
