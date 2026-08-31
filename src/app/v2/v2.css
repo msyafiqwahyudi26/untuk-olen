@@ -384,3 +384,25 @@
 @media (prefers-reduced-motion: reduce) {
   .op-up svg { animation: none; }
 }
+
+
+/* ═══════════════ PINTU MASIH TERTUTUP ═══════════════
+   Menggantikan tombol "keep going" selama NEXT_PUBLIC_LAUT belum dipasang.
+   Letaknya sama persis dengan tombolnya, supaya tidak ada yang bergeser saat
+   nanti dibuka. */
+.op-terkunci {
+  position: absolute;
+  inset-inline: 0;
+  margin-inline: auto;
+  bottom: max(clamp(1.6rem, 4svh, 2.8rem), env(safe-area-inset-bottom));
+  z-index: 6;
+  width: min(26rem, 82vw);
+  margin-block: 0;
+  text-align: center;
+  font-family: var(--huruf-badan, system-ui, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.72);
+  text-shadow: 0 1px 12px rgba(2, 11, 24, 0.9);
+}

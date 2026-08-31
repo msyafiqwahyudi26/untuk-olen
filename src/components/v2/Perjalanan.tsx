@@ -2,7 +2,28 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Opening from "./Opening";
-import Turunan from "./Turunan";
+import dynamic from "next/dynamic";
+import { LAUT_TERBUKA } from "@/lib/pintu";
+
+/**
+ * ═══ TURUNAN DIMUAT BELAKANGAN ═══
+ *
+ * Sempat `import Turunan from "./Turunan"` biasa, dan itu punya akibat yang
+ * baru kelihatan waktu pintunya ditutup:
+ *
+ *   Impor statis berarti Turunan ikut ke dalam potongan JS yang diminta
+ *   halaman pembuka. Isinya termasuk `kenangan.ts`, yaitu SELURUH tulisan
+ *   Olen. Jadi walaupun tiga penjaga menahan layarnya supaya tidak pernah
+ *   tampil, teks yang belum selesai itu tetap TERUNDUH ke peramban Olen.
+ *
+ * Diperiksa dan memang begitu: potongan yang memuat kalimat kenangan ada di
+ * daftar berkas yang diminta halaman pembuka. Menutup pintu tanpa ini cuma
+ * menutup pandangan, bukan menutup pengiriman.
+ *
+ * `ssr: false` karena Turunan mengukur gulir dan ukuran layar; menggambarnya
+ * di server tidak menghasilkan apa pun yang benar.
+ */
+const Turunan = dynamic(() => import("./Turunan"), { ssr: false });
 import Selam from "./Selam";
 import Jurnal from "./Jurnal";
 import type { NoteRow } from "@/lib/db";
@@ -126,6 +147,12 @@ export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
 
   useEffect(() => {
     const turun = (e: Event) => {
+      /* PENJAGA KEDUA. Tombolnya sudah disembunyikan di Opening, jadi baris
+         ini kelihatan mubazir. Ia tidak: `olen:next` peristiwa window biasa,
+         dan siapa pun yang membuka konsol bisa memancarkannya sendiri dalam
+         satu baris. Yang menahan pintu harus ada di tempat pintunya, bukan
+         cuma di tempat gagangnya. */
+      if (!LAUT_TERBUKA) return;
       const w = (e as CustomEvent<{ waktu?: Waktu }>).detail?.waktu;
       if (w) setWaktu(w);
       setSelam("ke-laut");
@@ -167,7 +194,18 @@ export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
       <div hidden={layar !== "pembuka"}>
         <Opening set={set} ubahSet={ubahSet} />
       </div>
-      {layar === "turun" && <Turunan waktu={waktu} onNaik={naik} />}
+      {/* PENJAGA KETIGA, dan yang paling menentukan. Dua yang lain menahan
+          JALAN menuju layar ini (tombolnya, lalu peristiwanya). Yang ini
+          menahan layarnya sendiri: selama pintunya tertutup, Turunan tidak
+          pernah dipasang, apa pun yang terjadi pada state di atasnya.
+
+          Tiga penjaga untuk satu pintu terdengar berlebihan. Tidak, karena
+          ketiganya menahan hal yang berbeda: yang pertama supaya Olen tidak
+          melihat pintunya, yang kedua supaya konsol tidak bisa memanggilnya,
+          yang ketiga supaya salah tulis di state tidak bisa membukanya. Dan
+          yang dijaga bukan fitur, melainkan tulisan yang belum selesai untuk
+          orang yang cuma akan membacanya sekali pertama kali. */}
+      {layar === "turun" && LAUT_TERBUKA && <Turunan waktu={waktu} onNaik={naik} />}
       {layar === "naik" && (
         <Jurnal
           waktu={waktu}

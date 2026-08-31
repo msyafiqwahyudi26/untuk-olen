@@ -7,6 +7,7 @@ import Langit from "./Langit";
 import { waktuSekarang, JAM_WAKIL } from "./waktu";
 import { variabelTema } from "@/design/tema";
 import { aset } from "@/lib/basis";
+import { LAUT_TERBUKA, PESAN_LAUT_TERTUTUP } from "@/lib/pintu";
 
 const OpeningScene = dynamic(() => import("./OpeningScene"), { ssr: false });
 
@@ -485,7 +486,22 @@ export default function Opening({
         </div>
       )}
 
-      {started && (
+      {/*
+        Kalau lautnya masih ditutup, tombol ini TIDAK dihilangkan begitu saja.
+        Tombol yang lenyap bikin Olen mengira halamannya cuma segini, dan dia
+        berhenti mencari. Yang ditampilkan sebuah kalimat, supaya jelas ada
+        sesuatu di bawah sana dan sesuatu itu memang belum dibuka.
+
+        `aria-disabled`, bukan `disabled`. Tombol yang benar-benar disabled
+        dilewati sama sekali oleh pembaca layar dan tidak bisa difokus, jadi
+        kalimat penjelasnya justru tidak pernah sampai ke orang yang paling
+        butuh.
+      */}
+      {started && !LAUT_TERBUKA && (
+        <p className="op-terkunci">{PESAN_LAUT_TERTUTUP}</p>
+      )}
+
+      {started && LAUT_TERBUKA && (
         <button
           className="ui-pil z-bawah op-next"
           /* Waktu ikut dibawa di dalam peristiwanya.
