@@ -855,10 +855,24 @@ def main():
             dropped.append((m["file"], f"nada tidak stabil ({g:.0f}% > {ambang:.0f}%)"))
             continue
 
-        # Klip `utuh`: panjang potongan MENGIKUTI kalimatnya. Ditetapkan di
-        # sini, sesudah rentang bersuaranya diketahui — bukan ditebak di depan.
+        # ── Klip `utuh`: JANGAN DIPOTONG, bukan "ikut panjang kalimatnya" ──
+        #
+        # Versi pertama menulis `slot = panjang kalimat` begitu saja. Akibatnya
+        # bukan cuma kalimat panjang yang tidak terpotong — kalimat PENDEK juga
+        # ikut menyusut. `fit_slot` biasanya melebarkan jendela ke suara di
+        # sekitarnya kalau kalimatnya lebih pendek daripada slot; dengan slot
+        # yang disamakan persis, pelebaran itu tidak pernah terjadi.
+        #
+        # Hasilnya terukur: potongan sependek 0,66 detik, dan montase yang
+        # justru MEMENDEK dari 160 ke 151 detik padahal 51 klip ditandai utuh.
+        # Perkiraan sebelumnya 3,5 menit; yang keluar 2,4 menit. Selisih sebesar
+        # itu antara ramalan dan hasil adalah tanda salah rumus, bukan tanda
+        # ramalannya kurang teliti.
+        #
+        # Yang diminta cuma satu: ekornya tidak dipangkas. Jadi slotnya diambil
+        # yang lebih BESAR antara slot babak dan panjang kalimatnya.
         if utuh:
-            slot = (picked[1] - picked[0]) / SR
+            slot = max(slot, (picked[1] - picked[0]) / SR)
 
         # Dicatat untuk laporan di akhir: kalimat yang lebih panjang daripada
         # slotnya PASTI terpotong ekornya. Tanpa daftar ini, "ada yang kepotong"
