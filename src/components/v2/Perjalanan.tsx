@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Opening from "./Opening";
 import Turunan from "./Turunan";
+import Selam from "./Selam";
 import { waktuSekarang, type Waktu } from "./waktu";
 
 /**
@@ -41,6 +42,9 @@ type Layar = "pembuka" | "turun";
 
 export default function Perjalanan() {
   const [layar, setLayar] = useState<Layar>("pembuka");
+  /* null = tidak sedang berpindah. Selama bukan null, tirai air terpasang di
+     atas segalanya dan pergantian layarnya terjadi DI BALIKNYA. */
+  const [selam, setSelam] = useState<"turun" | "naik" | null>(null);
   /* Nilai awal tetap, jamnya dibaca sesudah terpasang — server tidak tahu jam
      Olen, dan membacanya saat render adalah hydration mismatch. Jebakan yang
      sudah tercatat di HANDOVER. */
@@ -52,20 +56,27 @@ export default function Perjalanan() {
     const turun = (e: Event) => {
       const w = (e as CustomEvent<{ waktu?: Waktu }>).detail?.waktu;
       if (w) setWaktu(w);
-      setLayar("turun");
-      /* Turunan memetakan gulir ke kedalaman, jadi ia harus berangkat dari
-         permukaan. Tanpa ini, kembali ke turunan akan mendarat di kedalaman
-         terakhir tanpa ada yang menyelaminya. */
-      window.scrollTo(0, 0);
+      setSelam("turun");
     };
     window.addEventListener("olen:next", turun);
     return () => window.removeEventListener("olen:next", turun);
   }, []);
 
-  const naik = () => {
-    setLayar("pembuka");
+  /**
+   * Dipanggil tirai air tepat di tengah jeda diamnya — waktu layar tertutup
+   * penuh dan tidak ada apa pun yang bergerak. Di situlah layarnya ditukar,
+   * supaya pergantiannya tidak pernah terlihat.
+   *
+   * Turunan memetakan gulir ke kedalaman, jadi ia harus berangkat dari
+   * permukaan. Tanpa scrollTo, masuk kembali ke turunan akan mendarat di
+   * kedalaman terakhir tanpa ada yang menyelaminya.
+   */
+  const tukar = (ke: Layar) => {
+    setLayar(ke);
     window.scrollTo(0, 0);
   };
+
+  const naik = () => setSelam("naik");
 
   return (
     <>
@@ -73,6 +84,13 @@ export default function Perjalanan() {
         <Opening />
       </div>
       {layar === "turun" && <Turunan waktu={waktu} onNaik={naik} />}
+      {selam && (
+        <Selam
+          waktu={waktu}
+          onTutup={() => tukar(selam === "turun" ? "turun" : "pembuka")}
+          onSelesai={() => setSelam(null)}
+        />
+      )}
     </>
   );
 }

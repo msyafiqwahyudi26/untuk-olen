@@ -12,7 +12,7 @@ import {
   suhuDi,
   warnaAirDi,
 } from "./kedalaman";
-import { LumbaLumba, Paus, Terumbu, UburUbur } from "./laut/makhluk";
+import { KarangMeja, LumbaLumba, Paus, Rumput, Terumbu, UburUbur } from "./laut/makhluk";
 import "./turunan.css";
 
 /**
@@ -69,21 +69,47 @@ const SALJU = Array.from({ length: 34 }, (_, i) => ({
  *  dan lebih pucat, yang dekat lebih besar — itu yang membuat air terbaca
  *  punya ruang, bukan cuma warna. */
 const TEMPAT = {
+  /* Dasar dangkal dinilai kosong, dan penilaian itu benar: tiga karang di
+     seluruh lebar layar meninggalkan bidang datar yang lebih luas daripada
+     isinya. Sekarang dasarnya benar-benar ditutup — karang bercabang, karang
+     meja, dan rumput laut, dengan tinggi dan kepucatan berbeda-beda supaya
+     terbaca sebagai satu hamparan, bukan sebagai deretan benda. */
   terumbu: [
-    { x: 4, bawah: -2, ukur: 0.9, jauh: 0.35 },
-    { x: 62, bawah: -4, ukur: 1.25, jauh: 0.8 },
-    { x: 84, bawah: -3, ukur: 0.7, jauh: 0.25 },
+    { x: 3, bawah: -3, ukur: 0.95, jauh: 0.4 },
+    { x: 17, bawah: -5, ukur: 0.62, jauh: 0.2 },
+    { x: 31, bawah: -2, ukur: 1.15, jauh: 0.72 },
+    { x: 49, bawah: -6, ukur: 0.55, jauh: 0.18 },
+    { x: 63, bawah: -3, ukur: 1.3, jauh: 0.85 },
+    { x: 79, bawah: -5, ukur: 0.7, jauh: 0.3 },
+    { x: 93, bawah: -2, ukur: 1.05, jauh: 0.6 },
+  ],
+  meja: [
+    { x: 11, bawah: -4, ukur: 0.85, jauh: 0.5 },
+    { x: 42, bawah: -6, ukur: 0.6, jauh: 0.24 },
+    { x: 72, bawah: -3, ukur: 1, jauh: 0.66 },
+    { x: 88, bawah: -6, ukur: 0.65, jauh: 0.28 },
+  ],
+  rumput: [
+    { x: 8, bawah: -2, ukur: 1, jauh: 0.55 },
+    { x: 24, bawah: -4, ukur: 0.75, jauh: 0.32 },
+    { x: 38, bawah: -1, ukur: 1.2, jauh: 0.78 },
+    { x: 56, bawah: -3, ukur: 0.9, jauh: 0.46 },
+    { x: 68, bawah: -5, ukur: 0.65, jauh: 0.26 },
+    { x: 84, bawah: -2, ukur: 1.1, jauh: 0.7 },
+    { x: 97, bawah: -4, ukur: 0.8, jauh: 0.38 },
   ],
   lumba: [
     { x: 12, atas: 26, ukur: 0.55, jauh: 0.3 },
     { x: 58, atas: 46, ukur: 0.9, jauh: 0.7 },
+    { x: 82, atas: 18, ukur: 0.42, jauh: 0.22 },
   ],
-  paus: [{ x: -6, atas: 34, ukur: 1, jauh: 0.55 }],
+  paus: [{ x: 30, atas: 38, ukur: 0.9, jauh: 0.55 }],
   ubur: [
     { x: 16, atas: 18, ukur: 0.5, jauh: 0.35 },
     { x: 48, atas: 52, ukur: 0.85, jauh: 0.75 },
     { x: 78, atas: 30, ukur: 0.62, jauh: 0.5 },
     { x: 34, atas: 70, ukur: 0.4, jauh: 0.25 },
+    { x: 66, atas: 84, ukur: 0.55, jauh: 0.42 },
   ],
 };
 
@@ -165,23 +191,41 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
 
         {/* penghuni. Opasitasnya CSS variable, jadi tidak ada render ulang. */}
         <div className="tr-huni" aria-hidden>
+          {TEMPAT.rumput.map((t, i) => (
+            <div key={`rp${i}`} className="mk mk-rumput" style={taruh(t)}>
+              <Rumput />
+            </div>
+          ))}
+          {TEMPAT.meja.map((t, i) => (
+            <div key={`km${i}`} className="mk mk-meja" style={taruh(t)}>
+              <KarangMeja />
+            </div>
+          ))}
           {TEMPAT.terumbu.map((t, i) => (
             <div key={`tk${i}`} className="mk mk-terumbu" style={taruh(t)}>
               <Terumbu />
             </div>
           ))}
           {TEMPAT.paus.map((t, i) => (
-            <div key={`ps${i}`} className="mk mk-paus hanyut" style={taruh(t)}>
+            <div key={`ps${i}`} className="mk mk-paus renang renang-lambat" style={taruh(t)}>
               <Paus />
             </div>
           ))}
           {TEMPAT.lumba.map((t, i) => (
-            <div key={`ll${i}`} className="mk mk-lumba hanyut" style={taruh(t)}>
+            <div
+              key={`ll${i}`}
+              className={`mk mk-lumba renang${i % 2 ? " renang-balik" : ""}`}
+              style={{ ...taruh(t), animationDelay: `${i * -19}s` }}
+            >
               <LumbaLumba />
             </div>
           ))}
           {TEMPAT.ubur.map((t, i) => (
-            <div key={`uu${i}`} className="mk mk-ubur denyut" style={taruh(t)}>
+            <div
+              key={`uu${i}`}
+              className="mk mk-ubur denyut"
+              style={{ ...taruh(t), animationDelay: `${i * -1.4}s` }}
+            >
               <UburUbur />
             </div>
           ))}

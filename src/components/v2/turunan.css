@@ -91,14 +91,23 @@
 
 .mk svg { display: block; width: 100%; height: auto; }
 
-/* Lebar dasar tiap makhluk, sebelum --ukur. */
-.mk-terumbu { width: 22vmin; transform: translate(-50%, 0) scale(var(--ukur, 1)); transform-origin: bottom center; }
-.mk-paus    { width: 62vmin; }
-.mk-lumba   { width: 26vmin; }
+/* Lebar dasar tiap makhluk, sebelum --ukur.
+   Paus dikecilkan dari 62vmin ke 44vmin: di layar lebar ia menutupi hampir
+   separuh bingkai dan terpotong tepi kiri, dan benda yang terpotong tidak
+   terbaca sebagai jauh melainkan sebagai salah tempat. */
+.mk-terumbu, .mk-meja, .mk-rumput { transform: translate(-50%, 0) scale(var(--ukur, 1)); transform-origin: bottom center; }
+.mk-terumbu { width: 20vmin; }
+.mk-meja    { width: 24vmin; }
+.mk-rumput  { width: 15vmin; }
+.mk-paus    { width: 44vmin; }
+.mk-lumba   { width: 24vmin; }
 .mk-ubur    { width: 16vmin; }
 
-/* Kehadirannya datang dari kedalaman.ts, bukan dari media query atau tahap. */
-.mk-terumbu { opacity: var(--ada-terumbu, 0); }
+/* Kehadirannya datang dari kedalaman.ts, bukan dari media query atau tahap.
+   Karang meja dan rumput laut ikut --ada-terumbu: ketiganya penghuni
+   perairan dangkal yang sama, dan menambah entri baru di kedalaman.ts hanya
+   untuk membedakan hiasan akan mengaburkan apa yang berkas itu jaga. */
+.mk-terumbu, .mk-meja, .mk-rumput { opacity: var(--ada-terumbu, 0); }
 .mk-paus    { opacity: var(--ada-paus, 0); }
 .mk-lumba   { opacity: var(--ada-lumba, 0); }
 .mk-ubur    { opacity: var(--ada-ubur, 0); }
@@ -112,11 +121,33 @@
 
 /* ── gerak ── */
 
-.hanyut { animation: hanyut 34s ease-in-out infinite alternate; }
-@keyframes hanyut {
-  from { translate: -8vw 0; }
-  to   { translate: 10vw -3vh; }
+/*
+ * BERENANG MELINTAS, bukan bergeser sedikit.
+ *
+ * Versi pertama menggeser makhluknya ±8vw bolak-balik. Dinilai "terlalu
+ * basic", dan itu benar: benda yang bergerak maju lalu mundur di tempat yang
+ * sama tidak terbaca sebagai berenang, melainkan sebagai benda yang
+ * digantung. Lumba-lumba dan paus melintas: masuk dari satu tepi, keluar di
+ * tepi lain, lalu mulai lagi.
+ *
+ * `translate` dipakai terpisah dari `transform` dengan sengaja. `transform`
+ * sudah dipegang `.mk` untuk memusatkan dan menskalakan; kalau animasi ini
+ * ikut menulis `transform`, ia akan menimpanya dan makhluknya melompat ke
+ * pojok — persis cacat yang membuat tombol "keep going" meleset dari tengah.
+ */
+.renang { animation: renang 46s linear infinite; }
+.renang-lambat { animation-duration: 96s; }
+
+@keyframes renang {
+  from { translate: -70vw 0; }
+  to   { translate: 78vw -6vh; }
 }
+
+/* Yang berenang ke kiri dicerminkan lewat `scale(-1,1)` di dalam svg-nya,
+   bukan lewat rotasi: mencerminkan menjaga siluetnya utuh, memutar akan
+   membuatnya berenang terbalik. */
+.renang-balik { animation-direction: reverse; }
+.renang-balik svg { transform: scaleX(-1); }
 
 /* Mengatup cepat, mengembang pelan — kira-kira 3 : 7. Perbandingan itulah
    yang membedakan "berenang" dari "bernapas". Diwujudkan lewat bezier yang
@@ -132,6 +163,14 @@
 @keyframes juntai {
   0%, 100% { transform: translateX(0) scaleY(1); }
   50%      { transform: translateX(2px) scaleY(1.06); }
+}
+
+/* Rumput laut terbawa arus. Satu titik tumpu di pangkal, jadi cukup satu
+   putaran kecil — helainya melenggok, bukan bergeser. */
+.rumput-helai { animation: lenggok 6.4s ease-in-out infinite; transform-origin: bottom center; }
+@keyframes lenggok {
+  0%, 100% { transform: rotate(-3.5deg); }
+  50%      { transform: rotate(4deg); }
 }
 
 /* ── bacaan kedalaman ── */
@@ -176,7 +215,8 @@
  * bekerja: kedalaman digerakkan gulir, bukan animasi, jadi perjalanannya
  * tetap utuh. Yang berhenti cuma yang bergoyang sendiri. */
 @media (prefers-reduced-motion: reduce) {
-  .tr-salju span, .hanyut, .denyut, .ubur-juntai { animation: none; }
+  .tr-salju span, .renang, .denyut, .ubur-juntai, .rumput-helai { animation: none; }
+  .renang { translate: 0 0; }
   .mk { transition: none; }
   .denyut { transform: translate(-50%, -50%) scale(var(--ukur, 1)); }
 }
