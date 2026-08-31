@@ -1,0 +1,8 @@
+Folder ini sengaja kosong di git.
+
+Berkas suaranya ada di komputer Yaya dan di server, tidak di repo:
+  beach.m4a / .opus          ambience ombak
+  voice-of-olen.m4a / .opus  montase suara Olen  (jalankan scripts/build-voice.py)
+  track-1..3.m4a / .opus     lagu milik Yaya
+
+Cara memindahkannya ke server: lihat DEPLOY.md.

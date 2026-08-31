@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@200;300;400;500&display=swap');
+@import 'tailwindcss';
+
+/* ═══════════════ Design tokens — dari Interactive Ocean-Themed Journal App ═══════════════ */
+:root {
+  /* Night sky */
+  --night-sky-top:  #010610;
+  --night-sky-mid:  #020C1E;
+  --night-sky-low:  #061428;
+  --night-sea-deep: #0B1E3C;
+  --night-sea-mid:  #0E2848;
+  --night-sea-near: #102D52;
+
+  /* Day / dawn */
+  --day-sky-top:  #2196C8;
+  --day-sky-mid:  #56B8DE;
+  --day-sky-low:  #87CEEB;
+  --dawn-warm:    #E8A87C;
+  --dawn-glow:    #F4C7A1;
+
+  /* Sand */
+  --sand-day:   #E8D0A0;
+  --sand-night: #1A2E48;
+
+  /* Shared */
+  --star-gold: #F4E4B0;
+  --star-warm: #E8C87A;
+  --text-primary: #EFF8FF;
+  --text-muted:   rgba(200, 225, 245, 0.65);
+  --text-dim:     rgba(200, 225, 245, 0.35);
+
+  /* Glass */
+  --glass:         rgba(255, 255, 255, 0.07);
+  --glass-bright:  rgba(255, 255, 255, 0.11);
+  --glass-edge:    rgba(255, 255, 255, 0.13);
+  --glass-edge-hi: rgba(255, 255, 255, 0.22);
+
+  /* System */
+  --r-sm: 10px;  --r-md: 16px;  --r-lg: 22px;  --r-xl: 30px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+  --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ═══════════════ Base ═══════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 300;
+  color: var(--text-primary);
+  background: var(--night-sky-top);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3, h4, .serif { font-family: 'Playfair Display', Georgia, serif; font-weight: 400; }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+::selection { background: rgba(244,228,176,0.22); }
+
+/* ═══════════════ Keyframes ═══════════════ */
+@keyframes fadeInUp    { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform:none; } }
+@keyframes fadeInScale { from { opacity:0; transform: scale(0.94); }     to { opacity:1; transform:none; } }
+@keyframes breathe     { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+@keyframes cueDrift    { 0%,100% { transform: translateY(0); opacity:.35 } 50% { transform: translateY(7px); opacity:.85 } }
+@keyframes shimmerText { 0% { background-position:-200% center } 100% { background-position:200% center } }
+@keyframes lineDraw    { from { stroke-dashoffset: 220 } to { stroke-dashoffset: 0 } }
+
+/* ═══════════════ Glass ═══════════════ */
+.gc {
+  background: var(--glass);
+  border: 1px solid var(--glass-edge);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+}
+.gc-hi {
+  background: var(--glass-bright);
+  border: 1px solid var(--glass-edge-hi);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+}
+
+/* ═══════════════ Scroll reveal ═══════════════ */
+.sr {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity .8s var(--ease), transform .8s var(--ease);
+  will-change: opacity, transform;
+}
+.sr.on { opacity: 1; transform: none; }
+
+.sr-l { opacity: 0; transform: translateX(-26px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+.sr-l.on { opacity: 1; transform: none; }
+.sr-r { opacity: 0; transform: translateX(26px);  transition: opacity .8s var(--ease), transform .8s var(--ease); }
+.sr-r.on { opacity: 1; transform: none; }
+
+/* ═══════════════ Tipografi halaman ═══════════════ */
+.eyebrow {
+  font-size: .68rem;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--star-gold);
+  opacity: .62;
+  font-weight: 400;
+}
+.chapter-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+}
+.lede {
+  color: var(--text-muted);
+  font-size: clamp(.95rem, 1.5vw, 1.05rem);
+  line-height: 1.8;
+  max-width: 54ch;
+}
+.shimmer {
+  background: linear-gradient(90deg, #EFF8FF 0%, #F4E4B0 30%, #EFF8FF 60%, #F4E4B0 90%, #EFF8FF 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerText 9s linear infinite;
+}
+
+/* ═══════════════ Kartu 3D halus (tilt) ═══════════════ */
+.tilt-wrap { perspective: 900px; }
+.tilt {
+  transform-style: preserve-3d;
+  transition: transform .5s var(--ease), border-color .5s var(--ease), box-shadow .5s var(--ease);
+  will-change: transform;
+}
+
+/* ═══════════════ Ruang tulis ═══════════════ */
+.note-ta {
+  background: transparent; border: none; resize: none; width: 100%;
+  color: var(--text-primary);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.02rem; line-height: 1.95; outline: none;
+}
+.note-ta::placeholder { color: var(--text-dim); font-style: italic; }
+textarea:focus, input:focus, button:focus-visible {
+  outline: 1px solid rgba(244,228,176,.4); outline-offset: 3px;
+}
+
+/* ═══════════════ Tata letak bab ═══════════════ */
+.quote-cols { columns: 1; }
+@media (min-width: 720px)  { .quote-cols { columns: 2; } }
+@media (min-width: 1080px) { .quote-cols { columns: 3; } }
+
+@media (max-width: 700px) {
+  .shift-row { grid-template-columns: 1fr !important; gap: .55rem !important; }
+  .shift-row > span[aria-hidden] { display: none; }
+}
+
+/* ═══════════════ Aksesibilitas gerak ═══════════════ */
+/**
+ * Kalau animasi dimatikan — atau JavaScript belum/tidak jalan — semua yang
+ * menunggu animasi masuk harus tetap terbaca. Ini jaring pengaman terakhir:
+ * halaman ini harus bisa dibaca sepenuhnya walau tanpa JS sama sekali.
+ */
+.fade-in { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+  .sr, .sr-l, .sr-r, .fade-in {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* pembuka: animasi murni CSS, tidak menunggu React — halaman selalu terbaca */
+.fade-in.run { animation: fadeInUp 1.5s var(--ease) both; }

@@ -1,0 +1,53 @@
+# ═══════════════════════════════════════════════════════════════════
+#  APA YANG TIDAK BOLEH MASUK GIT — baca alasannya, jangan cuma hapus
+# ═══════════════════════════════════════════════════════════════════
+#
+# Repo ini berisi KODE. Isinya — foto Olen, suaranya, tulisannya — TIDAK
+# ikut, dan itu disengaja.
+#
+# Alasannya bukan soal ukuran berkas. Olen di bawah umur. Begitu foto dan
+# rekaman suaranya masuk riwayat git, mereka ada di sana selamanya: ikut
+# tiap clone, ikut tiap fork, dan tidak bisa benar-benar dihapus tanpa
+# menulis ulang seluruh riwayat. Kalau repo-nya sempat publik satu menit
+# saja, itu sudah cukup untuk terindeks.
+#
+# Cara memindahkan isinya ke server ada di DEPLOY.md — lewat scp langsung,
+# di luar git.
+
+# ── milik Olen ──
+public/memori/*
+!public/memori/.gitkeep
+public/audio/*.m4a
+public/audio/*.opus
+public/audio/*.mp3
+data/*.db
+data/*.db-*
+
+# ── lagu berhak cipta (rip dari Spotify) ──
+# Tiga lagu di public/audio adalah rekaman berhak cipta. Di halaman privat
+# untuk satu orang itu satu hal; di repo yang bisa di-clone siapa pun, lain.
+*.mp3
+
+# ── bahan kerja, bukan bagian aplikasi ──
+_kurasi/
+_kurasi-foto.html
+_arsip-versi-lama.html
+*.tar.gz
+
+# ── berkas cache, bukan sumber ──
+# Keduanya sempat ikut commit pertama. Bukan bahaya, tapi berisik: isinya
+# berubah tiap kali build dijalankan, jadi tiap commit berikutnya penuh
+# perubahan yang tidak berarti apa-apa.
+__pycache__/
+*.pyc
+*.tsbuildinfo
+
+# ── bawaan ──
+node_modules
+.next
+out
+.DS_Store
+*.log
+.env*
+!.env.example
+!public/audio/.gitkeep

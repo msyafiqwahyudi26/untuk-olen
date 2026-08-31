@@ -1,0 +1,224 @@
+[
+ {
+  "babak": "pembuka",
+  "mood": "ringan",
+  "date": "07/12/24",
+  "file": "00021420-AUDIO-2024-12-07-18-56-56.opus"
+ },
+ {
+  "babak": "pembuka",
+  "mood": "ringan",
+  "date": "05/12/24",
+  "file": "00019876-AUDIO-2024-12-05-18-57-37.opus"
+ },
+ {
+  "babak": "pembuka",
+  "mood": "ringan",
+  "date": "21/11/24",
+  "file": "00008821-AUDIO-2024-11-21-20-42-41.opus"
+ },
+ {
+  "babak": "pembuka",
+  "mood": "ringan",
+  "date": "14/12/24",
+  "file": "00025545-AUDIO-2024-12-14-19-34-03.opus"
+ },
+ {
+  "babak": "pembuka",
+  "mood": "ringan",
+  "date": "05/12/24",
+  "file": "00019621-AUDIO-2024-12-05-16-35-17.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "29/12/24",
+  "file": "00034981-AUDIO-2024-12-29-18-38-06.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "07/12/24",
+  "file": "00021501-AUDIO-2024-12-07-19-45-43.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "09/12/24",
+  "file": "00023609-AUDIO-2024-12-09-14-34-13.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "07/12/24",
+  "file": "00021372-AUDIO-2024-12-07-18-22-48.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "05/12/24",
+  "file": "00019638-AUDIO-2024-12-05-16-43-18.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "07/12/24",
+  "file": "00021411-AUDIO-2024-12-07-18-46-37.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "14/12/24",
+  "file": "00025559-AUDIO-2024-12-14-19-42-55.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "05/12/24",
+  "file": "00019714-AUDIO-2024-12-05-17-19-50.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "09/12/24",
+  "file": "00023623-AUDIO-2024-12-09-14-41-38.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "08/01/24",
+  "file": "00008713-AUDIO-2024-01-08-19-17-24.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "29/12/24",
+  "file": "00035015-AUDIO-2024-12-29-18-54-52.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "05/12/24",
+  "file": "00019676-AUDIO-2024-12-05-17-03-56.opus"
+ },
+ {
+  "babak": "harian",
+  "mood": "ringan",
+  "date": "28/12/24",
+  "file": "00033256-AUDIO-2024-12-28-17-53-53.opus"
+ },
+ {
+  "babak": "keluh",
+  "mood": "keluh",
+  "date": "08/01/25",
+  "file": "00041058-AUDIO-2025-01-08-18-16-54.opus"
+ },
+ {
+  "babak": "keluh",
+  "mood": "sakit",
+  "date": "06/06/25",
+  "file": "00028526-AUDIO-2025-06-06-19-12-53.opus"
+ },
+ {
+  "babak": "keluh",
+  "mood": "sakit",
+  "date": "30/08/26",
+  "file": "00036309-AUDIO-2026-08-30-12-29-21.opus"
+ },
+ {
+  "babak": "keluh",
+  "mood": "sakit",
+  "date": "30/12/24",
+  "file": "00035836-AUDIO-2024-12-30-18-59-40.opus"
+ },
+ {
+  "babak": "keluh",
+  "mood": "sakit",
+  "date": "05/12/24",
+  "file": "00019766-AUDIO-2024-12-05-17-43-29.opus"
+ },
+ {
+  "babak": "sedih",
+  "mood": "sedih",
+  "date": "21/11/24",
+  "file": "00008812-AUDIO-2024-11-21-20-41-34.opus"
+ },
+ {
+  "babak": "sedih",
+  "mood": "marah",
+  "date": "30/08/26",
+  "file": "00036411-AUDIO-2026-08-30-12-53-52.opus"
+ },
+ {
+  "babak": "sedih",
+  "mood": "nangis",
+  "date": "30/08/26",
+  "file": "00036370-AUDIO-2026-08-30-12-49-22.opus"
+ },
+ {
+  "babak": "sedih",
+  "mood": "sedih",
+  "date": "26/11/24",
+  "file": "00028227-AUDIO-2024-11-26-17-54-40.opus"
+ },
+ {
+  "babak": "pulih",
+  "mood": "ringan",
+  "date": "05/12/24",
+  "file": "00019731-AUDIO-2024-12-05-17-33-16.opus"
+ },
+ {
+  "babak": "pulih",
+  "mood": "bahagia",
+  "date": "29/12/24",
+  "file": "00035070-AUDIO-2024-12-29-19-11-58.opus"
+ },
+ {
+  "babak": "pulih",
+  "mood": "bahagia",
+  "date": "07/12/24",
+  "file": "00021446-AUDIO-2024-12-07-19-05-41.opus"
+ },
+ {
+  "babak": "pulih",
+  "mood": "bahagia",
+  "date": "14/12/24",
+  "file": "00025524-AUDIO-2024-12-14-19-27-05.opus"
+ },
+ {
+  "babak": "pulih",
+  "mood": "bahagia",
+  "date": "05/12/24",
+  "file": "00019585-AUDIO-2024-12-05-16-23-38.opus"
+ },
+ {
+  "babak": "pulih",
+  "mood": "ringan",
+  "date": "14/12/24",
+  "file": "00025541-AUDIO-2024-12-14-19-33-02.opus"
+ },
+ {
+  "babak": "pulih",
+  "mood": "ringan",
+  "date": "08/01/24",
+  "file": "00008762-AUDIO-2024-01-08-19-58-05.opus"
+ },
+ {
+  "babak": "pulih",
+  "mood": "bahagia",
+  "date": "30/08/26",
+  "file": "00036376-AUDIO-2026-08-30-12-50-06.opus"
+ },
+ {
+  "babak": "pulih",
+  "mood": "ringan",
+  "date": "04/12/24",
+  "file": "00019052-AUDIO-2024-12-04-19-59-13.opus"
+ },
+ {
+  "babak": "penutup",
+  "mood": "hangat",
+  "date": "14/12/24",
+  "file": "00025565-AUDIO-2024-12-14-19-45-10.opus"
+ }
+]

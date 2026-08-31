@@ -1,0 +1,439 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..700,50,1&family=Outfit:wght@300;400;500&display=swap');
+
+:root {
+  --ink-deep:  #0B4C7A;
+  --ink-mid:   #16648F;
+  --ink-soft:  rgba(11, 76, 122, 0.62);
+  --paper:     #FFFFFF;
+  --ease:      cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* v2 punya latar sendiri — jangan mewarisi tema gelap dari globals.css */
+.v2 {
+  background: #6FC6EC;
+  color: #0B4C7A;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100svh;
+}
+.v2 *, .v2 *::before, .v2 *::after { box-sizing: border-box; }
+
+/* ─────────────── panggung ─────────────── */
+
+.op {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  /* langit — digambar di sini, bukan oleh three. Canvas-nya transparan. */
+  background: linear-gradient(
+    180deg,
+    #3FA9E0   0%,
+    #6FC6EC  30%,
+    #A3DCF4  62%,
+    #D2EEFB  86%,
+    #F0FAFE 100%
+  );
+}
+.op canvas { display: block; }
+
+/* ─────────────── tulisan di atas langit ─────────────── */
+
+.op-ui {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 6vw;
+  pointer-events: none;
+  /* naik sedikit supaya tidak menabrak garis air */
+  transform: translateY(-14svh);
+}
+.op-ui > * { pointer-events: auto; }
+
+.op-kicker {
+  margin: 0 0 .35rem;
+  font-size: clamp(.68rem, 1.5vw, .82rem);
+  letter-spacing: .46em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--paper);
+  text-shadow: 0 1px 10px rgba(9, 62, 102, .3);
+  opacity: 0;
+  animation: rise 1.4s var(--ease) .35s both;
+}
+
+.op-name {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'SOFT' 50, 'WONK' 1, 'opsz' 144;
+  font-weight: 500;
+  font-size: clamp(5.5rem, 20vw, 15rem);
+  line-height: .82;
+  letter-spacing: -.035em;
+  color: var(--paper);
+  text-shadow:
+    0 1px 0 rgba(11, 76, 122, .10),
+    0 6px 22px rgba(9, 62, 102, .22);
+  opacity: 0;
+  animation: rise 1.8s var(--ease) .6s both;
+}
+
+/* ─────────────── tombol suara ─────────────── */
+
+.op-listen {
+  margin-top: clamp(1.6rem, 4vh, 2.6rem);
+  display: inline-flex;
+  align-items: center;
+  gap: .7rem;
+  padding: .68rem 1.35rem .68rem 1.05rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .55);
+  background: rgba(255, 255, 255, .18);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  color: var(--paper);
+  font-family: inherit;
+  font-size: .76rem;
+  letter-spacing: .2em;
+  cursor: pointer;
+  transition: background .45s var(--ease), transform .45s var(--ease), border-color .45s;
+  opacity: 0;
+  animation: rise 1.4s var(--ease) 1.15s both;
+  text-shadow: 0 1px 10px rgba(9, 62, 102, .35);
+}
+.op-listen:hover { background: rgba(255, 255, 255, .3); transform: translateY(-2px); }
+.op-listen.on    { background: rgba(255, 255, 255, .38); border-color: #fff; }
+
+.op-wave { display: inline-flex; align-items: center; gap: 3px; height: 15px; }
+.op-wave i {
+  width: 2.5px;
+  height: 5px;
+  border-radius: 2px;
+  background: var(--paper);
+  display: block;
+}
+.op-listen.on .op-wave i { animation: bar 1s ease-in-out infinite; }
+.op-listen.on .op-wave i:nth-child(2) { animation-delay: .12s }
+.op-listen.on .op-wave i:nth-child(3) { animation-delay: .24s }
+.op-listen.on .op-wave i:nth-child(4) { animation-delay: .36s }
+.op-listen.on .op-wave i:nth-child(5) { animation-delay: .48s }
+
+/* ─────────────── isyarat scroll ─────────────── */
+
+.op-cue-unused {
+  position: absolute;
+  left: 50%;
+  bottom: 3.4svh;
+  z-index: 2;
+  transform: translateX(-50%);
+  opacity: 0;
+  animation: rise 1.4s var(--ease) 1.9s both;
+}
+.op-cue span {
+  display: block;
+  width: 1px;
+  height: 46px;
+  background: linear-gradient(rgba(255, 255, 255, .9), rgba(255, 255, 255, 0));
+  animation: drip 3s ease-in-out infinite;
+}
+
+/* ─────────────── gerak ─────────────── */
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes drip {
+  0%, 100% { opacity: .35; transform: scaleY(.55); transform-origin: top; }
+  50%      { opacity: 1;   transform: scaleY(1);   transform-origin: top; }
+}
+@keyframes bar {
+  0%, 100% { height: 5px; }
+  50%      { height: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+  .op-kicker, .op-name, .op-listen, .op-cue-unused { opacity: 1 !important; transform: none !important; }
+}
+
+/* ═══════════ butiran & tekstur ═══════════
+   Satu lapis derau halus di atas segalanya. Ini yang membuat gradien dan
+   bidang vektor berhenti terasa "rata" — sama seperti grain di ilustrasi
+   cetak. Dibuat dari feTurbulence, jadi tidak ada berkas gambar yang dimuat. */
+.op-grain {
+  position: absolute;
+  inset: -50%;
+  z-index: 3;
+  pointer-events: none;
+  opacity: .16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/>\
+<feColorMatrix type='saturate' values='0'/></filter>\
+<rect width='180' height='180' filter='url(%23n)' opacity='0.55'/></svg>");
+  background-size: 180px 180px;
+  animation: grainShift 6s steps(6) infinite;
+}
+@keyframes grainShift {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-3%, 2%); }
+  40%  { transform: translate(2%, -3%); }
+  60%  { transform: translate(-2%, -2%); }
+  80%  { transform: translate(3%, 1%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* lapis lembut di langit supaya gradiennya tidak berpita */
+.op::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 60% at 22% 8%, rgba(255,255,255,.20), transparent 55%),
+    radial-gradient(90% 45% at 78% 4%, rgba(255,255,255,.10), transparent 60%);
+}
+
+/* ═══════════ tombol suara ombak ═══════════ */
+/* Digeser ke kiri sejauh lebar tombol settings + jarak, karena keduanya
+   sama-sama di pojok kanan atas dan sempat bertumpuk. */
+.op-sound {
+  position: absolute;
+  top: clamp(1rem, 3vh, 1.8rem);
+  right: calc(clamp(1rem, 3vw, 2rem) + 46px);
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .48rem .85rem .48rem .7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.5);
+  background: rgba(255,255,255,.16);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  color: #fff;
+  font: inherit;
+  font-size: .66rem;
+  letter-spacing: .18em;
+  text-transform: lowercase;
+  cursor: pointer;
+  opacity: 0;
+  animation: rise 1.2s var(--ease) 2.2s both;
+  transition: background .4s var(--ease), transform .4s var(--ease);
+  text-shadow: 0 1px 8px rgba(9,62,102,.35);
+}
+.op-sound:hover { background: rgba(255,255,255,.28); transform: translateY(-1px); }
+.op-sound.on    { background: rgba(255,255,255,.34); border-color: #fff; }
+
+/* ═══════════ keterangan kecil di bawah tombol ═══════════ */
+.op-hint {
+  margin: 1.1rem 0 0;
+  font-size: .72rem;
+  letter-spacing: .1em;
+  color: rgba(255,255,255,.82);
+  text-shadow: 0 1px 10px rgba(9,62,102,.4);
+  opacity: 0;
+  animation: rise 1.4s var(--ease) 1.5s both;
+}
+
+/* ═══════════ tombol MULAI ═══════════ */
+.op-start {
+  border-color: rgba(255,255,255,.75);
+  background: rgba(255,255,255,.26);
+  animation: rise 1.4s var(--ease) 1.15s both, pulseStart 3.4s ease-in-out 2.6s infinite;
+}
+@keyframes pulseStart {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,.34); }
+  50%      { box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+}
+
+/* ═══════════ tombol lanjut ke bagian berikutnya ═══════════ */
+.op-next {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.6rem, 4svh, 2.8rem);
+  z-index: 4;
+  transform: translateX(-50%);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .3rem;
+  padding: .5rem 1rem .35rem;
+  border: none;
+  background: none;
+  color: rgba(255,255,255,.92);
+  font: inherit;
+  font-size: .66rem;
+  letter-spacing: .3em;
+  text-transform: lowercase;
+  cursor: pointer;
+  text-shadow: 0 1px 10px rgba(9,62,102,.45);
+  opacity: 0;
+  animation: rise 1.2s var(--ease) .4s both;
+}
+.op-next svg { animation: nudge 2.4s ease-in-out infinite; }
+.op-next:hover svg { animation-duration: 1.2s; }
+@keyframes nudge {
+  0%, 100% { transform: translateY(0); opacity: .55; }
+  50%      { transform: translateY(6px); opacity: 1; }
+}
+
+/* ═══════════ panel pengaturan ═══════════
+   Di pojok kanan atas, di atas segalanya. Sengaja kecil dan tenang: ini
+   halaman untuk didengarkan, bukan aplikasi untuk disetel. */
+
+.st {
+  position: absolute;
+  top: clamp(1rem, 3vh, 1.8rem);
+  right: clamp(1rem, 3vw, 2rem);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .55rem;
+}
+
+.st-buka {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .5);
+  background: rgba(255, 255, 255, .16);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  animation: rise 1.2s var(--ease) 2.2s both;
+  transition: background .35s var(--ease), transform .35s var(--ease);
+}
+.st-buka:hover { background: rgba(255, 255, 255, .3); transform: translateY(-1px); }
+.st-buka.on   { background: rgba(255, 255, 255, .38); border-color: #fff; }
+.st-buka svg  { transition: transform .5s var(--ease); }
+.st-buka.on svg { transform: rotate(60deg); }
+
+/* Latarnya sengaja gelap, bukan putih transparan.
+   Panel ini harus terbaca di keempat waktu — di atas langit siang yang terang
+   maupun langit malam yang gelap. Putih 22% tembus cahaya terlihat bagus di
+   satu waktu dan tidak terbaca di tiga lainnya. Lapisan gelap + blur bekerja
+   di semuanya. */
+.st-panel {
+  width: 238px;
+  padding: .95rem 1.05rem 1.05rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, .22);
+  background: rgba(14, 42, 64, .58);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: 0 10px 40px rgba(8, 32, 52, .28);
+  color: #fff;
+  text-shadow: none;
+  animation: rise .5s var(--ease) both;
+}
+
+.st-judul {
+  margin: 0 0 .55rem;
+  font-size: .62rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .62);
+}
+.st-pisah { margin-top: 1rem; }
+
+.st-baris {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: .34rem 0;
+  font-size: .82rem;
+  cursor: pointer;
+}
+.st-baris.mati { opacity: .42; cursor: default; }
+.st-baris input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+.st-sakelar {
+  position: relative;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 19px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .3);
+  background: rgba(255, 255, 255, .12);
+  transition: background .3s var(--ease), border-color .3s;
+}
+.st-sakelar::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: #fff;
+  transition: transform .3s var(--ease);
+}
+.st-baris input:checked + .st-sakelar { background: #6FC6EC; border-color: #9CDCF4; }
+.st-baris input:checked + .st-sakelar::after { transform: translateX(15px); }
+
+.st-waktu { display: flex; flex-wrap: wrap; gap: .3rem; }
+.st-pil {
+  flex: 1 1 calc(50% - .3rem);
+  padding: .42rem .3rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+  font: inherit;
+  font-size: .7rem;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: background .25s var(--ease), border-color .25s;
+}
+.st-pil:hover { background: rgba(255, 255, 255, .24); }
+.st-pil.on { background: #9CDCF4; border-color: #C8ECFA; color: #0B3B57; text-shadow: none; font-weight: 500; }
+.st-lebar { flex-basis: 100%; }
+
+.st-catatan {
+  margin: .75rem 0 0;
+  font-size: .68rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, .66);
+}
+
+/* Langit tidak lagi dipatok di CSS — Opening.tsx yang menuliskannya sesuai
+   waktu terpilih. Nilai di sini cuma cadangan sebelum JS jalan. */
+
+/* ═══════════ langit dua lapis ═══════════
+   Gradien CSS tidak bisa dianimasikan, tapi opacity bisa. Lapis bawah
+   memegang langit lama, lapis atas memudar masuk membawa langit baru.
+   Lihat Langit.tsx. */
+.lg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.lg-lapis {
+  position: absolute;
+  inset: 0;
+}
+.lg-atas {
+  opacity: 0;
+  transition: opacity var(--ease);
+}
+
+/* `.op` tidak lagi memegang gradien langitnya sendiri — Langit.tsx yang
+   menggambarnya. Warna di sini cuma dasar sebelum JS jalan. */
+.op { background: #6FC6EC; }

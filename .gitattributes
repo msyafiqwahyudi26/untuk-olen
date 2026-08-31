@@ -1,0 +1,29 @@
+# Akhir baris disamakan jadi LF di dalam repo.
+#
+# Yaya bekerja di Windows (CRLF), VPS dan sesi Claude lain di Linux (LF).
+# Tanpa berkas ini, tiap kali berkas berpindah antar keduanya git menandai
+# SELURUH isinya sebagai berubah — dan riwayat yang gunanya menunjukkan apa
+# yang benar-benar diubah jadi tidak ada gunanya.
+#
+# `text=auto eol=lf`: di dalam repo selalu LF; di working copy Windows tetap
+# boleh CRLF. Peringatan "LF will be replaced by CRLF" waktu `git add` itu
+# normal dan justru tanda aturan ini bekerja.
+
+* text=auto eol=lf
+
+# Berkas biner — jangan disentuh sama sekali
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.ico   binary
+*.m4a   binary
+*.opus  binary
+*.mp3   binary
+*.woff  binary
+*.woff2 binary
+*.db    binary
+
+# Skrip shell harus LF, apa pun sistemnya — kalau CRLF, bash menolaknya
+# dengan pesan yang membingungkan ("bad interpreter: No such file")
+*.sh    text eol=lf

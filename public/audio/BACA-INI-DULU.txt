@@ -1,0 +1,22 @@
+TARUH LAGUMU DI SINI
+====================
+
+Halaman /v2 mencari berkas dengan nama persis ini:
+
+  track-1.mp3   (atau track-1.m4a)   -> lagu pertama, mulai saat tombol ditekan
+  track-2.mp3   (atau track-2.m4a)   -> lagu kedua, untuk bagian berikutnya
+
+Kalau berkasnya belum ada, halaman tetap jalan normal — cuma tanpa musik.
+Tidak perlu mengubah kode apa pun; cukup taruh berkasnya lalu muat ulang.
+
+Catatan hak cipta
+-----------------
+"Bundle of Joy" dan "Stuff We Did" adalah karya Michael Giacchino untuk film
+Up (Disney/Pixar) dan berhak cipta penuh. Memakainya berdua saja di komputer
+sendiri satu hal; menaruhnya di internet hal lain. Kalau nanti halaman ini
+dideploy dan bisa diakses orang lain, lagu itu sebaiknya diganti.
+
+Yang sudah ada di folder ini (semua dibangkitkan sendiri, bebas hak cipta):
+  beach.m4a / .opus          ombak + pad tenang, loop 60 detik
+  voice-of-olen.m4a / .opus  montase 54 detik dari 563 voice note Olen
+  voice-of-olen.json         daftar potongannya: berkas, tanggal, mood, detik
