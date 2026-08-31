@@ -376,7 +376,7 @@ export default function Jurnal({
               dengan yang di layar pembuka — komponen yang sama, state yang
               sama. Dua panel serupa yang mengatur hal yang sama adalah cara
               paling mudah membuat "sudah saya matikan" jadi tidak benar. */}
-          <div className="jr-setelan">
+          <div className="jr-setelan" data-buka={menu ? "1" : "0"}>
             <Settings buka={menu} onBuka={setMenu} nilai={set} onUbah={ubahSet} garisTiga />
           </div>
 

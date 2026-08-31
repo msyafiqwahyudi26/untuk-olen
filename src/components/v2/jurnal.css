@@ -123,9 +123,42 @@
   text-align: center;
 }
 
-.jr-setelan { position: absolute; left: 0; top: -0.5rem; }
+/*
+ * ═══ z-index HARUS ADA DI ELEMEN YANG BERPOSISI ═══
+ *
+ * `.st` bawaannya `position: absolute` DAN `z-index: 6`. Waktu dipasang di
+ * jurnal saya jadikan `position: static` supaya ia menempel pada pembungkus
+ * di kiri — dan tanpa disadari itu membuang z-index-nya juga, karena z-index
+ * pada elemen statis DIABAIKAN SEPENUHNYA.
+ *
+ * Akibatnya panel setelan jatuh ke lapisan paling bawah: latarnya benar-benar
+ * gelap, tapi seluruh tulisan halaman digambar DI ATASNYA. Dari layar
+ * terlihat seperti panel tembus pandang, padahal bukan tembus pandang — ia
+ * tertimpa.
+ *
+ * Jadi z-index-nya dipindahkan ke pembungkusnya, yang memang berposisi.
+ */
+.jr-setelan {
+  position: absolute;
+  left: 0;
+  top: -0.5rem;
+  z-index: 60;
+}
 .jr-setelan .st { position: static; }
-.jr-setelan .st-panel { position: absolute; left: 0; right: auto; top: 46px; }
+.jr-setelan .st-panel { position: absolute; left: 0; right: auto; top: 46px; z-index: 61; }
+
+/* Selubung gelap di belakang panel: menegaskan bahwa halaman di bawahnya
+   sedang tidak aktif, dan menutup satu klik untuk keluar. Tanpa ini, panel
+   yang menutupi tulisan tetap terbaca seperti dua hal yang bertumpuk. */
+.jr-setelan[data-buka="1"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgba(3, 10, 22, 0.5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
 
 .jr-pulang {
   position: absolute;
