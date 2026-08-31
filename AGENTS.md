@@ -129,6 +129,46 @@ waktu. Kalau ada yang tertinggal, benda itu akan menonjol — awan emissive
 adalah yang paling mudah terlewat karena ia tidak ikut gelap sendiri saat
 lampu diredupkan.
 
+**Nilai awal tidak boleh mengandalkan animasi untuk jadi benar.** Uniform
+warna laut dan pasir dulu dibuat dengan `new THREE.Color()` — putih — lalu
+di-lerp ke warna aslinya di `useFrame`. Itu bekerja hanya kalau gelung render
+jalan. Browser menghentikan `requestAnimationFrame` di tab yang tidak sedang
+dilihat, jadi Olen yang membuka halaman ini di tab latar akan menemukan laut
+putih. Warna yang benar sudah diketahui saat pembuatan; pakai itu, dan biarkan
+animasi mengurus PERUBAHAN saja.
+
+---
+
+## Lapis keempat: design system
+
+Sisi CSS memakai pembagian yang sama dengan sisi 3D.
+
+| lapis | tahu apa | TIDAK boleh tahu |
+|---|---|---|
+| `src/design/tokens.css` | ukuran, jarak, lengkung, tempo, huruf | warna apa pun yang ikut waktu |
+| `src/design/tema.ts` | cara menurunkan warna chrome dari palet | bentuk kontrol |
+| `src/design/ui.css` | bentuk kontrol (`.ui-pil`, `.ui-panel`, …) | ia dipakai di layar mana |
+| `src/app/*/\*.css` | penempatan | cara membuat kontrol |
+
+**Jangan menulis warna, ukuran huruf, atau lengkung sudut di CSS halaman.**
+Kalau sebuah ukuran belum ada tokennya, tambahkan tokennya — jangan tulis
+angkanya di tempat.
+
+**Tiap kontrol wajib diberi zona.** `.z-atas` (langit teratas), `.z-aksi`
+(langit tengah), `.z-bawah` (**pasir**). Warna kacanya diturunkan dari
+luminansi latar di zona itu. Lupa memberi zona pada tombol di dasar layar
+berarti ia memakai warna untuk langit padahal yang ada di belakangnya pasir —
+dan pasir jauh lebih terang. Itu bug yang melahirkan seluruh sistem ini:
+tombol "keep going" berada di 1,35 : 1, sementara ambangnya 4,5 : 1.
+
+**Sesudah mengubah palet waktu, jalankan `npm run periksa:kontras`.** Ia
+keluar dengan kode 1 kalau ada yang jatuh di bawah ambang. Halaman `/design`
+menunjukkan hal yang sama secara visual, keempat waktu berdampingan.
+
+Satu pengecualian yang disengaja: nama besar "Olen" tidak ikut aturan kontras.
+Ukurannya 15rem — ia dibaca sebagai bentuk, bukan teks. Dicatat di `tema.ts`
+supaya jadi keputusan, bukan kelalaian.
+
 ---
 
 ## Arah desain — v2 (INI YANG BERLAKU)

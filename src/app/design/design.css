@@ -1,0 +1,174 @@
+/* Halaman rujukan. Sengaja polos: yang harus dinilai di sini adalah kontrol
+   dan tokennya, bukan halaman yang memamerkannya. */
+
+/* globals.css memberi <body> latar navy v1. Halaman ini terang, jadi latarnya
+   harus dibalik — kalau tidak, ada bingkai gelap di kiri-kanan yang membuat
+   warna di dalamnya terlihat lebih terang daripada yang sebenarnya, dan itu
+   persis kesalahan yang halaman ini ada untuk mencegahnya. */
+body:has(.ds) { background: #F7FAFC; }
+
+.ds {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--j8) var(--j5) var(--j8);
+  background: #F7FAFC;
+  color: #123A55;
+  font-family: var(--huruf-badan);
+  min-height: 100svh;
+}
+.ds * { box-sizing: border-box; }
+
+.ds-kepala { margin-bottom: var(--j8); }
+.ds-kicker {
+  margin: 0 0 var(--j2);
+  font-size: var(--t-kecil);
+  letter-spacing: var(--sp-jauh);
+  text-transform: uppercase;
+  color: #5A8CAB;
+}
+.ds h1 {
+  margin: 0 0 var(--j4);
+  font-family: var(--huruf-judul);
+  font-variation-settings: var(--judul-sumbu);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: #0B4C7A;
+}
+.ds-lede { margin: 0; max-width: 62ch; font-size: 1.02rem; line-height: 1.7; color: #2C5C7C; }
+
+.ds-bab { margin-bottom: var(--j8); }
+.ds h2 {
+  margin: 0 0 var(--j3);
+  font-family: var(--huruf-judul);
+  font-variation-settings: var(--judul-sumbu);
+  font-weight: 500;
+  font-size: 1.5rem;
+  letter-spacing: -.015em;
+  color: #0B4C7A;
+}
+.ds-teks { margin: 0 0 var(--j5); max-width: 62ch; line-height: 1.7; color: #35617F; }
+.ds-kecil { font-size: .88rem; color: #4C7492; }
+.ds code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .82em;
+  background: #E4EEF5;
+  padding: .1em .35em;
+  border-radius: 4px;
+}
+
+/* ── tabel kontras ── */
+
+.ds-tabel-bungkus { overflow-x: auto; margin-bottom: var(--j4); }
+.ds-tabel { border-collapse: collapse; width: 100%; font-size: .84rem; }
+.ds-tabel th, .ds-tabel td {
+  padding: .45rem .7rem;
+  text-align: left;
+  border-bottom: 1px solid #DCE8F0;
+  white-space: nowrap;
+}
+.ds-tabel th { font-weight: 500; color: #5A8CAB; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; }
+.ds-baik { color: #1B7A4B; font-weight: 500; }
+.ds-buruk { color: #B3341F; font-weight: 600; }
+.ds-chip {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,.12);
+  margin-right: .4rem;
+  vertical-align: -2px;
+}
+
+/* ── petak langit ──
+   Ukurannya sengaja mirip perbandingan layar sungguhan, supaya jarak kontrol
+   dari tepi terasa sama seperti di halaman aslinya. */
+
+.ds-langit-baris {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--j4);
+}
+.ds-langit {
+  position: relative;
+  margin: 0;
+  height: 300px;
+  border-radius: var(--r-sedang);
+  overflow: hidden;
+  box-shadow: 0 2px 14px rgba(11, 76, 122, .12);
+}
+.ds-langit-tinggi { height: 340px; }
+
+/* pasir di dasar petak — inilah yang ada di belakang tombol "keep going",
+   dan alasan zona bawah punya hitungannya sendiri */
+.ds-pasir { position: absolute; left: 0; right: 0; bottom: 0; height: 34%; }
+
+.ds-slot { position: absolute; display: flex; align-items: center; }
+.ds-slot-atas { top: 10px; right: 10px; gap: var(--j2); }
+.ds-slot-aksi {
+  top: 42%;
+  left: 0; right: 0;
+  transform: translateY(-50%);
+  flex-direction: column;
+  gap: var(--j2);
+  text-align: center;
+}
+.ds-slot-bawah { bottom: 12px; left: 0; right: 0; justify-content: center; }
+.ds-mini { font-size: .62rem; padding: .38rem .7rem; }
+
+/* Di kiri ATAS, bukan kiri bawah: di kiri bawah ia bertabrakan dengan tombol
+   "keep going", yang memang tinggal di situ. */
+.ds-langit figcaption {
+  position: absolute;
+  left: 12px; top: 12px;
+  font-size: .66rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.9);
+  text-shadow: var(--bayang-teks);
+}
+.ds-panel { position: absolute; top: 14px; right: 14px; width: 200px; }
+
+/* ── contoh huruf ── */
+
+.ds-huruf {
+  padding: var(--j6) var(--j5);
+  border-radius: var(--r-sedang);
+  margin-bottom: var(--j4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--j3);
+  align-items: flex-start;
+}
+.ds-nama-kecil { font-size: 4rem; }
+.ds-tanda {
+  margin: -.6rem 0 0;
+  font-size: .68rem;
+  letter-spacing: .16em;
+  color: rgba(255,255,255,.75);
+  text-shadow: var(--bayang-teks);
+}
+
+/* ── token jarak & lengkung ── */
+
+.ds-baris-token {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--j5);
+  margin-bottom: var(--j5);
+  align-items: flex-end;
+}
+.ds-token { display: flex; flex-direction: column; gap: .35rem; align-items: flex-start; }
+.ds-token small { color: #6E92A9; font-size: .72rem; }
+.ds-batang { display: block; height: 14px; background: #6FC6EC; border-radius: 3px; }
+.ds-kotak { display: block; width: 46px; height: 46px; background: #6FC6EC; }
+
+.ds-kaki {
+  border-top: 1px solid #DCE8F0;
+  padding-top: var(--j5);
+  font-size: .86rem;
+  line-height: 1.7;
+  color: #4C7492;
+  max-width: 62ch;
+}
+.ds-kaki p { margin: 0 0 var(--j3); }

@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+/* Design system. Urutannya penting: token dulu (nilai), lalu ui (bentuk yang
+   memakai nilai itu), baru CSS tiap halaman (penempatan) yang dimuat sendiri
+   oleh halamannya. */
+import "@/design/tokens.css";
+import "@/design/ui.css";
 
 export const metadata: Metadata = {
   title: "Len",

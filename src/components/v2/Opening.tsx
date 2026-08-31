@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Settings, { type Pengaturan } from "./Settings";
 import Langit from "./Langit";
 import { waktuSekarang, JAM_WAKIL } from "./waktu";
+import { variabelTema } from "@/design/tema";
 
 const OpeningScene = dynamic(() => import("./OpeningScene"), { ssr: false });
 
@@ -250,7 +251,17 @@ export default function Opening() {
   }, []);
 
   return (
-    <section className="op">
+    /*
+     * Warna chrome ditulis ke sini sebagai custom property, bukan dipilih oleh
+     * tiap tombol sendiri-sendiri. Nilainya diturunkan dari palet waktu — lihat
+     * src/design/tema.ts, dan jalankan periksa-kontras.ts kalau paletnya
+     * diubah.
+     *
+     * Ditulis sebagai style, bukan lewat useEffect: nilainya murni turunan dari
+     * `set.waktu`, jadi HTML server dan HTML klien sama persis dan tidak ada
+     * risiko hydration mismatch.
+     */
+    <section className="op" style={variabelTema(set.waktu) as React.CSSProperties}>
       <Langit waktu={set.waktu} />
       {quality && <OpeningScene quality={quality} waktu={set.waktu} jam={jam} />}
 
@@ -263,7 +274,7 @@ export default function Opening() {
           halaman dibuka, jadi harus selalu ada cara mematikannya. */}
       {
         <button
-          className={`op-sound${muted ? "" : " on"}`}
+          className={`ui-pil z-atas op-sound ui-masuk tunda-6${muted ? "" : " on"}`}
           onClick={toggleMute}
           aria-pressed={!muted}
           aria-label={muted ? "Turn sound on" : "Turn sound off"}
@@ -290,28 +301,31 @@ export default function Opening() {
       }
 
       <div className="op-ui">
-        <p className="op-kicker">Memories of</p>
-        <h1 className="op-name">Olen</h1>
+        <p className="ui-kicker ui-masuk tunda-1">Memories of</p>
+        <h1 className="ui-nama op-nama ui-masuk tunda-2">Olen</h1>
 
         {!started ? (
           <>
-            <button className="op-listen op-start" onClick={start}>
+            <button className="ui-pil ui-besar z-aksi op-aksi op-mulai" onClick={start}>
               <span className="op-wave" aria-hidden>
                 <i /><i /><i /><i /><i />
               </span>
               The Memory of Voice
             </button>
-            <p className="op-hint">whenever you&rsquo;re ready</p>
+            <p className="ui-catatan op-hint ui-masuk tunda-4">whenever you&rsquo;re ready</p>
           </>
         ) : (
           <>
-            <button className={`op-listen${voice ? " on" : ""}`} onClick={replayVoice}>
+            <button
+              className={`ui-pil ui-besar z-aksi op-aksi ui-masuk tunda-3${voice ? " on" : ""}`}
+              onClick={replayVoice}
+            >
               <span className="op-wave" aria-hidden>
                 <i /><i /><i /><i /><i />
               </span>
               {voice ? "listening" : "play it again"}
             </button>
-            <p className="op-hint">
+            <p className="ui-catatan op-hint ui-masuk tunda-4">
               {voice
                 ? "three years of your voice, folded into a minute"
                 : "I kept every one of them, in the order they came"}
@@ -337,7 +351,10 @@ export default function Opening() {
       </audio>
 
       {started && (
-        <button className="op-next" onClick={() => window.dispatchEvent(new CustomEvent("olen:next"))}>
+        <button
+          className="ui-pil z-bawah op-next"
+          onClick={() => window.dispatchEvent(new CustomEvent("olen:next"))}
+        >
           <span>keep going</span>
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
             <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />

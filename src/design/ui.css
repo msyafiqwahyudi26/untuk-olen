@@ -1,0 +1,292 @@
+/* ═══════════════════════════════════════════════════════════════════
+   UI — bentuk kontrol, bukan letaknya
+   ═══════════════════════════════════════════════════════════════════
+
+   Pembagian yang sama dengan yang sudah berlaku di sisi 3D:
+
+     assets/*.tsx  membuat BENTUK, tidak tahu ia ada di mana
+     beach.tsx     MENEMPATKAN, tidak membuat bentuk apa pun
+
+   Di sini:
+
+     ui.css        membuat KONTROL, tidak tahu ia ada di layar mana
+     v2.css        MENEMPATKAN, tidak membuat kontrol apa pun
+
+   Gunanya baru kelihatan di layar kedua: tombol di sana tidak perlu ditulis
+   ulang, tidak perlu disamakan dengan tangan, dan tidak akan pelan-pelan
+   melenceng dari tombol di layar pertama.
+
+
+   ── ZONA ──
+
+   Tiap kontrol harus diberi tahu ia duduk di ketinggian mana, karena di situ
+   yang menentukan warnanya:
+
+     .z-atas    pojok atas layar        latar: langit teratas
+     .z-aksi    tengah layar            latar: langit tengah
+     .z-bawah   dasar layar             latar: PASIR, bukan langit
+
+   Lupa memberi zona bukan bencana — bakunya `.z-aksi`. Tapi tombol di dasar
+   layar yang lupa diberi `.z-bawah` akan memakai warna untuk langit padahal
+   yang ada di belakangnya pasir, dan pasir jauh lebih terang. Itu persis bug
+   yang membuat seluruh sistem ini ditulis.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Bakunya zona aksi; ditimpa oleh .z-atas / .z-bawah di bawah. */
+.ui-pil,
+.ui-bulat {
+  --kaca: var(--ch-aksi-kaca);
+  --sorot: var(--ch-aksi-sorot);
+  --tepi: var(--ch-aksi-tepi);
+}
+.z-atas  { --kaca: var(--ch-atas-kaca);  --sorot: var(--ch-atas-sorot);  --tepi: var(--ch-atas-tepi); }
+.z-aksi  { --kaca: var(--ch-aksi-kaca);  --sorot: var(--ch-aksi-sorot);  --tepi: var(--ch-aksi-tepi); }
+.z-bawah { --kaca: var(--ch-bawah-kaca); --sorot: var(--ch-bawah-sorot); --tepi: var(--ch-bawah-tepi); }
+
+/* ─────────────── tombol pil ───────────────
+   Bentuk baku halaman ini. Semua tombol bertulisan memakai ini. */
+
+.ui-pil {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--j2);
+  padding: .48rem .85rem .48rem .7rem;
+  border-radius: var(--r-penuh);
+  border: 1px solid var(--tepi);
+  background-color: var(--kaca);
+  backdrop-filter: var(--kaca-blur);
+  -webkit-backdrop-filter: var(--kaca-blur);
+  color: #fff;
+  font-family: var(--huruf-badan);
+  font-size: var(--t-tombol);
+  letter-spacing: var(--sp-sedang);
+  line-height: 1;
+  cursor: pointer;
+  text-shadow: var(--bayang-teks);
+  /* Warna ikut berubah waktu pagi berganti siang. Ini sebabnya kaca ditulis
+     sebagai `background-color`, bukan `background`: shorthand tidak bisa
+     dianimasikan dengan mulus, dan pergantian warna chrome harus selesai
+     berbarengan dengan pergantian langit — kalau tidak, tombolnya berkedip
+     duluan sendirian. */
+  transition:
+    background-color var(--d-waktu) var(--ease),
+    border-color var(--d-waktu) var(--ease),
+    transform var(--d-sedang) var(--ease);
+}
+.ui-pil:hover { background-color: var(--sorot); transform: translateY(-1px); }
+.ui-pil.on    { background-color: var(--sorot); border-color: rgba(255, 255, 255, .85); }
+
+/* Ukuran besar — tombol yang memang ingin ditekan, bukan tombol yang ada
+   kalau-kalau dibutuhkan. */
+.ui-pil.ui-besar {
+  padding: .68rem 1.35rem .68rem 1.05rem;
+  font-size: .76rem;
+  gap: .7rem;
+  letter-spacing: .2em;
+}
+
+/* ─────────────── tombol bulat (hanya ikon) ─────────────── */
+
+.ui-bulat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-penuh);
+  border: 1px solid var(--tepi);
+  background-color: var(--kaca);
+  backdrop-filter: var(--kaca-blur);
+  -webkit-backdrop-filter: var(--kaca-blur);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background-color var(--d-waktu) var(--ease),
+    border-color var(--d-waktu) var(--ease),
+    transform var(--d-sedang) var(--ease);
+}
+.ui-bulat:hover { background-color: var(--sorot); transform: translateY(-1px); }
+.ui-bulat.on    { background-color: var(--sorot); border-color: rgba(255, 255, 255, .85); }
+
+/* ─────────────── panel ───────────────
+   Punya warnanya sendiri, bukan warna zona: ia berisi teks kecil berbaris-
+   baris yang dibaca lama, jadi ambangnya lebih tinggi. Lihat tema.ts. */
+
+.ui-panel {
+  padding: .95rem 1.05rem 1.05rem;
+  border-radius: var(--r-sedang);
+  border: 1px solid var(--ch-panel-tepi);
+  background-color: var(--ch-panel-kaca);
+  backdrop-filter: var(--kaca-blur-tebal);
+  -webkit-backdrop-filter: var(--kaca-blur-tebal);
+  box-shadow: var(--bayang-panel);
+  color: #fff;
+  font-family: var(--huruf-badan);
+  /* Di dalam panel tidak ada bayang teks: latarnya sudah pekat dan pasti,
+     jadi bayang cuma membuat huruf kecil terlihat kotor. */
+  text-shadow: none;
+  transition: background-color var(--d-waktu) var(--ease),
+              border-color var(--d-waktu) var(--ease);
+}
+
+.ui-panel-judul {
+  margin: 0 0 .55rem;
+  font-size: var(--t-mikro);
+  letter-spacing: var(--sp-lebar);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .62);
+}
+
+/* ─────────────── baris pengaturan + sakelar ─────────────── */
+
+.ui-baris {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: .34rem 0;
+  font-size: var(--t-badan);
+  cursor: pointer;
+}
+.ui-baris.mati { opacity: .42; cursor: default; }
+.ui-baris input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+.ui-sakelar {
+  position: relative;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 19px;
+  border-radius: var(--r-penuh);
+  border: 1px solid rgba(255, 255, 255, .3);
+  background: rgba(255, 255, 255, .12);
+  transition: background var(--d-cepat) var(--ease), border-color var(--d-cepat);
+}
+.ui-sakelar::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: var(--r-penuh);
+  background: #fff;
+  transition: transform var(--d-cepat) var(--ease);
+}
+.ui-baris input:checked + .ui-sakelar { background: #6FC6EC; border-color: #9CDCF4; }
+.ui-baris input:checked + .ui-sakelar::after { transform: translateX(15px); }
+
+/* ─────────────── pilihan berderet ─────────────── */
+
+.ui-deret { display: flex; flex-wrap: wrap; gap: var(--j1); }
+.ui-pilih {
+  flex: 1 1 calc(50% - var(--j1));
+  padding: .42rem .3rem;
+  border-radius: var(--r-kecil);
+  border: 1px solid rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+  font-family: var(--huruf-badan);
+  font-size: .7rem;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: background var(--d-cepat) var(--ease), border-color var(--d-cepat);
+}
+.ui-pilih:hover { background: rgba(255, 255, 255, .24); }
+.ui-pilih.on {
+  background: #9CDCF4;
+  border-color: #C8ECFA;
+  color: #0B3B57;
+  text-shadow: none;
+  font-weight: 500;
+}
+.ui-pilih.ui-lebar { flex-basis: 100%; }
+
+/* ─────────────── tulisan ───────────────
+   Empat peran, dan cuma empat. Tiap tulisan baru di halaman ini harus jadi
+   salah satunya; kalau tidak ada yang cocok, itu tanda perannya belum jelas —
+   bukan tanda perlu ukuran baru. */
+
+.ui-kicker {
+  margin: 0 0 .35rem;
+  font-family: var(--huruf-badan);
+  font-size: clamp(var(--t-kecil), 1.5vw, .82rem);
+  letter-spacing: var(--sp-jauh);
+  text-transform: uppercase;
+  font-weight: 400;
+  color: #fff;
+  text-shadow: var(--bayang-teks);
+}
+
+.ui-nama {
+  margin: 0;
+  font-family: var(--huruf-judul);
+  font-variation-settings: var(--judul-sumbu);
+  font-weight: 500;
+  font-size: var(--t-nama);
+  line-height: .82;
+  letter-spacing: var(--sp-rapat);
+  color: #fff;
+  /* Nama sengaja tidak ikut aturan kontras — lihat tema.ts. Bayangnya di
+     sini bukan tambalan keterbacaan melainkan bagian dari bentuknya. */
+  text-shadow:
+    0 1px 0 rgba(11, 76, 122, .10),
+    0 6px 22px rgba(9, 62, 102, .22);
+}
+
+.ui-judul {
+  margin: 0;
+  font-family: var(--huruf-judul);
+  font-variation-settings: var(--judul-sumbu);
+  font-weight: 500;
+  font-size: var(--t-judul);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  color: #fff;
+  text-shadow: var(--bayang-teks);
+}
+
+.ui-catatan {
+  margin: 0;
+  font-family: var(--huruf-badan);
+  font-size: var(--t-kecil);
+  line-height: 1.55;
+  letter-spacing: var(--sp-dekat);
+  color: rgba(255, 255, 255, .84);
+  text-shadow: var(--bayang-teks);
+}
+/* Di dalam panel latarnya sudah pekat — bayang tidak diperlukan lagi. */
+.ui-panel .ui-catatan { text-shadow: none; color: rgba(255, 255, 255, .66); }
+
+/* ─────────────── kemunculan ───────────────
+   `.ui-masuk` + salah satu `.tunda-N`. Tangganya ada di tokens.css. */
+
+.ui-masuk { opacity: 0; animation: uiNaik var(--d-masuk) var(--ease) both; }
+.tunda-1 { animation-delay: var(--tunda-1); }
+.tunda-2 { animation-delay: var(--tunda-2); }
+.tunda-3 { animation-delay: var(--tunda-3); }
+.tunda-4 { animation-delay: var(--tunda-4); }
+.tunda-5 { animation-delay: var(--tunda-5); }
+.tunda-6 { animation-delay: var(--tunda-6); }
+
+@keyframes uiNaik {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Jaring pengaman: kalau gerak dimatikan, semua yang menunggu animasi masuk
+   tetap harus ada di layar. */
+@media (prefers-reduced-motion: reduce) {
+  .ui-masuk { opacity: 1 !important; transform: none !important; animation: none !important; }
+}
+
+/* ─────────────── fokus papan tik ───────────────
+   Satu garis untuk semua kontrol. Halaman ini bisa saja dibuka Olen dengan
+   papan tik saja, dan kontrol yang tidak menunjukkan di mana fokusnya berarti
+   tidak bisa dipakai sama sekali. */
+.ui-pil:focus-visible,
+.ui-bulat:focus-visible,
+.ui-pilih:focus-visible,
+.ui-baris input:focus-visible + .ui-sakelar {
+  outline: 2px solid rgba(255, 255, 255, .9);
+  outline-offset: 3px;
+}

@@ -1,0 +1,125 @@
+/* Huruf ikut design system, bukan ikut halaman.
+   Sempat dimuat dari v2.css, dan akibatnya baru kelihatan waktu halaman
+   /design dibuat: judulnya jatuh ke Georgia, karena Fraunces cuma ada di
+   berkas milik layar cerita. Barang yang dipakai di lebih dari satu tempat
+   tidak boleh tinggal di salah satunya. */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..700,50,1&family=Outfit:wght@300;400;500&display=swap');
+
+/* ═══════════════════════════════════════════════════════════════════
+   TOKEN — nilai yang tidak berubah menurut waktu
+   ═══════════════════════════════════════════════════════════════════
+
+   Yang ada di sini: ukuran, jarak, lengkung, tempo.
+   Yang TIDAK ada di sini: warna chrome — itu diturunkan dari langit dan
+   ditulis oleh tema.ts sebagai `--ch-*`. Lihat berkas itu untuk alasannya.
+
+   Cara memakainya: jangan pernah menulis angka langsung di CSS komponen.
+   Kalau sebuah ukuran belum ada tokennya, tambahkan tokennya — bukan tulis
+   angkanya di tempat. Itu yang membuat layar kedua nanti bisa dibangun tanpa
+   menebak-nebak "yang kemarin berapa ya".
+
+   Angka-angka di bawah bukan karangan baru. Semuanya diambil dari layar
+   pembuka yang sudah jadi, lalu dikelompokkan. Jadi memakai token ini akan
+   menghasilkan tampilan yang sama, bukan tampilan baru.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── TIPOGRAFI ─────────────────────────────────────────────────────
+     Dua huruf, dua tugas:
+       Fraunces — hanya untuk nama dan judul. Huruf yang punya watak.
+       Outfit   — segala sisanya. Huruf yang tahu diri.
+     Tidak pernah dicampur dalam satu kalimat. */
+  --huruf-judul: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --huruf-badan: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Fraunces punya sumbu SOFT dan WONK. Nilai ini yang membuatnya terasa
+     bulat dan sedikit miring-ceria, bukan serif kaku. Selalu dipasang
+     bersamaan — Fraunces tanpa ini terlihat seperti huruf yang salah. */
+  --judul-sumbu: 'SOFT' 50, 'WONK' 1, 'opsz' 144;
+
+  /* Skala ukuran. Naik pelan di bawah, melompat di atas — karena teks kecil
+     dibaca dan teks besar dilihat, dan keduanya tidak butuh langkah yang
+     sama besarnya. */
+  --t-mikro:  .62rem;   /* label di dalam panel */
+  --t-kecil:  .68rem;   /* keterangan, kicker */
+  --t-tombol: .74rem;   /* tulisan di dalam tombol */
+  --t-badan:  .82rem;   /* baris pengaturan */
+  --t-lede:   clamp(.95rem, 1.5vw, 1.05rem);
+  --t-judul:  clamp(1.9rem, 4.6vw, 3.1rem);
+  --t-nama:   clamp(5.5rem, 20vw, 15rem);
+
+  /* Jarak antar huruf. Ini yang paling terasa sebagai "gaya" halaman ini:
+     tulisan kecil direnggangkan jauh, tulisan besar dirapatkan. Efeknya
+     tulisan kecil terbaca sebagai label yang tenang, bukan teks yang
+     berdesakan. */
+  --sp-jauh:   .46em;   /* kicker di atas nama */
+  --sp-lebar:  .28em;   /* judul bagian di panel */
+  --sp-sedang: .18em;   /* tulisan tombol */
+  --sp-dekat:  .1em;    /* keterangan */
+  --sp-rapat: -.035em;  /* nama besar — huruf besar butuh dirapatkan */
+
+  /* ── JARAK ────────────────────────────────────────────────────────
+     Kelipatan 4. Bukan karena angka bulat itu indah, tapi karena setengah
+     piksel di batas elemen membuat garis 1px kadang tebal kadang tipis. */
+  --j1:  4px;  --j2:  8px;  --j3: 12px;  --j4: 16px;
+  --j5: 24px;  --j6: 32px;  --j7: 48px;  --j8: 64px;
+
+  /* Jarak dari tepi layar. Ikut lebar layar, tapi ada batasnya di kedua
+     ujung — di layar sempit tidak boleh mepet, di layar lebar tidak perlu
+     makin menjauh. */
+  --tepi-x: clamp(1rem, 3vw, 2rem);
+  --tepi-y: clamp(1rem, 3vh, 1.8rem);
+
+  /* ── LENGKUNG ─────────────────────────────────────────────────────── */
+  --r-kecil:  8px;    /* pil pilihan di dalam panel */
+  --r-sedang: 14px;   /* panel */
+  --r-besar:  22px;
+  --r-penuh:  999px;  /* tombol — bentuk baku halaman ini */
+
+  /* ── TEMPO ────────────────────────────────────────────────────────
+     Satu lengkung untuk semuanya: cepat di awal, berhenti pelan. Gerakan
+     yang berhenti mendadak terasa seperti mesin; yang berhenti pelan
+     terasa seperti benda yang punya berat. */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --d-cepat:  .25s;    /* sakelar, pil — harus terasa langsung */
+  --d-sedang: .45s;    /* sorot tombol */
+  --d-lambat: .9s;
+  --d-masuk:  1.4s;    /* elemen muncul pertama kali */
+  --d-nama:   1.8s;    /* nama besar, sedikit lebih lambat dari sisanya */
+  --d-waktu:  1.6s;    /* pergantian pagi/siang/sore/malam */
+
+  /* Tangga kemunculan. Bukan angka acak: tiap elemen menunggu yang di
+     atasnya hampir selesai, jadi layar terbaca dari atas ke bawah seperti
+     kalimat, bukan muncul sekaligus seperti dialog. */
+  --tunda-1:  .35s;   /* kicker */
+  --tunda-2:  .6s;    /* nama */
+  --tunda-3: 1.15s;   /* tombol utama */
+  --tunda-4: 1.5s;    /* keterangan di bawah tombol */
+  --tunda-5: 1.9s;    /* isyarat scroll */
+  --tunda-6: 2.2s;    /* chrome di pojok — paling akhir, paling tidak penting */
+
+  /* ── KACA ─────────────────────────────────────────────────────────
+     Blur dan saturasi kaca. Warnanya TIDAK di sini — itu `--ch-*`, ikut
+     waktu. Yang di sini cuma seberapa buram dan seberapa pekat. */
+  --kaca-blur: blur(10px) saturate(140%);
+  --kaca-blur-tebal: blur(22px) saturate(140%);
+
+  /* ── BAYANG ─────────────────────────────────────────────────────── */
+  --bayang-panel: 0 10px 40px rgba(8, 32, 52, .28);
+  /* Bayang di belakang tulisan putih. Dulu dipasang di tiap tombol dengan
+     nilai yang sedikit berbeda-beda karena ditulis ulang tiap kali. Sekarang
+     satu nilai — dan tugasnya sudah bukan menyelamatkan keterbacaan (itu
+     tugas `--ch-*`), melainkan memberi tulisan sedikit kedalaman. */
+  --bayang-teks: 0 1px 10px rgba(9, 62, 102, .35);
+}
+
+/* Gerak yang dimatikan tetap harus meninggalkan halaman yang utuh terbaca. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --d-cepat: .01ms; --d-sedang: .01ms; --d-lambat: .01ms;
+    --d-masuk: .01ms; --d-nama: .01ms;  --d-waktu: .01ms;
+    --tunda-1: 0s; --tunda-2: 0s; --tunda-3: 0s;
+    --tunda-4: 0s; --tunda-5: 0s; --tunda-6: 0s;
+  }
+}

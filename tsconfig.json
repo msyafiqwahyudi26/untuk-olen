@@ -14,6 +14,11 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
+    /* Dipakai HANYA di src/design: berkas di situ ditulis supaya bisa
+       dijalankan langsung oleh node (`node --experimental-strip-types`) untuk
+       memeriksa angka kontrasnya sendiri, dan node menuntut ekstensi yang
+       ditulis lengkap. Aman karena noEmit: true. */
+    "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,

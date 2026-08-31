@@ -56,7 +56,7 @@ export default function Settings({
   return (
     <div className="st" ref={panel}>
       <button
-        className={`st-buka${buka ? " on" : ""}`}
+        className={`ui-bulat z-atas st-buka ui-masuk tunda-6${buka ? " on" : ""}`}
         onClick={() => onBuka(!buka)}
         aria-expanded={buka}
         aria-label="Settings"
@@ -74,20 +74,20 @@ export default function Settings({
       </button>
 
       {buka && (
-        <div className="st-panel" role="dialog" aria-label="Settings">
-          <p className="st-judul">Sound</p>
+        <div className="ui-panel st-panel" role="dialog" aria-label="Settings">
+          <p className="ui-panel-judul">Sound</p>
 
-          <label className="st-baris">
+          <label className="ui-baris">
             <span>Everything</span>
             <input
               type="checkbox"
               checked={!nilai.bisu}
               onChange={(e) => onUbah({ bisu: !e.target.checked })}
             />
-            <span className="st-sakelar" aria-hidden />
+            <span className="ui-sakelar" aria-hidden />
           </label>
 
-          <label className={`st-baris${nilai.bisu ? " mati" : ""}`}>
+          <label className={`ui-baris${nilai.bisu ? " mati" : ""}`}>
             <span>Waves</span>
             <input
               type="checkbox"
@@ -95,10 +95,10 @@ export default function Settings({
               disabled={nilai.bisu}
               onChange={(e) => onUbah({ ombak: e.target.checked })}
             />
-            <span className="st-sakelar" aria-hidden />
+            <span className="ui-sakelar" aria-hidden />
           </label>
 
-          <label className={`st-baris${nilai.bisu ? " mati" : ""}`}>
+          <label className={`ui-baris${nilai.bisu ? " mati" : ""}`}>
             <span>Music</span>
             <input
               type="checkbox"
@@ -106,30 +106,30 @@ export default function Settings({
               disabled={nilai.bisu}
               onChange={(e) => onUbah({ lagu: e.target.checked })}
             />
-            <span className="st-sakelar" aria-hidden />
+            <span className="ui-sakelar" aria-hidden />
           </label>
 
-          <p className="st-judul st-pisah">Light</p>
+          <p className="ui-panel-judul st-pisah">Light</p>
 
-          <div className="st-waktu">
+          <div className="ui-deret">
             {URUT.map((w) => (
               <button
                 key={w}
-                className={`st-pil${!nilai.waktuOtomatis && nilai.waktu === w ? " on" : ""}`}
+                className={`ui-pilih${!nilai.waktuOtomatis && nilai.waktu === w ? " on" : ""}`}
                 onClick={() => onUbah({ waktu: w, waktuOtomatis: false })}
               >
                 {NAMA[w]}
               </button>
             ))}
             <button
-              className={`st-pil st-lebar${nilai.waktuOtomatis ? " on" : ""}`}
+              className={`ui-pilih ui-lebar${nilai.waktuOtomatis ? " on" : ""}`}
               onClick={() => onUbah({ waktuOtomatis: true })}
             >
               Follow the clock
             </button>
           </div>
 
-          <p className="st-catatan">
+          <p className="ui-catatan st-catatan">
             {nilai.waktuOtomatis
               ? `Right now it is ${NAMA[nilai.waktu].toLowerCase()} where you are.`
               : "Set by hand. Tap “Follow the clock” to let it drift again."}

@@ -289,18 +289,42 @@ void main(){
 `;
 
 function Sea({ seg, waktu }: { seg: number; waktu: Waktu }) {
+  /**
+   * Warna awal diambil dari palet, BUKAN dibiarkan kosong.
+   *
+   * `new THREE.Color()` tanpa argumen itu PUTIH. Dulu semua uniform di sini
+   * dibuat begitu, dengan anggapan `useFrame` di bawah akan segera menggeser-
+   * nya ke warna yang benar. Anggapan itu punya syarat yang tidak selalu
+   * terpenuhi: gelung render harus jalan. Kalau Olen membuka halaman ini di
+   * tab yang tidak sedang dilihat, browser menghentikan requestAnimationFrame
+   * — dan waktu ia berpindah ke tab itu, yang ia lihat adalah laut PUTIH,
+   * karena tidak pernah ada satu frame pun untuk menggesernya.
+   *
+   * Ketahuan waktu menyiapkan design system: tab pemeriksaan kena throttle
+   * Chrome, dan lautnya putih selama tiga puluh detik.
+   *
+   * Warna yang benar sudah diketahui di sini, saat ini juga. Jadi tidak ada
+   * alasan memulainya dari warna lain lalu berharap. `useFrame` di bawah
+   * tetap berguna — tugasnya sekarang cuma satu: menghaluskan PERGANTIAN
+   * waktu, bukan menambal keadaan awal.
+   */
   const uniforms = useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uWaterline: { value: WATERLINE },
-      uShallow: { value: new THREE.Color() },
-      uLight: { value: new THREE.Color() },
-      uMid: { value: new THREE.Color() },
-      uDeep: { value: new THREE.Color() },
-      uFar: { value: new THREE.Color() },
-      uFoam: { value: new THREE.Color() },
-      uHorizon: { value: new THREE.Color() },
-    }),
+    () => {
+      const p = PALET[waktu].laut;
+      return {
+        uTime: { value: 0 },
+        uWaterline: { value: WATERLINE },
+        uShallow: { value: new THREE.Color(p.shallow) },
+        uLight: { value: new THREE.Color(p.light) },
+        uMid: { value: new THREE.Color(p.mid) },
+        uDeep: { value: new THREE.Color(p.deep) },
+        uFar: { value: new THREE.Color(p.far) },
+        uFoam: { value: new THREE.Color(p.foam) },
+        uHorizon: { value: new THREE.Color(PALET[waktu].cakrawala) },
+      };
+    },
+    // sengaja sekali saja: sesudah ini `useFrame` yang memegang warnanya.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -471,14 +495,19 @@ function Shore({ waktu }: { waktu: Waktu }) {
     return g;
   }, []);
 
+  /* Warna awal dari palet, bukan putih — alasan lengkapnya di Sea() di atas. */
   const uniforms = useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uWaterline: { value: WATERLINE },
-      uDry: { value: new THREE.Color() },
-      uMid: { value: new THREE.Color() },
-      uWet: { value: new THREE.Color() },
-    }),
+    () => {
+      const p = PALET[waktu].pasir;
+      return {
+        uTime: { value: 0 },
+        uWaterline: { value: WATERLINE },
+        uDry: { value: new THREE.Color(p.dry) },
+        uMid: { value: new THREE.Color(p.mid) },
+        uWet: { value: new THREE.Color(p.wet) },
+      };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 

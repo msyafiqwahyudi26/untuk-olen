@@ -35,7 +35,12 @@ Node ≥ 22.18 (butuh `node:sqlite` bawaan).
 |---|---|
 | `/v2` | layar cerita — pantai, empat waktu, suara Olen |
 | `/aset` | library model 3D, satu per satu di panggung putar |
+| `/design` | design system — token, kontrol, kontras di keempat waktu |
 | `/v2?cepat` | siklus paus 9 detik, untuk menyetel animasi |
+
+```powershell
+npm run periksa:kontras   # apakah tiap tombol masih terbaca di keempat waktu
+```
 
 ---
 
@@ -67,6 +72,12 @@ content/story.ts              satu-satunya tempat naskah
 scripts/build-voice.py        montase suara Olen — baca komentarnya dulu
 src/app/v2/                   layar cerita
 src/app/aset/                 library aset
+src/app/design/               rujukan design system
+src/design/
+  warna.ts                    luminansi & kontras. Matematika murni.
+  tema.ts                     warna chrome, DITURUNKAN dari palet waktu
+  tokens.css                  ukuran, jarak, lengkung, tempo, huruf
+  ui.css                      BENTUK kontrol — tidak tahu ia di layar mana
 src/components/v2/
   world.ts                    garis air + tinggi pasir. Satu sumber.
   waktu.ts                    palet pagi/siang/sore/malam + busur matahari

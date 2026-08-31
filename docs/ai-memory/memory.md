@@ -7,6 +7,114 @@ Format: entri terbaru di **atas**.
 
 ---
 
+## 31 Agustus 2026 (malam) — DESIGN SYSTEM
+
+Sesudah repo naik ke GitHub. Yang dibangun: `src/design/` + halaman `/design`.
+
+### Kesalahan yang ditemukan waktu membangunnya
+
+**1. Warna chrome dipatok putih, dan tidak pernah dihitung.**
+
+Semua tombol putih di atas kaca putih 16%. Benar waktu langitnya cuma satu
+(siang, biru). Begitu langitnya jadi empat, tidak ada yang memeriksa ulang.
+Hasil hitungan kontras (`npm run periksa:kontras`):
+
+| di mana | latar | sebelum | ambang |
+|---|---|---|---|
+| keep going (di atas pasir siang) | #EBD5AC | **1,35 : 1** | 4,5 |
+| tombol besar (langit pagi) | #DCD3E4 | **1,36 : 1** | 4,5 |
+| settings (langit pagi) | #7FA8D8 | **2,10 : 1** | 4,5 |
+
+Yang menutupi ini selama ini: `text-shadow: 0 1px 10px rgba(9,62,102,.35)` —
+lapisan gelap yang dipasang karena "kelihatan lebih enak", tanpa pernah
+dihitung. Tambalan yang kebetulan menolong. Ia akan berhenti menolong di
+langit kelima.
+
+Sekarang warna kaca diturunkan dari luminansi latar di belakangnya. Bukti
+bahwa turunannya benar: untuk golden hour hitungannya berhenti di
+`rgba(14,42,64,0.58)` — persis nilai yang dulu disetel dengan tangan sampai
+terasa pas. Yang berubah bukan hasilnya, melainkan bahwa sekarang ada
+alasannya, dan ia ikut berubah sendiri kalau paletnya diubah.
+
+**Zona.** Tiap kontrol harus tahu ia duduk di ketinggian mana, karena latarnya
+beda-beda: `.z-atas` (langit teratas), `.z-aksi` (langit tengah), `.z-bawah`
+(**pasir**, bukan langit). Zona bawah itu yang paling sering salah dikira.
+
+**2. Laut dan pasir mulai dari PUTIH lalu di-lerp ke warnanya.**
+
+Ini bug yang paling berbahaya dari keduanya, dan ketemunya tidak sengaja.
+
+`new THREE.Color()` tanpa argumen itu putih. Semua uniform warna laut dan
+pasir dibuat begitu, dengan anggapan `useFrame` akan segera menggesernya ke
+warna yang benar. Anggapan itu punya syarat: **gelung render harus jalan.**
+
+Waktu memeriksa halaman lewat Claude in Chrome, Chrome men-throttle tab yang
+tidak sedang dilihat — `requestAnimationFrame` berhenti total (ketahuan karena
+`await` sebuah rAF menggantung sampai CDP timeout 45 detik). Akibatnya lautnya
+putih selama tiga puluh detik, dan aku sempat menyangka itu ulah perubahan
+CSS-ku sendiri. Sempat bisektik pakai `git stash` — dan hasilnya tidak
+konsisten antar percobaan, yang justru petunjuknya: kalau bug-nya nyata,
+hasilnya akan sama tiap kali.
+
+Artinya bug sungguhan: **kalau Olen membuka halaman ini di tab latar lalu
+berpindah ke sana, yang ia lihat laut putih.** Diperbaiki dengan memulai
+uniform dari `PALET[waktu]` — warnanya sudah diketahui saat itu juga, jadi
+tidak ada alasan memulainya dari warna lain lalu berharap. `useFrame` tetap
+ada, tugasnya sekarang cuma menghaluskan pergantian waktu.
+
+> **Pelajaran umum:** nilai awal yang "akan segera dibetulkan oleh animasi"
+> adalah nilai yang ditebak, dan aturan proyek ini melarangnya. Kalau nilai
+> yang benar sudah diketahui saat pembuatan, pakai itu.
+
+> **Pelajaran kedua, soal cara memeriksa:** screenshot dari tab yang tidak
+> sedang dilihat tidak bisa dipercaya untuk apa pun yang bergantung pada
+> animasi. Kalau dua percobaan yang sama memberi hasil berbeda, berhenti
+> menebak sebabnya — periksa dulu apakah alat ukurnya yang rusak.
+
+**3. Huruf judul dimuat dari `v2.css`.**
+
+Baru ketahuan waktu `/design` dibuat: judulnya jatuh ke Georgia, karena
+Fraunces cuma ada di berkas milik layar cerita. Pindah ke `tokens.css`.
+Outfit sempat diminta dua kali (globals + v2) — dua permintaan jaringan untuk
+huruf yang sama.
+
+**4. `globals.css` masih memegang design system proyek LAIN.**
+
+Palet navy gelap dan Playfair Display, warisan v1. Bertentangan langsung
+dengan aturan v2 (tidak ada navy gelap; huruf judul Fraunces). Tidak dihapus
+karena v1 masih memakainya, tapi sekarang diberi kepala besar bertuliskan
+peninggalan, jangan dipakai untuk halaman baru.
+
+### Susunannya
+
+```
+src/design/warna.ts          matematika murni: luminansi, kontras, tumpuk
+src/design/tema.ts           warna chrome, diturunkan dari PALET
+src/design/tokens.css        ukuran, jarak, lengkung, tempo, huruf
+src/design/ui.css            bentuk kontrol (.ui-pil, .ui-panel, …)
+src/design/periksa-kontras.ts  npm run periksa:kontras
+src/app/design/              rujukan hidup, empat waktu berdampingan
+```
+
+Pembagiannya menyalin yang sudah terbukti di sisi 3D:
+`ui.css` membuat kontrol dan tidak tahu ia ada di layar mana; `v2.css`
+menempatkan dan tidak membuat kontrol apa pun.
+
+`warna.ts` dan `tema.ts` sengaja bisa dijalankan langsung oleh node
+(`--experimental-strip-types`) — itu sebabnya impor di dalam `src/design/`
+memakai ekstensi `.ts` yang ditulis lengkap, dan `allowImportingTsExtensions`
+dinyalakan di tsconfig. Turbopack menerimanya.
+
+### Yang berubah tampilannya, dan perlu penilaian Yaya
+
+Tombol yang dulu kaca putih sekarang jadi kaca gelap di pagi/siang/sore, dan
+tetap kaca putih di malam. Tombol "keep going" yang dulu tulisan telanjang
+sekarang punya pil. Nama besar "Olen" **tidak** diubah — pengecualian yang
+disengaja, dicatat di `tema.ts`: ukurannya 15rem, ia dibaca sebagai bentuk
+bukan teks.
+
+---
+
 ## STATUS SEKARANG — 31 Agustus 2026 (sore)
 
 **Sedang dikerjakan:** v2, layar pembuka saja (`/v2`). Menunggu penilaian Yaya.

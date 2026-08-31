@@ -1,7 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@200;300;400;500&display=swap');
+/* Playfair Display cuma dipakai v1. Outfit tidak diminta di sini: ia sudah
+   dimuat oleh src/design/tokens.css, dan meminta huruf yang sama dua kali
+   berarti dua permintaan jaringan yang saling menunggu sebelum halaman bisa
+   menggambar teks. */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
 @import 'tailwindcss';
 
-/* ═══════════════ Design tokens — dari Interactive Ocean-Themed Journal App ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════════
+   PENINGGALAN v1 — JANGAN DIPAKAI UNTUK HALAMAN BARU
+   ═══════════════════════════════════════════════════════════════════
+
+   Berkas ini milik versi pertama (`/`): laut malam, navy gelap, Playfair
+   Display. Ia masih di sini karena halaman v1 masih jalan dan masih memakainya
+   — menghapusnya akan merusak halaman itu tanpa ada yang diuntungkan.
+
+   Tapi ia BUKAN design system proyek ini. Yang berlaku sekarang ada di
+   `src/design/`:
+
+     tokens.css   ukuran, jarak, lengkung, tempo
+     ui.css       bentuk kontrol
+     tema.ts      warna chrome, diturunkan dari langit
+     /design      rujukan hidup — buka di browser
+
+   Dua hal di bawah bertentangan langsung dengan yang berlaku sekarang, jadi
+   jangan sampai tercampur:
+
+     · paletnya navy gelap. Aturan v2: TIDAK ADA navy gelap — Olen suka biru
+       muda, dan warna paling gelap di v2 (#1591D2) masih lebih terang dari
+       `--night-sea-near` di bawah.
+     · huruf judulnya Playfair Display. v2 memakai Fraunces.
+
+   `.v2` sengaja menimpa semuanya (latar, warna, huruf) supaya halaman cerita
+   tidak mewarisi apa pun dari sini.
+   ═══════════════════════════════════════════════════════════════════ */
 :root {
   /* Night sky */
   --night-sky-top:  #010610;
