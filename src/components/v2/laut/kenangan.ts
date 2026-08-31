@@ -76,20 +76,67 @@ export type Foto = {
   ket?: string;
 };
 
+/** Satu kalimat kecil di dalam sebuah kumpulan. */
+export type Sisipan = {
+  /** Kata Olen, apa adanya. */
+  kutipan: string;
+  tanggal?: string;
+  /** Satu kalimat Kakak, pendek. Bukan paragraf. */
+  catatan: string;
+};
+
 export type Kenangan = {
   /** Kedalaman dalam meter, 0 sampai DASAR. */
   di: number;
+  /**
+   * Kalau diisi, kenangan ini MEMBUKA sebuah babak, dan judulnya tampil
+   * besar di atasnya.
+   *
+   * Babaknya bukan pembagian sembarangan. Ia mengikuti fisika turunannya,
+   * yang sudah ada duluan di `kedalaman.ts`:
+   *
+   *   0 –  70 m   cahaya matahari masih sampai
+   *   70 – 260 m  air membiru pekat, cahaya tinggal sisa
+   *   260 m ke bawah  gelap total, yang menyala cuma makhluknya sendiri
+   *
+   * Yaya: "harusnya di kaitin sama eksplorasi bawah laut sih setiap alur
+   * bagian ceritanya." Jadi babaknya dipaksa berimpit dengan batas cahaya
+   * itu, bukan dengan jumlah kenangan. Yang paling berat ditaruh di zona
+   * yang tidak lagi menerima cahaya dari atas, karena di situ yang menyala
+   * memang Olen sendiri. Itu bukan hiasan; itu memang yang digambar layarnya.
+   */
+  babak?: string;
+  /** Satu atau dua kalimat pembuka babak, tampil di bawah judulnya. */
+  pengantar?: string[];
   /**
    * Kalimat Kakak SEBELUM kutipan. Biasanya pertanyaan yang mengajak Olen
    * mengingat dulu: "Olen inget nggak, waktu itu kita…".
    */
   pembuka?: string;
-  /** Kata Olen. Apa adanya. Ditampilkan di dalam tanda petik. */
-  kutipan: string;
+  /** Kata Olen. Apa adanya. Ditampilkan di dalam tanda petik.
+   *  Kosong kalau kenangan ini memakai `kumpulan`. */
+  kutipan?: string;
   /** Tanggal seperti di ekspor, mis. "07/12/24". Boleh kosong. */
   tanggal?: string;
   /** Siapa yang mengucapkannya. Bawaannya Olen. */
   dari?: "olen" | "yaya";
+  /**
+   * Beberapa kutipan KECIL sekaligus, sebagai ganti satu kutipan besar.
+   *
+   * Ada waktu 31 Agustus 2026, dan alasannya dari Yaya: "kutipan olen itu
+   * jangan di jadiin premis utama sih kalo emang nggak begitu kuat, kaya
+   * yang dia ngomong 'kayak roti' itu kan sebenernya absurd nggak kuat di
+   * memori jadi aneh rasanya."
+   *
+   * Benar. Kalimat absurd yang dipasang sebesar judul menagih bobot yang
+   * tidak dipunyainya, dan hasilnya justru terasa dipaksakan. Tapi kalimat
+   * yang sama, dikumpulkan bertiga, berhenti jadi lelucon lepas dan berubah
+   * jadi BUKTI dari satu pola.
+   *
+   * Jadi aturannya: satu kutipan berdiri sendiri HANYA kalau ia sanggup
+   * menahan satu layar penuh. Kalau tidak, ia masuk kumpulan.
+   */
+  kumpulan?: Sisipan[];
   /** Yang Kakak katakan SESUDAH kutipan, satu paragraf per baris. */
   cerita?: string[];
   /**
@@ -116,40 +163,43 @@ export type Kenangan = {
 };
 
 export const KENANGAN: Kenangan[] = [
-  /* ───────────── 3 m · premis ─────────────
-     Yang pertama terbaca kalimat Kakak, bukan kutipan Olen. Tanpa premis,
-     yang di bawah cuma kumpulan potongan bagus. Dengan premis, semuanya jadi
-     bukti dari satu hal yang sudah disebut di depan. */
+  /* ═════════════════════ BABAK 1 · 0–70 m ═════════════════════
+     Cahaya matahari masih sampai. Yang di sini Olen yang semua orang lihat:
+     cepat, lucu, gampang diingat. Kenangannya juga dipilih yang paling
+     ringan diangkat. */
   {
     di: 3,
     dari: "yaya",
+    babak: "Yang kelihatan dari atas",
+    pengantar: [
+      "Delapan ratus meter ke bawah, dan makin ke bawah makin sedikit cahaya yang nyampe.",
+      "Itu bukan kebetulan. Yang di atas sini gampang dilihat siapa aja. Yang di paling bawah cuma kelihatan kalau kita bener-bener turun ke situ.",
+    ],
     kutipan: "Olen udah dengerin ulang semua VN yang kakak coba kumpulin? Gimana rasanya?",
     cerita: [
-      "Floren, adik kakak yang cantik. Itu semua momen di mana Olen ketawa, nangis, marah, capek, terus besoknya bangun lagi dan ngejalanin harinya kayak nggak ada apa-apa.",
-      "Kakak dengerin semuanya. Setiap tawa, setiap tangis, setiap bagian yang berat. Dan dari semuanya ada satu yang paling kelihatan: Olen selalu nemu jalannya, walaupun kadang lama.",
-      "Sebelum kita turun, kakak mau Olen tau dulu apa yang bakal Olen temuin di bawah sana. Ini bukan kalimat-kalimat random yang kakak susun. Ini yang Olen sendiri pernah bilang, di hari-hari yang mungkin Olen udah lupa.",
-      "Jadi kalau nanti ada yang bikin Olen kaget, itu bukan kakak yang ngarang. Itu Olen.",
+      "Sebelum kita turun, kakak mau kasih tau dulu kita mau ke mana.",
+      "Di sepanjang jalan turun nanti kakak naruh sesuatu. Bukan kalimat yang kakak karang buat bikin Olen terharu. Itu kalimat Olen sendiri, dari hari-hari yang mungkin udah Olen lupa pernah ada.",
+      "Floren, adik kakak yang cantik. Semua ini momen di mana Olen ketawa, nangis, marah, capek, terus besoknya bangun lagi kayak nggak ada apa-apa.",
       "It will pass. So let's enjoy our life right now, in every breath we take.",
+      "Ayo turun.",
     ],
   },
-
-  /* ───────────── 8–96 m · masih terang ───────────── */
   {
-    di: 8,
-    pembuka: "Olen pernah ngomong ke kakak",
+    di: 10,
+    pembuka: "Kita mulai dari yang paling dangkal. Olen pernah ngomong ke kakak",
     kutipan: "PAS MPLS ITU SERU BANGET, TAPI GA KERASA UDAH MAU NAIK KELAS",
     tanggal: "02/01/24",
     cerita: [
       "Waktu Olen nulis ini, Olen masih kelas 7. Baru masuk SMP, baru kenal semuanya, dan tau-tau udah mau naik kelas aja rasanya.",
       "Kakak tau waktu itu ada banyak yang Olen takutin. Takut nggak punya temen, takut nggak nyambung, takut jadi yang paling ketinggalan. Olen nggak pernah bilang persis kayak gitu, tapi kelihatan dari cara Olen cerita.",
-      "Dan kakak sadar, Olen saat itu emang masih banyak yang harus dipelajarin buat bisa melangkah lebih jauh. Itu wajar banget. Semua orang gitu di tahun pertamanya.",
-      "Tapi coba lihat sekarang. Olen udah lewat jauh dari fase itu. Yang dulu bikin Olen deg-degan sekarang jadi cerita lama yang bisa diketawain.",
-      "Jujur, kakak bahagia banget lihat Olen bertahan sejauh ini. So proud of you, my little sister.",
+      "Kakak sengaja naruh yang ini paling atas. Karena semua yang bakal Olen baca di bawah nanti berangkatnya dari sini, dari anak kelas 7 yang masih takut sama tahun pertamanya.",
+      "Sekarang lihat sendiri seberapa jauh Olen udah turun dari titik itu. So proud of you, my little sister.",
     ],
   },
   {
-    di: 18,
-    pembuka: "Olen ingat nggak, kita sempat bahas satu mall yang ada ice skating-nya?",
+    di: 24,
+    pembuka:
+      "Masih terang di sini, dan yang di kedalaman segini paling gampang diambil. Olen ingat nggak, kita sempat bahas satu mall yang ada ice skating-nya?",
     kutipan: "AKU DULU SUKA BGT MAIN ICE SKATING DISITU",
     tanggal: "18/11/24",
     foto: [
@@ -163,49 +213,63 @@ export const KENANGAN: Kenangan[] = [
       "Kita lagi ngobrolin tempat, terus tiba-tiba Olen inget itu. Cepet banget, kayak udah nunggu buat diceritain.",
       "Sadar nggak, momen bahagia itu selalu kesimpen rapi di kepala kita? Nggak perlu diinget-inget. Dia dateng sendiri begitu ada pemicunya, bahkan waktu kita lagi bahas hal lain.",
       "Dan kadang kita nggak perlu balik ke tempatnya. Cukup inget momennya, terus rasain lagi dari dalem, sambil bersyukur pernah ada masa di mana kita sebahagia itu.",
-      "Mungkin kita nggak bisa ngulang buat yang kedua kali. Tempatnya bisa tutup, orangnya bisa pindah, kitanya sendiri bisa berubah. Tapi rasanya tetep punya Olen, dan nggak ada satu pun yang bisa ngambil itu.",
+      "Tempatnya bisa tutup, orangnya bisa pindah, kitanya sendiri bisa berubah. Tapi rasanya tetep punya Olen, dan nggak ada satu pun yang bisa ngambil itu.",
     ],
   },
   {
-    di: 30,
+    di: 40,
     pembuka:
-      "Olen inget nggak, dulu kita sering banget bikin teori konspirasi? Olen yang cerita, Olen yang mendongeng.",
+      "Ini yang kakak baru sadar setelah baca ulang semuanya sekaligus. Olen nyebut dunia pakai kata yang beda satu langkah dari orang lain.",
+    kumpulan: [
+      {
+        kutipan: "daun telingaku tbtb layu dikit",
+        tanggal: "11/11/24",
+        catatan: "Layu itu kata buat tanaman. Olen pakai buat telinga, dan anehnya kebayang.",
+      },
+      {
+        kutipan: "KAYAK ROTI",
+        tanggal: "09/11/24",
+        catatan:
+          "Ditanya kenapa suaranya serak waktu lagi sakit. Orang lain jawab radang. Olen jawab ini.",
+      },
+      {
+        kutipan: "ABISTU SUMPAH PALAKU SAKIT BGTT INI KEJEDOT UJUNG LANTAI KAYANYA",
+        tanggal: "02/12/24",
+        catatan: "Cerita kesakitan sambil ngakak duluan, jadi kakak bingung mau khawatir apa ikut ketawa.",
+      },
+    ],
+    cerita: [
+      "Satu-satu, kalimat ini absurd dan nggak berarti apa-apa. Kakak sempat mau naruh masing-masing sendirian, dan rasanya aneh, kayak maksa lelucon jadi penting.",
+      "Dikumpulin baru kelihatan polanya. Olen nggak pernah ngambil kata yang paling gampang. Olen ngambil kata yang paling kebayang, walaupun kedengarannya salah.",
+      "Itu bukan aneh. Itu cara Olen ngeliat, dan itu susah banget diajarin ke orang.",
+      "Jangan diilangin ya.",
+    ],
+  },
+  {
+    di: 58,
+    pembuka:
+      "Dan kalau kata-katanya aja udah begitu, ceritanya lebih parah lagi. Olen inget nggak, dulu kita sering banget bikin teori konspirasi?",
     kutipan: "MIMPI DIKEJAR TUYUL KALI DIA MAU LARI TP MASI GENGGAM HANDPHONE",
     tanggal: "29/12/23",
     cerita: [
       "Ingat nggak kita lagi bahas apa waktu itu? Hahaha, lupa ya pasti. Kakak juga setengah lupa, jujur.",
       "Yang kakak inget kita ketawa lama banget. Bukan karena lucunya doang, tapi karena Olen bawainnya serius, kayak lagi jelasin teori beneran yang ada dasarnya.",
-      "Terus kakak sadar satu hal. Kepala Olen itu nggak pernah bener-bener off ya. Mimpi orang lain aja Olen bikinin teorinya.",
-      "Olen punya imajinasi yang tinggi, dan yang lebih penting, Olen bisa nyusun imajinasi itu jadi cerita yang orang lain mau dengerin. Itu dua hal yang beda, dan Olen punya dua-duanya.",
-      "Itu yang bikin Olen spesial. You are the special one, Olen.",
+      "Kepala Olen itu nggak pernah bener-bener off ya. Mimpi orang lain aja Olen bikinin teorinya.",
+      "You are the special one, Olen.",
     ],
   },
-  {
-    di: 44,
-    pembuka: "Coba inget nggak, Olen kenapa ngirimin video note soal telinga ke kakak?",
-    kutipan: "daun telingaku tbtb layu dikit",
-    tanggal: "11/11/24",
-    cerita: [
-      "Waktu itu Olen mau gambarin telinga Olen yang tiba-tiba layu. Kakak nggak ngerti maksudnya, terus kakak minta liat, dan Olen nunjukin pakai tangan.",
-      "Jujur, gong banget. Nggak ada yang nyebut telinga pakai kata layu selain Olen. Layu itu kata buat tanaman.",
-      "Tapi justru itu uniknya. Olen bisa ngegambarin hal yang orang lain bingung mau dideskripsiin gimana. Cara Olen nyebut sesuatu selalu beda satu langkah dari cara orang lain nyebutnya.",
-      "Jangan diilangin ya. Itu bukan aneh, itu punya Olen.",
-    ],
-  },
-  {
-    di: 60,
-    pembuka: "Olen selalu punya cerita yang nggak habis-habis.",
-    kutipan: "ABISTU SUMPAH PALAKU SAKIT BGTT INI KEJEDOT UJUNG LANTAI KAYANYA",
-    tanggal: "02/12/24",
-    cerita: [
-      "Olen cerita ini sambil ketawa. Padahal isinya Olen kesakitan.",
-      "Kakak khawatir dikit waktu itu, tapi susah juga mau khawatir serius kalau orangnya sendiri lagi ngakak duluan.",
-      "Dan itu kelihatan terus, di banyak cerita Olen yang lain. Isinya bisa sedih, bisa sakit, tapi Olen selalu bisa bawain itu dengan senyum. It's Floren that I know.",
-      "Cuma kakak mau nitip satu hal. Olen boleh kok cerita yang sakit tanpa harus dilucuin dulu. Nggak semua cerita perlu jadi enak dulu buat didengerin. Kakak tetep dengerin.",
-    ],
-  },
+
+  /* ═════════════════════ BABAK 2 · 70–260 m ═════════════════════
+     Cahaya matahari berhenti sekitar 70 m. Di sini semuanya masih terlihat
+     tapi harus lebih dekat, dan isinya juga begitu: cara Olen memperlakukan
+     orang, dan cara Olen memperlakukan dirinya sendiri. */
   {
     di: 78,
+    babak: "Yang harus didekati dulu",
+    pengantar: [
+      "Cahaya matahari berhenti sekitar sini. Di bawah ini semuanya masih kelihatan, tapi harus lebih deket.",
+      "Pas, karena yang di bawah ini bagian Olen yang nggak semua orang sempat lihat.",
+    ],
     pembuka: "Olen lihat apa yang ada di foto ini?",
     kutipan: "UDAH DI LEMARI",
     tanggal: "30/11/24",
@@ -223,28 +287,14 @@ export const KENANGAN: Kenangan[] = [
     cerita: [
       "Senyum Olen. Itu yang kakak lihat duluan, sebelum yang lain.",
       "Waktu itu Olen sama Ken lagi rebutan boneka Stitch, terus Olen jawab gitu. Datar banget, dan timing-nya pas.",
-      "Kakak ketawa lama banget waktu itu. Dan sampai sekarang masih. Tiap kali kakak buka lagi, rasanya hangat, bukan cuma lucu.",
-      "Timing Olen itu nggak bisa ditiru. Serius, kakak udah coba.",
+      "Kakak ketawa lama banget waktu itu, dan sampai sekarang masih.",
+      "Tapi yang bikin kakak simpen ini bukan lucunya. Di situ kelihatan Olen sama orang yang Olen sayang: nggak jaga image, nggak nyari aman, nggak mikirin kelihatannya gimana.",
     ],
   },
-  {
-    di: 96,
-    pembuka:
-      "Suara Olen lagi serak karena sakit, terus ada yang nanya kenapa suaranya begitu. Jawaban Olen",
-    kutipan: "KAYAK ROTI",
-    tanggal: "09/11/24",
-    cerita: [
-      "Nggak ada yang bakal jawab gitu selain Olen.",
-      "Orang lain bakal jawab lagi radang, atau kena angin, atau kebanyakan es. Olen jawab kayak roti. Dan anehnya, kebayang.",
-      "Olen lagi nggak enak badan waktu itu, dan jawabannya tetep jawaban Olen. Sakit nggak bikin Olen berhenti jadi Olen.",
-    ],
-  },
-
-  /* ───────────── 120–210 m · Olen menjelaskan dirinya sendiri ───────────── */
   {
     di: 120,
     pembuka:
-      "Ada yang pernah bilang ke Olen kalau cara mikir Olen itu detail. Terus Olen cerita ke kakak",
+      "Turun lagi, dan sekarang soal isi kepalanya. Ada yang pernah bilang ke Olen kalau cara mikir Olen itu detail. Terus Olen cerita ke kakak",
     kutipan: "ktnya pemikiran aku detail trs ak jawab soalnya jg detail sama kyk yg dibuku",
     tanggal: "19/08/26",
     foto: [
@@ -257,13 +307,14 @@ export const KENANGAN: Kenangan[] = [
     cerita: [
       "Perhatiin nggak cara Olen nyampeinnya? Olen bawa nama orang lain dulu. Katanya. Bukan menurut aku.",
       "Padahal yang dibilang orang itu bener, dan Olen sendiri tau itu bener. Kakak lihat sendiri bukunya, dan emang serapi itu.",
-      "Olen boleh kok ngaku hal bagus tentang diri sendiri tanpa nunggu ada yang bilang duluan. Itu bukan sombong. Itu cuma tau apa yang Olen punya.",
-      "Kakak tulis ini di sini biar kalau nanti Olen lagi ragu sama kepala sendiri, Olen bisa balik ke halaman ini dan baca lagi.",
+      "Dan ini nyambung sama yang tadi di atas. Yang bikin kalimat Olen absurd dan yang bikin catatan Olen serapi ini itu satu hal yang sama: Olen merhatiin. Cuma keluarnya beda-beda.",
+      "Jadi Olen boleh ngaku hal bagus tentang diri sendiri tanpa nunggu ada yang bilang duluan. Itu bukan sombong, itu cuma tau apa yang Olen punya.",
     ],
   },
   {
-    di: 148,
-    pembuka: "Suatu hari Olen cerita soal temen Olen, dan kakak inget banget kalimat ini",
+    di: 150,
+    pembuka:
+      "Dan yang Olen perhatiin bukan cuma soal pelajaran. Suatu hari Olen cerita soal temennya",
     kutipan: "kek gw suka aja seneng liat tmn gw happy",
     tanggal: "29/08/26",
     foto: [
@@ -275,14 +326,13 @@ export const KENANGAN: Kenangan[] = [
     ],
     cerita: [
       "Olen bilangnya santai, kayak lagi nyebut hal yang biasa aja.",
-      "Padahal itu nggak biasa. Olen ikut seneng tanpa mikir apa untungnya buat Olen sendiri. Nggak nunggu giliran, nggak ngitung.",
-      "That is rare, Olen. Beneran jarang. Banyak orang yang senengnya baru keluar kalau dia juga dapet sesuatu.",
-      "Nanti bakal ada yang bilang Olen kebanyakan mikirin orang. Jangan langsung percaya. Kalau Olen ragu, dengerin dulu yang di dalem, karena kadang kita lagi takut dan tetep tau mana yang bener.",
+      "Padahal itu nggak biasa. Olen ikut seneng tanpa mikir apa untungnya buat Olen sendiri. Nggak nunggu giliran, nggak ngitung siapa duluan.",
+      "That is rare, Olen. Beneran jarang. Banyak orang yang senengnya baru keluar kalau dia juga kebagian.",
     ],
   },
   {
-    di: 178,
-    pembuka: "Terus Olen cerita ini, soal temen Olen yang lagi pengen sesuatu",
+    di: 180,
+    pembuka: "Di hari yang sama, Olen cerita ini juga",
     kutipan:
       "KADANG WALAU GW BAWA DUIT PAS PASAN YA TRS TMN GW MAU INI ITU TP DIA GAMAU BELI, GW BELIIN JIR",
     tanggal: "29/08/26",
@@ -296,43 +346,49 @@ export const KENANGAN: Kenangan[] = [
     cerita: [
       "Duit Olen sendiri pas-pasan, dan Olen tetep beliin.",
       "Nggak ada yang nyuruh, nggak ada yang lihat, dan Olen nyeritain itu ke kakak kayak lagi cerita hal receh. Bukan kayak lagi cerita kebaikan.",
-      "Kakak nggak mau bikin ini jadi kalimat bijak. Kakak cuma mau nyatet bahwa Olen pernah ngelakuin itu, dan Olen ngelakuinnya justru waktu Olen sendiri lagi nggak berlebih.",
-      "Satu pesan kakak: jangan sampai Olen kehabisan buat diri sendiri. Olen boleh baik, tapi Olen juga masuk daftar orang yang harus Olen jagain.",
+      "Kakak nggak mau bikin ini jadi kalimat bijak. Kakak cuma mau nyatet bahwa Olen ngelakuin itu justru waktu Olen sendiri lagi nggak berlebih.",
+      "Cuma ada satu hal yang bikin kakak agak khawatir. Nanti kakak bahas, di bagian yang lebih dalam.",
     ],
   },
   {
-    di: 210,
-    pembuka: "Olen pernah bilang ke kakak, soal kenapa Olen susah mulai cerita duluan",
+    di: 215,
+    pembuka:
+      "Sekarang kebalikannya. Kalau soal orang lain Olen cepet, soal diri sendiri Olen pelan. Olen pernah bilang ke kakak",
     kutipan:
       "sebenernya aku mau cerita kalo aku udh tras bgt ke orgnya trs kalo orgnya cerita duluan baru aku mau cerita",
     tanggal: "07/12/24",
     cerita: [
       "Jadi Olen nunggu orangnya buka duluan sebelum Olen buka. Kakak ngerti kenapa.",
       "Itu bukan tertutup. Itu jaga-jaga. Olen nggak mau naruh cerita Olen di orang yang belum jelas bakal jagain apa nggak.",
-      "Beberapa hari setelahnya Olen bilang Olen pengen bisa lebih terbuka. Perhatiin kalimatnya: Olen nggak bilang aku emang tertutup. Olen bilang aku pengen bisa.",
+      "Beberapa hari setelahnya Olen bilang Olen pengen bisa lebih terbuka. Perhatiin kalimatnya: bukan aku emang tertutup, tapi aku pengen bisa.",
       "Kakak seneng banget baca itu. Artinya Olen lagi jalan ke arah situ, pelan-pelan, dengan cara Olen sendiri, tanpa ada yang maksa.",
     ],
   },
-
-  /* ───────────── 255 m · kenapa kita nggak pernah canggung ───────────── */
   {
     di: 255,
     dari: "yaya",
     kutipan:
-      "Kakak sadar satu hal. Kenapa kakak nggak pernah ngerasa canggung sama Olen, padahal kita sempat lama nggak kontakan, atau kita sibuk sama urusan masing-masing.",
+      "Kakak sadar satu hal. Kenapa kakak nggak pernah ngerasa canggung sama Olen, padahal kita sempat lama nggak kontakan.",
     cerita: [
       "Karena kakak nggak pernah ngerasa Floren pergi.",
       "Dan mungkin juga karena kita nggak pernah jadi kakak-adik yang satu ngatur dan satu nurut. Kakak nggak pernah minta Olen manggil kakak buat nunjukin siapa yang lebih tua di sini.",
-      "Kita ketawa di hal yang sama. Berantem soal hal receh. Olen berani bilang kalau kakak yang salah, dan kakak dengerin. Olen boleh nggak setuju sama kakak tanpa mikir dulu kakak bakal marah apa nggak.",
-      "Itu yang bikin ini awet. Bukan karena kakak jagain Olen dari atas, tapi karena kita berdiri sejajar.",
+      "Kita ketawa di hal yang sama. Berantem soal hal receh. Olen berani bilang kalau kakak yang salah, dan kakak dengerin.",
+      "Mungkin itu juga jawaban buat yang barusan Olen bilang di atas. Olen susah mulai cerita duluan, tapi ke kakak Olen mulai. Artinya bukan Olen yang berubah, tapi Olen ngerasa aman.",
       "Kakak selalu ada di belakang Floren, di samping Floren. So that's why I always say I'm always at your side, and I promise that.",
-      "Dan lihat Floren yang sekarang, makin dewasa dan bisa lewatin semuanya, kakak percaya Floren siap ngadepin dunia ini. Ada atau tanpa adanya kakak.",
+      "Dan lihat Floren yang sekarang, kakak percaya Floren siap ngadepin dunia ini. Ada atau tanpa adanya kakak.",
     ],
   },
 
-  /* ───────────── 320–420 m · yang paling berat ───────────── */
+  /* ═════════════════════ BABAK 3 · 260–800 m ═════════════════════
+     Tidak ada lagi cahaya dari atas. Yang terlihat cuma makhluk yang
+     membuat cahayanya sendiri, dan yang dibaca di sini juga begitu. */
   {
     di: 320,
+    babak: "Yang nyala sendiri",
+    pengantar: [
+      "Mulai dari sini nggak ada lagi cahaya dari atas. Yang keliatan cuma yang bikin cahayanya sendiri.",
+      "Kakak naruh bagian paling berat di sini bukan biar dramatis. Tapi karena di bagian inilah yang nyala itu Olen sendiri.",
+    ],
     pembuka: "Ada satu malam, Olen nulis ini ke kakak",
     kutipan:
       "sekarang aku jadi lebih susah buat ngejalanin masalah2 yg aku hadapin, aku skrg jadi sering bgt gelisah aku gatau karena apa",
@@ -340,9 +396,9 @@ export const KENANGAN: Kenangan[] = [
     cerita: [
       "Olen nggak minta apa-apa waktu nulis itu. Nggak minta dikasihani, nggak minta dibenerin, nggak minta siapa-siapa panik.",
       "Olen cuma naruh itu di situ. Kayak lagi naruh barang yang kebanyakan buat dibawa sendirian.",
-      "Kakak ngerti ini berat. Dan yang paling capek dari gelisah itu justru bagian nggak tau karena apa. Kalau ada sebabnya, kita bisa benerin. Kalau nggak ketauan, kita cuma bisa nunggu sambil ngerasa aneh sama diri sendiri.",
-      "Kakak mau bilang satu hal. Nggak apa-apa kalau Olen nggak bisa jelasin. Nggak semua yang kita rasa harus ada alasannya dulu baru boleh dirasain.",
-      "Dan Olen nggak sendiri ya. Olen always have me at your side. Kalau lagi muak sama hari itu, Olen berhak banget istirahat dulu. Nggak ada yang nagih apa-apa ke Olen di sini.",
+      "Kakak ngerti ini berat. Dan yang paling capek dari gelisah itu justru bagian nggak tau karena apa. Kalau ada sebabnya kita bisa benerin. Kalau nggak ketauan, kita cuma bisa nunggu sambil ngerasa aneh sama diri sendiri.",
+      "Nggak apa-apa kalau Olen nggak bisa jelasin. Nggak semua yang kita rasa harus ada alasannya dulu baru boleh dirasain.",
+      "Dan Olen nggak sendiri ya. Olen always have me at your side. Kalau lagi muak sama hari itu, Olen berhak banget istirahat dulu.",
     ],
   },
   {
@@ -352,19 +408,16 @@ export const KENANGAN: Kenangan[] = [
     tanggal: "26/11/24",
     cerita: [
       "Kakak paham kenapa Olen pengen balik. Yang dulu kelihatannya lebih ringan. Lebih dikit yang dipikirin, lebih dikit yang harus dijagain.",
-      "Tapi Olen yang dulu nggak hilang ke mana-mana. Dia masih ada di dalam, jadi bagian dari Olen yang sekarang.",
+      "Tapi Olen yang dulu nggak hilang ke mana-mana. Dia masih ada di dalem, jadi bagian dari Olen yang sekarang.",
       "Bedanya cuma satu: Olen yang sekarang tau lebih banyak. Dan tau lebih banyak itu emang bikin capek. Capek itu ongkosnya, bukan tanda Olen mundur.",
-      "Jadi kalau Olen ngerasa berubah jadi lebih berat, itu bukan karena Olen makin lemah. Itu karena Olen makin ngerti.",
-      "It will pass, Oleeen. Olen udah buktiin itu ke diri sendiri berkali-kali. Tinggal Olen percaya aja.",
+      "Inget yang di atas tadi, anak kelas 7 yang takut sama tahun pertamanya? Dia juga ngerasa berat waktu itu. Terus dia lewat.",
+      "It will pass, Oleeen. Olen udah buktiin itu ke diri sendiri berkali-kali.",
     ],
   },
-
-  /* ───────────── 500–650 m · yang Olen pegang sendiri ─────────────
-     Di sini ubur-ubur mulai menyala. Yang menerangi datang dari makhluknya
-     sendiri, bukan dari matahari, dan yang dibaca di sini juga begitu. */
   {
     di: 500,
-    pembuka: "Umur tiga belas, Olen nulis ini",
+    pembuka:
+      "Dan justru di bagian paling gelap ini kakak nemu kalimat-kalimat Olen yang paling terang. Umur tiga belas, Olen nulis ini",
     kutipan:
       "MENDING SAMA YG BENER2 SAYANG SAMA KT DAN BENER2 MAU JADI TEMEN KITA TANPA MANDANG EKONOMI",
     tanggal: "08/12/24",
@@ -389,27 +442,26 @@ export const KENANGAN: Kenangan[] = [
   },
   {
     di: 650,
-    pembuka: "Waktu ada orang lain yang lagi hancur, Olen yang bilang ini ke dia",
+    pembuka:
+      "Nah, ini yang tadi kakak bilang mau kakak bahas. Waktu ada orang lain yang lagi hancur, Olen yang bilang ini ke dia",
     kutipan: "prioritasin diri sendiri dulu kata gw mah yak",
     tanggal: "10/12/24",
     cerita: [
-      "Sekarang giliran Olen yang dengerin kalimat Olen sendiri.",
-      "Olen gampang banget ngasih nasihat bagus ke orang lain. Yang susah itu makenya buat diri sendiri, dan kakak tau itu susah.",
-      "Kakak nggak nyuruh Olen jadi egois. Kakak cuma minta Olen masukin nama Olen sendiri ke daftar orang yang Olen jagain.",
+      "Inget yang di 180 meter tadi? Olen beliin temen jajan waktu duit Olen sendiri pas-pasan.",
+      "Nasihat yang Olen kasih ke orang lain ini persis yang Olen sendiri nggak pakai.",
+      "Kakak nggak nyuruh Olen jadi egois. Kakak cuma minta Olen masukin nama Olen sendiri ke daftar orang yang Olen jagain. Satu nama lagi doang.",
     ],
   },
-
-  /* ───────────── 730–790 m · dasar ───────────── */
   {
     di: 730,
     dari: "yaya",
     kutipan: "Kakak nggak pernah ngajarin satu pun dari ini ke Olen.",
     cerita: [
       "Olen bisa nahan nangis bukan karena tertutup, tapi karena Olen milih kapan mau nunjukinnya.",
-      "Olen beliin temen jajan waktu duit Olen sendiri pas-pasan.",
-      "Olen nanya orang baik-baik aja duluan, padahal Olen sendiri lagi enggak.",
-      "Semua itu Floren bawa sendiri. Nggak ada yang ngajarin, nggak ada yang nyuruh, dan nggak ada yang lihat waktu Olen ngelakuinnya.",
+      "Olen beliin temen jajan waktu duit Olen sendiri pas-pasan. Olen nanya orang baik-baik aja duluan, padahal Olen sendiri lagi enggak.",
+      "Semua itu Floren bawa sendiri. Nggak ada yang ngajarin, dan nggak ada yang lihat waktu Olen ngelakuinnya.",
       "Yang bikin kakak lama mikir: Olen nulisnya kepisah-pisah, di hari yang beda-beda, tanpa sadar lagi ngejelasin siapa Olen. Kakak cuma ngumpulin, terus nyusun biar kelihatan sebagai satu orang.",
+      "Nanti bakal ada yang bilang Olen kebanyakan mikirin orang. Jangan langsung percaya. Kalau Olen ragu, dengerin dulu yang di dalem, karena kadang kita lagi takut dan tetep tau mana yang bener.",
     ],
   },
   {
@@ -419,9 +471,9 @@ export const KENANGAN: Kenangan[] = [
       "Setelah kita journey sedalam ini, setelahnya apa? Apa ada laut yang lebih dalam lagi, atau cuma segini?",
     cerita: [
       "Itu cuma Olen yang bisa jawab. Cuma Floren seorang yang tau jawabannya.",
+      "Kita turun dari permukaan yang terang, lewat bagian yang harus didekati dulu, sampai ke gelap yang nggak dapet cahaya dari atas sama sekali. Dan di bagian paling gelap itu ternyata isinya kalimat-kalimat Olen yang paling terang.",
+      "Itu bukan kakak yang atur. Kakak cuma nyusun urut dari yang paling gampang dilihat ke yang paling dalam, dan kebetulan begitu hasilnya.",
       "Mungkin sekarang laut ini cuma sedalam 800 meter. Tapi hidup Olen terus jalan, dan kakak harap hal-hal baik terus nyertain Olen di sepanjang jalannya.",
-      "Semua yang Olen baca dari atas sampai ke sini bukan kakak yang bikin. Itu Olen yang nulis, Olen yang ngomong, Olen yang ngelakuin. Kakak cuma ngumpulin dan naruhnya berurutan.",
-      "Jadi kalau nanti Olen lagi ragu sama diri sendiri, balik ke sini. Baca dari atas lagi, pelan-pelan.",
       "Jadikan hal-hal baik di dalem diri Olen sebagai fondasi yang terus bikin Floren maju dan kuat. I know you are strong, you have to believe it.",
       "Jadi gimana, mau menyelam lebih jauh lagi?",
     ],

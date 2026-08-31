@@ -597,7 +597,9 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
               */
               className={`kn${k.dari === "yaya" ? " kn-yaya" : ""}${
                 k.foto?.length ? " kn-berfoto" : ""
-              } kn-sisi-${k.dari === "yaya" ? "tengah" : sisiOlen(i) ? "kanan" : "kiri"}`}
+              }${k.babak ? " kn-buka-babak" : ""} kn-sisi-${
+                k.babak ? "tengah" : k.dari === "yaya" ? "tengah" : sisiOlen(i) ? "kanan" : "kiri"
+              }`}
               /* Tanpa `top`. Letaknya ditentukan alir dokumen dan jarak antar
                  blok di CSS; yang membaca letak itu justru meter kedalamannya,
                  bukan sebaliknya. */
@@ -673,6 +675,31 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
                 angka yang sedang dibaca. Angkanya perkiraan 3:4 dan itu tidak
                 apa-apa, yang penting nisbahnya dipesan lebih dulu.
               */}
+              {/*
+                PENANDA BABAK.
+
+                Yaya: "gua baca ulang kayak bingung gitu ini mau di bawa
+                kemana sih narasinya nggak jelas."
+
+                Ini jawabannya yang paling langsung: sebuah judul yang
+                menyebut di mana kita sekarang dan kenapa bagian ini
+                dikumpulkan jadi satu. Batas babaknya berimpit dengan batas
+                cahaya di `kedalaman.ts`, jadi yang dibaca dan yang dilihat
+                berganti pada meter yang sama.
+
+                `<h2>` sungguhan, bukan div yang dibesarkan: ini memang
+                kepala bagian, dan pembaca layar butuh tahu itu untuk bisa
+                melompat antar babak.
+              */}
+              {k.babak && (
+                <header className="kn-babak">
+                  <span className="kn-babak-meter">{k.di} m</span>
+                  <h2>{k.babak}</h2>
+                  {k.pengantar?.map((baris, n) => (
+                    <p key={n}>{baris}</p>
+                  ))}
+                </header>
+              )}
               {k.foto?.length ? (
                 <div className={`kn-foto kn-foto-${Math.min(k.foto.length, 3)}`}>
                   {k.foto.map((f, n) => (
@@ -694,9 +721,35 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
               {/* Tanda petik ditulis di sini, bukan di dalam datanya: yang
                   disimpan harus kata Olen apa adanya, supaya bisa dicocokkan
                   ke ekspornya kapan saja tanpa ada tanda tambahan. */}
-              <blockquote className="kn-kutip">
-                {k.dari === "yaya" ? k.kutipan : `\u201C${k.kutipan}\u201D`}
-              </blockquote>
+              {k.kutipan && (
+                <blockquote className="kn-kutip">
+                  {k.dari === "yaya" ? k.kutipan : `\u201C${k.kutipan}\u201D`}
+                </blockquote>
+              )}
+
+              {/*
+                KUMPULAN — beberapa kalimat kecil sekaligus.
+
+                Dipakai untuk kutipan yang tidak sanggup menahan satu layar
+                sendirian. Bentuknya sengaja BEDA dari kutipan besar: lebih
+                kecil, bernomor lewat garis, dan tiap satu langsung diikuti
+                satu kalimat Kakak. Kalau bentuknya sama, pembaca menyangka
+                ini tiga kenangan terpisah yang kebetulan berdempetan, dan
+                justru pola yang mau ditunjukkan itu yang hilang.
+              */}
+              {k.kumpulan?.length ? (
+                <ul className="kn-kumpul">
+                  {k.kumpulan.map((s, n) => (
+                    <li key={n}>
+                      <p className="kn-kumpul-kutipan">{`\u201C${s.kutipan}\u201D`}</p>
+                      <p className="kn-kumpul-catatan">
+                        {s.catatan}
+                        {s.tanggal && <span className="kn-kumpul-tanggal">{s.tanggal}</span>}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
               {k.cerita?.map((baris, n) => (
                 <p key={n} className="kn-cerita">
                   {baris}

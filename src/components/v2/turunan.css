@@ -900,3 +900,146 @@
 @media (prefers-reduced-motion: reduce) {
   .kn-foto-satu img { rotate: none; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * PENANDA BABAK
+ *
+ * Tiga kali sepanjang 800 meter, dan tiap kali tepat di meter tempat
+ * cahayanya berubah. Tugasnya satu: menjawab "ini mau dibawa ke mana".
+ *
+ * Lebar penuh dan di tengah, beda dari kenangan yang zigzag di kiri-kanan.
+ * Justru karena bentuknya beda, ia terbaca sebagai jeda, bukan sebagai
+ * kenangan lain yang kebetulan lebih besar.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.kn-buka-babak { width: min(46rem, 100%); }
+
+.kn-babak {
+  margin: 0 0 3.5rem;
+  padding-bottom: 1.8rem;
+  text-align: center;
+  /* Garis tipis di bawah, memudar ke dua sisi. Batas babak itu tempat
+     berhenti sebentar, bukan tembok. */
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(
+      to right,
+      transparent,
+      rgba(244, 228, 176, 0.34) 22%,
+      rgba(244, 228, 176, 0.34) 78%,
+      transparent
+    )
+    1;
+}
+
+.kn-babak-meter {
+  display: block;
+  margin-bottom: 0.7rem;
+  font-family: var(--huruf-badan, system-ui, sans-serif);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(244, 228, 176, 0.72);
+}
+
+.kn-babak h2 {
+  margin: 0 0 1rem;
+  font-family: var(--huruf-judul, "Trebuchet MS", sans-serif);
+  font-weight: var(--tebal-kartun, 800);
+  font-size: clamp(1.9rem, 5.6vw, 3.1rem);
+  line-height: 1.15;
+  letter-spacing: 0.004em;
+  color: #fbfdff;
+  text-wrap: balance;
+  text-shadow: 0 2px 26px rgba(2, 11, 24, 0.9);
+}
+
+.kn-babak p {
+  margin: 0 auto 0.7rem;
+  max-width: 40ch;
+  font-family: var(--huruf-badan, system-ui, sans-serif);
+  font-weight: 500;
+  font-size: clamp(0.94rem, 2.3vw, 1.05rem);
+  line-height: 1.75;
+  color: rgba(238, 247, 255, 0.82);
+  text-shadow: 0 1px 10px rgba(2, 11, 24, 0.9);
+}
+.kn-babak p:last-child { margin-bottom: 0; }
+
+/* Napas ekstra sebelum sebuah babak dimulai. Tanpa ini, judulnya menempel
+   ke kenangan terakhir babak sebelumnya dan jeda yang mau dibikin justru
+   tidak terasa. `.kn + .kn` di atas sudah memberi 64vh; ini menambahnya. */
+.kn + .kn-buka-babak { margin-top: 96vh; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * KUMPULAN KALIMAT KECIL
+ *
+ * Untuk kutipan yang tidak sanggup menahan satu layar sendirian. Bentuknya
+ * sengaja jauh lebih kecil dari kutipan besar: kalau ukurannya mirip,
+ * ketiganya terbaca sebagai tiga kenangan terpisah, dan pola yang mau
+ * ditunjukkan justru hilang.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.kn-kumpul {
+  list-style: none;
+  margin: 0 0 1.6rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.kn-kumpul li {
+  padding-left: 1.1rem;
+  border-left: 2px solid rgba(244, 228, 176, 0.28);
+}
+
+.kn-kumpul-kutipan {
+  margin: 0 0 0.4rem;
+  font-family: var(--huruf-judul, "Trebuchet MS", sans-serif);
+  /* 700, satu tingkat di bawah kutipan utama yang 800. Bedanya harus
+     terasa tanpa perlu dibandingkan berdampingan. */
+  font-weight: 700;
+  font-size: clamp(1.02rem, 2.7vw, 1.24rem);
+  line-height: 1.35;
+  color: #f4faff;
+  text-shadow: 0 1px 12px rgba(2, 11, 24, 0.9);
+}
+
+.kn-kumpul-catatan {
+  margin: 0;
+  font-family: var(--huruf-badan, system-ui, sans-serif);
+  font-weight: 500;
+  font-size: clamp(0.88rem, 2.15vw, 0.98rem);
+  line-height: 1.7;
+  color: rgba(236, 246, 255, 0.78);
+  text-shadow: 0 1px 10px rgba(2, 11, 24, 0.9);
+}
+
+.kn-kumpul-tanggal {
+  margin-left: 0.6rem;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  opacity: 0.5;
+  white-space: nowrap;
+}
+
+/* Blok kanan: garis kumpulan ikut pindah, sama seperti garis kutipan. */
+@media (min-width: 900px) {
+  .kn-sisi-kanan .kn-kumpul li {
+    padding-left: 0;
+    padding-right: 1.1rem;
+    border-left: none;
+    border-right: 2px solid rgba(244, 228, 176, 0.28);
+  }
+  .kn-sisi-kanan .kn-kumpul-kutipan,
+  .kn-sisi-kanan .kn-kumpul-catatan { text-align: right; }
+}
+
+@media (max-width: 720px) {
+  .kn + .kn-buka-babak { margin-top: 78vh; }
+  .kn-babak { margin-bottom: 2.6rem; }
+}
