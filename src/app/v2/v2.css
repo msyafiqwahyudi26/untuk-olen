@@ -53,13 +53,11 @@
     radial-gradient(90% 45% at 78% 4%, rgba(255,255,255,.10), transparent 60%);
 }
 
-/* ─────────────── langit dua lapis ───────────────
-   Gradien CSS tidak bisa dianimasikan, tapi opacity bisa. Lapis bawah memegang
-   langit lama, lapis atas memudar masuk membawa langit baru. Lihat Langit.tsx. */
-
-.lg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.lg-lapis { position: absolute; inset: 0; }
-.lg-atas { opacity: 0; transition: opacity var(--ease); }
+/* Langit dua lapis PINDAH ke src/design/ui.css.
+   Alasannya: `Langit` dipakai layar pembuka DAN pintu masuk, sementara
+   berkas ini hanya dimuat layar pembuka. Selama gayanya di sini, langit di
+   pintu masuk runtuh jadi dua div tanpa posisi — tanpa galat, tanpa
+   peringatan, cuma latar yang hilang. */
 
 /* ─────────────── tulisan di tengah ─────────────── */
 
