@@ -786,3 +786,48 @@ semuanya terlihat.
   reader, dan ringan di HP.
 - **`content/story.ts` satu-satunya sumber naskah**, di-seed ke SQLite. Ubah di
   satu tempat.
+
+---
+
+## 1 September 2026 — Bab 2 bisa dibaca
+
+**Keputusan besar: arah penurunan angkanya dibalik.**
+
+Dulu: `pecahanUntuk(di)` membalik kurva kedalaman untuk menaruh tiap
+kenangan, tinggi bloknya ikut panjang teks, dan panjang halaman ditulis
+tangan `TINGGI_VH = 560`. Tiga angka yang saling terkait, tiga sumber
+berbeda. Selama isinya satu kalimat tidak kelihatan salahnya; begitu
+isinya paragraf, empat kenangan pertama menumpuk sampai tidak terbaca.
+
+Sekarang: kenangan mengalir di dokumen dengan jarak `64vh` dijamin CSS →
+menumpuk jadi **mustahil**, bukan sekadar tidak terjadi. Panjang halaman
+hasil dari isinya. Kedalaman dibaca dari letak yang **diukur**
+(`kedalamanGulir()`), lurus antar jangkar, jadi tiap kenangan betul-betul
+dibaca di kedalaman yang tertulis di sebelahnya. Diperiksa di Chrome:
+penutup di 789 m untuk `di: 790`, dasar 800 m di ujung halaman.
+
+Pengukurannya diulang saat webfont selesai (`document.fonts.ready`) dan
+lewat `ResizeObserver` — tanpa itu semua jangkar meleset seukuran selisih
+Outfit dengan huruf cadangan, kecil per blok tapi menumpuk ratusan piksel
+di kenangan terakhir.
+
+**Pita baca juga berhenti ditebak.** `rgba(2,11,24,0.66)` tetap itu salah
+di dua arah sekaligus: kurang di 0 m (air `#8CE2F5`, tulisan putih cuma
+~1.5:1) dan mubazir di bawah 150 m (air sudah 18:1 sendiri). Sekarang
+alfanya alfa terkecil yang mencapai 4.5:1 di kedalaman itu, dihitung
+lewat `kontras()` + `tumpuk()` dari design system dan ditabelkan sekali
+per waktu-hari. Hasilnya 0.50 di permukaan, sudah 0 sekitar 20 m — pitanya
+hilang sendiri persis waktu tidak dibutuhkan, tanpa ada yang memutuskan.
+
+**Pelajaran yang terulang:** waktu pengukuran lewat konsol memberi hasil
+yang tidak masuk akal (meter diam di 0 m padahal tampilan jelas berubah),
+yang rusak alat ukurnya — tabnya tidak di depan, rAF ditangguhkan. Ini
+kejadian kedua. Sekarang sudah masuk tabel jebakan di AGENTS.md beserta
+cara memeriksanya lebih dulu.
+
+Empat jebakan baru masuk AGENTS.md: `overflow-x` di `<body>`,
+`clip` yang diturunkan Turbopack, rAF tertangguh, dan `svh` vs `lvh`
+untuk lapisan latar.
+
+**Belum selesai:** belum pernah dibuka di HP sungguhan; `git push` masih
+harus dijalankan Yaya dari PowerShell (sandbox tidak punya kredensial).
