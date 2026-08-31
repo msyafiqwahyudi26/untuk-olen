@@ -340,7 +340,10 @@ export const KENANGAN: Kenangan[] = [
       {
         berkas: "mie-2026.jpg",
         alt: "Mie goreng dalam kotak, foto dari dekat",
-        ket: "yang dibeliin, biasanya begini",
+        /* Keterangannya sengaja tidak menyebut foto ini makanan yang
+           dibeliin buat temennya. Tidak ada yang tahu itu, dan aturan
+           di kepala berkas ini melarang mengarang konteks. */
+        ket: "2026",
       },
     ],
     cerita: [
