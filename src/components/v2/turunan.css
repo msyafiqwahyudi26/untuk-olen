@@ -484,3 +484,65 @@
   .tr-naik { background: rgba(8, 22, 38, 0.72); }
   .kn-dengar { background: rgba(8, 22, 38, 0.66); }
 }
+
+/* ═══════════════ VIDEO NOTE ═══════════════
+   Bulat, karena video note di WhatsApp bulat — dan bentuk itu bagian dari
+   ingatannya. Kotak pemutar biasa akan terbaca sebagai lampiran; lingkaran
+   terbaca sebagai pesan.
+
+   Kontrol bawaan peramban SENGAJA tidak dipakai: ia menggambar palang persegi
+   melintang di dalam lingkaran, dan kotak-di-dalam-bulat itu persis cacat
+   yang sedang dibuang dari halaman ini. Satu ketukan untuk putar, satu lagi
+   untuk berhenti; videonya cuma beberapa detik. */
+.kn-video {
+  position: relative;
+  display: block;
+  width: clamp(9rem, 26vw, 12.5rem);
+  aspect-ratio: 1;
+  margin: 0 0 1.4rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(2, 11, 24, 0.6);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  /* Cincin tipis supaya lingkarannya tetap terbaca sebagai benda waktu
+     videonya gelap dan airnya juga gelap. */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16), 0 6px 26px rgba(2, 11, 24, 0.6);
+}
+.kn-video video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.kn-video:focus-visible { outline: 2px solid rgba(244, 228, 176, 0.9); outline-offset: 4px; }
+
+/* Segitiga putar, digambar CSS — bukan gambar, bukan SVG. Hilang sendiri
+   begitu videonya jalan, karena :has() tahu keadaan anaknya. */
+.kn-video-main {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: translate(-42%, -50%);
+  border-left: 1.15rem solid rgba(255, 255, 255, 0.92);
+  border-top: 0.72rem solid transparent;
+  border-bottom: 0.72rem solid transparent;
+  filter: drop-shadow(0 2px 8px rgba(2, 11, 24, 0.9));
+  transition: opacity 200ms ease;
+}
+.kn-video.main .kn-video-main { opacity: 0; }
+.kn-video.main::after { opacity: 0; }
+.kn-video::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(2, 11, 24, 0.45), rgba(2, 11, 24, 0.1) 70%);
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+.kn-video:hover::after { opacity: 0.5; }

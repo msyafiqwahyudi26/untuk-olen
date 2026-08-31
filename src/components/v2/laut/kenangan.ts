@@ -74,6 +74,18 @@ export type Kenangan = {
    * yang terdengar Olen sendiri.
    */
   suara?: string;
+  /**
+   * Nama berkas video note di `public/memori/video`, TANPA ekstensi.
+   * Dimuat `.mp4`, dengan `.jpg` bernama sama sebagai bingkai pertamanya.
+   *
+   * Video note WhatsApp itu bulat, dan bentuk bulat itu bagian dari
+   * ingatannya — jadi di sini juga bulat, bukan kotak pemutar biasa.
+   *
+   * Berkasnya dikompres dulu (480 px, CRF 30, audio 64 kbps mono): yang asli
+   * 2,6 MB dan halaman ini harus tetap ringan di HP. `preload="none"`, jadi
+   * tidak ada satu bita pun yang diunduh sampai Olen menekannya.
+   */
+  video?: string;
 };
 
 /**
@@ -154,6 +166,21 @@ export const KENANGAN: Kenangan[] = [
     suara: "ketawa-nular",
     tanggal: "29/12/23",
     catatan: "Kamu selalu punya penjelasan buat hal yang sebenernya nggak perlu dijelasin. Itu bukan aneh — itu kepala yang nggak pernah bener-bener berhenti kerja, bahkan buat hal receh.",
+  },
+  {
+    di: 26,
+    kutipan: "daun telingaku tbtb layu dikit",
+    video: "telinga-layu",
+    tanggal: "11/11/24",
+    catatan:
+      "Kamu ngomongin daun telinga kamu kayak lagi ngomongin tanaman. Cara kamu nyebut sesuatu emang selalu beda satu langkah dari orang lain.",
+  },
+  {
+    di: 36,
+    kutipan: "UDAH DI LEMARI",
+    video: "udah-di-lemari",
+    tanggal: "30/11/24",
+    catatan: "Nggak ada yang bisa niru timing kamu, Len.",
   },
   {
     di: 31,

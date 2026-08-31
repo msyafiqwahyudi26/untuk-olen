@@ -362,6 +362,60 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
               className={`kn${k.dari === "yaya" ? " kn-yaya" : ""}`}
               style={{ opacity: 0, visibility: "hidden" }}
             >
+              {/*
+                VIDEO NOTE — bulat, seperti aslinya di WhatsApp.
+
+                `preload="none"`: tidak ada satu bita pun yang diunduh sampai
+                ditekan. Yang terlihat sebelum itu cuma bingkai pertamanya,
+                sebuah JPEG 5 KB. Dua puluh kenangan yang semuanya memuat
+                videonya di depan akan membuat halaman ini berat persis di
+                tempat Yaya minta ia ringan.
+
+                `playsInline` wajib: tanpa itu Safari di iPhone merebut
+                videonya ke pemutar layar penuh, dan Olen keluar dari laut.
+
+                TANPA `controls`. Sempat dipakai, dengan alasan kontrol bawaan
+                lebih tahu cara bersikap di HP — dan hasilnya palang persegi
+                melintang di dalam lingkaran, terpotong aneh oleh lengkungnya.
+                Kotak di dalam bulat itu justru "frame aneh" yang sedang
+                dibuang dari halaman ini. Video note cuma beberapa detik dan
+                tidak perlu digeser-geser; satu ketukan sudah cukup.
+              */}
+              {k.video && (
+                <button
+                  type="button"
+                  className="kn-video"
+                  aria-label="Putar video dari Olen"
+                  onClick={(e) => {
+                    const v = e.currentTarget.querySelector("video");
+                    if (!v) return;
+                    if (v.paused) void v.play();
+                    else v.pause();
+                  }}
+                >
+                  {/*
+                    Kelas `main` dipasang dari peristiwa videonya sendiri,
+                    bukan dari klik. Klik cuma MEMINTA; yang tahu benar-benar
+                    jalan atau tidak cuma elemen videonya — dan permintaan
+                    putar bisa gagal atau tertunda.
+
+                    Sempat ditulis sebagai `:has(video:not([paused]))` di CSS.
+                    Itu tidak akan pernah cocok: `paused` properti JavaScript,
+                    bukan atribut HTML, jadi tidak ada pemilih CSS untuknya.
+                    Segitiganya akan diam selamanya tanpa satu pun galat.
+                  */}
+                  <video
+                    src={aset(`/memori/video/${k.video}.mp4`)}
+                    poster={aset(`/memori/video/${k.video}.jpg`)}
+                    preload="none"
+                    playsInline
+                    onPlay={(e) => e.currentTarget.parentElement?.classList.add("main")}
+                    onPause={(e) => e.currentTarget.parentElement?.classList.remove("main")}
+                    onEnded={(e) => e.currentTarget.parentElement?.classList.remove("main")}
+                  />
+                  <span className="kn-video-main" aria-hidden />
+                </button>
+              )}
               <blockquote className="kn-kutip">{k.kutipan}</blockquote>
               <figcaption className="kn-kaki">
                 {k.tanggal && <span className="kn-tanggal">{k.tanggal}</span>}
