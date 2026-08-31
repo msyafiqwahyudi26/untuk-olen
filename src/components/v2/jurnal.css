@@ -342,3 +342,187 @@
   .jr-jatuh { display: none; }
   .jr-rasa-tombol { transition: none; }
 }
+
+/* ═══ MEMBACA, MENYUNTING, MENANDAI ═══ */
+
+.jr-baca-atas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.jr-bintang-tombol {
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 220ms ease, transform 160ms ease;
+}
+.jr-bintang-tombol:active { transform: scale(0.9); }
+.jr-bintang-tombol.on { color: #f4e4b0; }
+.jr-bintang-tombol:focus-visible { outline: 2px solid rgba(244, 228, 176, 0.9); outline-offset: 2px; }
+
+.jr-diubah {
+  margin: 0.6rem 0 0;
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  opacity: 0.45;
+}
+
+.jr-baca-aksi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.6rem;
+}
+
+.jr-hapus { border-color: rgba(255, 190, 180, 0.28); }
+
+/* Kalimat ini bukan hiasan. Ia yang membuat tombol "hapus" tidak menakutkan,
+   dan itu sebabnya tidak ada kotak konfirmasi "yakin?" — konfirmasi hanya
+   berguna untuk tindakan yang tidak bisa dibatalkan. */
+.jr-jaminan {
+  margin: 1rem 0 0;
+  font-size: 0.66rem;
+  line-height: 1.7;
+  opacity: 0.5;
+}
+
+/* ═══ KALENDER ═══
+ *
+ * Bukan alat navigasi utama — arsip di bawahnya sudah mengurus itu. Gunanya
+ * memperlihatkan BENTUK: bulan mana yang penuh, minggu mana yang sepi, hari
+ * mana yang ditandai penting. Itu hal yang tidak bisa dilihat dari daftar. */
+
+.jr-kalender {
+  margin-top: 2.4rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.jr-kal-kepala {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+
+.jr-kal-bulan {
+  margin: 0;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: 0.98rem;
+  letter-spacing: 0.02em;
+}
+
+.jr-kal-panah {
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+  opacity: 0.6;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.jr-kal-panah:hover { opacity: 1; }
+.jr-kal-panah:focus-visible { outline: 2px solid rgba(244, 228, 176, 0.9); outline-offset: 2px; }
+
+.jr-kal-kisi {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.jr-kal-hari {
+  text-align: center;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.4;
+  padding-bottom: 0.3rem;
+}
+
+.jr-kal-tgl {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.32;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 200ms ease, opacity 200ms ease;
+}
+
+/* Hari yang ada catatannya. Bukan sekadar lebih terang: ia punya latar, jadi
+   bentuk bulannya terbaca sekali lihat tanpa perlu membaca angkanya. */
+.jr-kal-tgl.ada {
+  opacity: 1;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.12);
+}
+.jr-kal-tgl.ada:hover { background: rgba(255, 255, 255, 0.2); }
+
+.jr-kal-tgl.penting {
+  background: rgba(244, 228, 176, 0.24);
+  box-shadow: inset 0 0 0 1px rgba(244, 228, 176, 0.5);
+}
+
+.jr-kal-tgl:focus-visible { outline: 2px solid rgba(244, 228, 176, 0.9); outline-offset: 2px; }
+
+.jr-arsip-penting { color: #f4e4b0; font-size: 0.7rem; }
+
+/* ═══ LACI YANG DIHAPUS ═══
+ * Jaring pengaman, bukan kegiatan sehari-hari — jadi tertutup secara bawaan
+ * dan diletakkan paling bawah. */
+
+.jr-laci {
+  margin-top: 2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.jr-laci-tombol {
+  min-height: 44px;
+  padding: 0.5rem 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.64rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.jr-laci-tombol:hover { opacity: 0.85; }
+
+.jr-laci-kosong { margin: 0.4rem 0 0; font-size: 0.74rem; opacity: 0.5; }
+
+.jr-laci-baris {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  opacity: 0.72;
+}
+
+.jr-pulih { flex: 0 0 auto; font-size: 0.62rem; padding: 0.4rem 0.7rem; min-height: 36px; }
