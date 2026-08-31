@@ -90,6 +90,12 @@ hal salah kelihatan jelas di layar. Jangan dianggap jadi:
 
 ### Belum dimulai
 
+**Isi ceritanya sudah dirancang** — lihat `docs/bab-2-turun-ke-laut.md`.
+Ringkasnya: naskahnya SUDAH ADA di `content/story.ts` (`MOMENTS` untuk
+turunan, `SHIFTS` untuk dasar); momen ringan lewat sambil terus turun,
+momen berat MENGHENTIKAN turunnya; sesudah dasar perjalanannya naik terus
+sampai langit. Jangan menulis naskah baru di komponen.
+
 | apa | catatan |
 |---|---|
 | `assets/Terumbu.tsx` | karang bercabang, meja, kipas. Untuk bagian dangkal. |
