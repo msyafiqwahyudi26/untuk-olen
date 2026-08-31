@@ -41,6 +41,18 @@ export function db(): DatabaseSync {
       body TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    /* PIN empat angka. Satu baris saja, selamanya — CHECK (id = 1) membuat
+     * baris kedua mustahil, jadi tidak akan pernah ada dua kunci yang
+     * bersaing dan tidak perlu ada kode yang memilih di antaranya.
+     * Isi dan alasannya di src/lib/kunci.ts. */
+    CREATE TABLE IF NOT EXISTS kunci (
+      id            INTEGER PRIMARY KEY CHECK (id = 1),
+      sidik         TEXT    NOT NULL,
+      garam         TEXT    NOT NULL,
+      gagal         INTEGER NOT NULL DEFAULT 0,
+      tunggu_sampai INTEGER NOT NULL DEFAULT 0
+    );
   `);
   _db = d;
   return d;

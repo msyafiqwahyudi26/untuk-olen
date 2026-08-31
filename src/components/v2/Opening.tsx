@@ -6,6 +6,7 @@ import Settings, { type Pengaturan } from "./Settings";
 import Langit from "./Langit";
 import { waktuSekarang, JAM_WAKIL } from "./waktu";
 import { variabelTema } from "@/design/tema";
+import { aset } from "@/lib/basis";
 
 const OpeningScene = dynamic(() => import("./OpeningScene"), { ssr: false });
 
@@ -69,6 +70,62 @@ export default function Opening() {
   const seaRef = useRef<HTMLAudioElement | null>(null);
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const voiceRef = useRef<HTMLAudioElement | null>(null);
+
+  /**
+   * Salah kalau berkas ombaknya tidak bisa dimuat sama sekali.
+   *
+   * Berkas audio TIDAK ikut git — sengaja: tiga lagunya berhak cipta dan
+   * montasenya suara Olen. Akibatnya di server yang baru disiapkan,
+   * `public/audio` cuma berisi keterangan dan halaman ini berjalan tanpa
+   * satu pun bunyi.
+   *
+   * Sebelum ini tombol suara tetap menulis "sound on" dalam keadaan itu. Ia
+   * berbohong, dan bohongnya mahal: yang membuka halaman menyangka
+   * pemutarnya rusak lalu mencari sebabnya di tempat yang salah. Persis itu
+   * yang terjadi 31 Agustus, dua kali — di HP lalu di laptop — sebelum
+   * ketahuan bahwa berkasnya memang tidak pernah ada di sana.
+   *
+   * Yang berubah hanya keterangan tombolnya. Halamannya tetap berjalan penuh
+   * tanpa suara, seperti dirancang semula.
+   */
+  const [adaSuara, setAdaSuara] = useState(true);
+
+  /**
+   * ── KENAPA onError DI <audio> TIDAK CUKUP ──
+   *
+   * Percobaan pertama memasang `onError` langsung di elemen <audio>. Itu
+   * tidak pernah berbunyi, dan tombolnya tetap mengaku "sound on" di HP
+   * meski berkasnya 404.
+   *
+   * Sebabnya ada di spesifikasi HTML: ketika sebuah <audio> memakai anak
+   * <source>, kegagalan dilaporkan sebagai peristiwa `error` pada elemen
+   * <source> yang gagal — BUKAN pada <audio>-nya. Dan `error` tidak
+   * menggelembung. Jadi pendengar di induknya tidak akan pernah kena.
+   *
+   * Dua jalan dipakai bersama, karena masing-masing bocor sendirian:
+   *
+   *   1. Pendengar fase TANGKAP di <audio>. Fase tangkap turun dari akar ke
+   *      sasaran, jadi ia melewati <audio> sebelum sampai ke <source> —
+   *      bekerja walau peristiwanya tidak menggelembung.
+   *   2. Pemeriksaan `networkState` sesudah dua detik. Kalau semua sumber
+   *      habis, nilainya jadi NETWORK_NO_SOURCE. Ini jaring untuk hal yang
+   *      gagal tanpa memancarkan error sama sekali, misalnya jenis berkas
+   *      yang tidak didukung peramban.
+   */
+  useEffect(() => {
+    const el = seaRef.current;
+    if (!el) return;
+    const periksa = () => {
+      if (el.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) setAdaSuara(false);
+    };
+    const gagal = () => setAdaSuara(false);
+    el.addEventListener("error", gagal, true);
+    const t = window.setTimeout(periksa, 2000);
+    return () => {
+      el.removeEventListener("error", gagal, true);
+      window.clearTimeout(t);
+    };
+  }, []);
 
   useEffect(() => {
     const small = window.innerWidth < 820;
@@ -274,10 +331,13 @@ export default function Opening() {
           halaman dibuka, jadi harus selalu ada cara mematikannya. */}
       {
         <button
-          className={`ui-pil z-atas op-sound ui-masuk tunda-6${muted ? "" : " on"}`}
+          className={`ui-pil z-atas op-sound ui-masuk tunda-6${muted || !adaSuara ? "" : " on"}`}
           onClick={toggleMute}
-          aria-pressed={!muted}
-          aria-label={muted ? "Turn sound on" : "Turn sound off"}
+          disabled={!adaSuara}
+          aria-pressed={adaSuara ? !muted : undefined}
+          aria-label={
+            !adaSuara ? "No audio files on this server" : muted ? "Turn sound on" : "Turn sound off"
+          }
         >
           <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden>
             <path
@@ -287,7 +347,7 @@ export default function Opening() {
               strokeWidth="1.2"
               strokeLinejoin="round"
             />
-            {muted ? (
+            {muted || !adaSuara ? (
               <path d="M16 9.5l5 5m0-5l-5 5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
             ) : (
               <>
@@ -296,7 +356,7 @@ export default function Opening() {
               </>
             )}
           </svg>
-          <span>{muted ? "muted" : "sound on"}</span>
+          <span>{!adaSuara ? "no audio" : muted ? "muted" : "sound on"}</span>
         </button>
       }
 
@@ -334,20 +394,24 @@ export default function Opening() {
         )}
       </div>
 
+      {/* Pemantauannya ada di useEffect di atas, bukan di prop onError di
+          sini — lihat catatan panjangnya. Ombak dipilih karena ia satu-satunya
+          yang dimuat sejak halaman dibuka, jadi paling awal tahu apakah folder
+          audionya terisi. */}
       <audio ref={seaRef} loop preload="auto">
-        <source src="/audio/beach.m4a" type="audio/mp4" />
-        <source src="/audio/beach.opus" type="audio/ogg; codecs=opus" />
+        <source src={aset("/audio/beach.m4a")} type="audio/mp4" />
+        <source src={aset("/audio/beach.opus")} type="audio/ogg; codecs=opus" />
       </audio>
 
       {/* Bundle of Joy — lagu yang diminta Yaya untuk layar pembuka. */}
       <audio ref={musicRef} loop preload="auto">
-        <source src="/audio/track-1.m4a" type="audio/mp4" />
-        <source src="/audio/track-1.opus" type="audio/ogg; codecs=opus" />
+        <source src={aset("/audio/track-1.m4a")} type="audio/mp4" />
+        <source src={aset("/audio/track-1.opus")} type="audio/ogg; codecs=opus" />
       </audio>
 
       <audio ref={voiceRef} preload="auto" onEnded={() => setVoice(false)} onPause={() => setVoice(false)}>
-        <source src="/audio/voice-of-olen.m4a" type="audio/mp4" />
-        <source src="/audio/voice-of-olen.opus" type="audio/ogg; codecs=opus" />
+        <source src={aset("/audio/voice-of-olen.m4a")} type="audio/mp4" />
+        <source src={aset("/audio/voice-of-olen.opus")} type="audio/ogg; codecs=opus" />
       </audio>
 
       {started && (

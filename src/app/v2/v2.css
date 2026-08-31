@@ -53,13 +53,11 @@
     radial-gradient(90% 45% at 78% 4%, rgba(255,255,255,.10), transparent 60%);
 }
 
-/* ─────────────── langit dua lapis ───────────────
-   Gradien CSS tidak bisa dianimasikan, tapi opacity bisa. Lapis bawah memegang
-   langit lama, lapis atas memudar masuk membawa langit baru. Lihat Langit.tsx. */
-
-.lg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.lg-lapis { position: absolute; inset: 0; }
-.lg-atas { opacity: 0; transition: opacity var(--ease); }
+/* Langit dua lapis PINDAH ke src/design/ui.css.
+   Alasannya: `Langit` dipakai layar pembuka DAN pintu masuk, sementara
+   berkas ini hanya dimuat layar pembuka. Selama gayanya di sini, langit di
+   pintu masuk runtuh jadi dua div tanpa posisi — tanpa galat, tanpa
+   peringatan, cuma latar yang hilang. */
 
 /* ─────────────── tulisan di tengah ─────────────── */
 
@@ -140,12 +138,30 @@
 /* ─────────────── tombol lanjut di dasar layar ───────────────
    Zona `.z-bawah`: yang ada di belakangnya PASIR, bukan langit. */
 
+/*
+ * PEMUSATAN TIDAK BOLEH MEMAKAI transform DI SINI.
+ *
+ * Dulu tombol ini dipusatkan dengan `left: 50%` + `transform: translateX(-50%)`,
+ * cara yang biasanya benar. Di sini ia rusak: kelasnya juga `.ui-pil`, yang
+ * menjalankan animasi `uiNaik`. Keyframe terakhir `uiNaik` berbunyi
+ * `transform: none`, dan animasinya memakai fill-mode `both` — jadi begitu
+ * animasinya selesai, `transform: none` MENIMPA translateX(-50%) dan tombolnya
+ * melompat ke kanan sejauh separuh lebarnya sendiri.
+ *
+ * Sulit terlihat di layar lebar karena pergeserannya kecil dibanding lebar
+ * layar; di HP ia jelas meleset dari tengah. Dilaporkan dari HP, bukan dari
+ * membaca kode.
+ *
+ * `inset-inline: 0` + `margin-inline: auto` memusatkan TANPA transform, jadi
+ * animasi bebas memakai transform sesukanya.
+ */
 .op-next {
   position: absolute;
-  left: 50%;
-  bottom: clamp(1.6rem, 4svh, 2.8rem);
+  inset-inline: 0;
+  margin-inline: auto;
+  width: fit-content;
+  bottom: max(clamp(1.6rem, 4svh, 2.8rem), env(safe-area-inset-bottom));
   z-index: 4;
-  transform: translateX(-50%);
   flex-direction: column;
   gap: .3rem;
   padding: .5rem 1rem .4rem;
@@ -156,7 +172,7 @@
      Olen menekan MULAI, jadi ia tidak sedang mengantre di belakang apa pun. */
   animation: uiNaik var(--d-masuk) var(--ease) .4s both;
 }
-.op-next:hover { transform: translateX(-50%) translateY(-1px); }
+.op-next:hover { transform: translateY(-1px); }
 .op-next svg { animation: opDorong 2.4s ease-in-out infinite; }
 .op-next:hover svg { animation-duration: 1.2s; }
 @keyframes opDorong {
@@ -196,4 +212,53 @@
 @media (prefers-reduced-motion: reduce) {
   .op-grain, .op-mulai, .op-next svg { animation: none !important; }
   .op-mulai { opacity: 1 !important; transform: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * DI HP
+ *
+ * Sampai 31 Agustus tidak ada satu pun media query lebar di berkas ini
+ * maupun di ui.css. Seluruh tata letaknya berbentuk desktop, dan tidak ada
+ * yang menyadarinya karena — menurut HANDOVER.md sendiri — tampilan di HP
+ * "belum pernah diperiksa sama sekali".
+ *
+ * Ini hadiah untuk satu anak yang hampir pasti membukanya dari HP. Layar itu
+ * bukan kasus tepi di sini; ia layar utamanya.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+/* Takik dan bilah beranda berlaku di semua ukuran, bukan cuma HP kecil. */
+.st,
+.op-sound { top: max(var(--tepi-y), env(safe-area-inset-top)); }
+
+@media (max-width: 560px) {
+  /* Tulisan diangkat lebih sedikit. -14svh disetel untuk layar lebar; di
+     layar tinggi ia mendorong nama sampai menabrak tombol di pojok atas. */
+  .op-ui {
+    padding: 0 5vw;
+    transform: translateY(-8svh);
+  }
+
+  /* Ikon saja. Kata "sound on" dan "muted" memakan lebar yang, bersama tombol
+     pengaturan di sebelahnya, tidak muat di layar 360px. Keterangannya tetap
+     terbaca pembaca layar lewat aria-label. */
+  .op-sound span { display: none; }
+  .op-sound { padding: .48rem .5rem; right: calc(var(--tepi-x) + 34px + var(--j2)); }
+
+  /* Panel pengaturan selebar layar dikurangi tepi, bukan 238px tetap yang
+     menggantung keluar di layar sempit. */
+  .st-panel { width: min(238px, calc(100vw - 2 * var(--tepi-x) - 8px)); }
+
+  /* Sasaran sentuh. 44px adalah ambang yang dipakai pedoman aksesibilitas
+     Apple dan Google; tombol pil setinggi 30px terlalu mudah meleset dengan
+     ibu jari. */
+  .ui-pil { min-height: 44px; }
+  .op-next { padding: .6rem 1.1rem .5rem; }
+}
+
+/* Layar pendek — HP tegak dengan bilah peramban, atau HP dimiringkan.
+   Di sini yang habis adalah tinggi, bukan lebar. */
+@media (max-height: 680px) {
+  .op-ui { transform: translateY(-5svh); }
+  .op-aksi { margin-top: clamp(1rem, 2.5vh, 1.8rem); }
+  .op-hint { margin-top: .7rem; }
 }

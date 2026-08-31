@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { StarRow } from "@/lib/db";
+import { aset } from "@/lib/basis";
 
 type Props = { stars: StarRow[]; links: { a: string; b: string }[] };
 
@@ -158,7 +159,7 @@ export default function Constellation({ stars, links }: Props) {
             {activeStar.photo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={`/memori/${activeStar.photo}`}
+                src={aset(`/memori/${activeStar.photo}`)}
                 alt={activeStar.title}
                 className="block w-full"
                 style={{ maxHeight: 260, objectFit: "cover" }}
@@ -182,8 +183,8 @@ export default function Constellation({ stars, links }: Props) {
                   style={{ width: "100%", marginTop: 16, height: 34 }}
                 >
                   {/* .m4a dulu supaya Safari/iOS ikut jalan, .opus untuk sisanya */}
-                  <source src={`/memori/vn/${activeStar.audio}.m4a`} type="audio/mp4" />
-                  <source src={`/memori/vn/${activeStar.audio}.opus`} type="audio/ogg; codecs=opus" />
+                  <source src={aset(`/memori/vn/${activeStar.audio}.m4a`)} type="audio/mp4" />
+                  <source src={aset(`/memori/vn/${activeStar.audio}.opus`)} type="audio/ogg; codecs=opus" />
                 </audio>
               )}
 

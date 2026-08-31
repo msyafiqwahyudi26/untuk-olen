@@ -290,3 +290,17 @@
   outline: 2px solid rgba(255, 255, 255, .9);
   outline-offset: 3px;
 }
+
+
+/* ─────────────── langit dua lapis ───────────────
+   Gradien CSS tidak bisa dianimasikan, tapi opacity bisa. Lapis bawah memegang
+   langit lama, lapis atas memudar masuk membawa langit baru. Lihat Langit.tsx.
+
+   Ada di sini, bukan di v2.css, karena `Langit` dipakai lebih dari satu
+   halaman: layar pembuka dan pintu masuk. Gaya milik komponen bersama harus
+   ikut komponennya, bukan menumpang di CSS salah satu halaman yang
+   kebetulan memakainya lebih dulu. */
+
+.lg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.lg-lapis { position: absolute; inset: 0; }
+.lg-atas { opacity: 0; transition: opacity var(--ease); }
