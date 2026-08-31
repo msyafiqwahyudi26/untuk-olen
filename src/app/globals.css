@@ -1,4 +1,4 @@
-/* Playfair Display cuma dipakai v1. Outfit tidak diminta di sini: ia sudah
+/* Playfair Display cuma dipakai v1. Huruf v2 tidak diminta di sini: sudah
    dimuat oleh src/design/tokens.css, dan meminta huruf yang sama dua kali
    berarti dua permintaan jaringan yang saling menunggu sebelum halaman bisa
    menggambar teks. */
@@ -93,14 +93,19 @@ html {
   overflow-x: hidden;
 }
 body {
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight: 300;
+  /* SATU PEMILIK: nama hurufnya cuma ada di tokens.css. Sebelum ini baris
+     ini menyebut 'Outfit' sendiri, jadi mengganti huruf berarti menyunting
+     dua tempat — dan yang kedua pasti terlupa. */
+  font-family: var(--huruf-badan);
+  font-weight: var(--tebal-badan);
   color: var(--text-primary);
   background: var(--night-sky-top);
   /* Sengaja TIDAK ada overflow di sini — lihat catatan di aturan html. */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+/* .serif tetap Playfair: itu milik v1, dan v1 sengaja dibiarkan seperti
+   aslinya. Judul di v2 memakai --huruf-judul lewat berkasnya sendiri. */
 h1, h2, h3, h4, .serif { font-family: 'Playfair Display', Georgia, serif; font-weight: 400; }
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }

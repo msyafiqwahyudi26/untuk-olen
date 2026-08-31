@@ -3,7 +3,9 @@
    /design dibuat: judulnya jatuh ke Georgia, karena Fraunces cuma ada di
    berkas milik layar cerita. Barang yang dipakai di lebih dari satu tempat
    tidak boleh tinggal di salah satunya. */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..700,50,1&family=Outfit:wght@300;400;500&display=swap');
+/* Tidak ada @import huruf di sini lagi — lihat catatan panjang di
+   src/app/layout.tsx. Ringkasnya: baris seperti itu dibuang senyap oleh
+   pipeline CSS Next, dan hurufnya tidak pernah terunduh. */
 
 /* ═══════════════════════════════════════════════════════════════════
    TOKEN — nilai yang tidak berubah menurut waktu
@@ -26,16 +28,41 @@
 :root {
   /* ── TIPOGRAFI ─────────────────────────────────────────────────────
      Dua huruf, dua tugas:
-       Fraunces — hanya untuk nama dan judul. Huruf yang punya watak.
-       Outfit   — segala sisanya. Huruf yang tahu diri.
-     Tidak pernah dicampur dalam satu kalimat. */
-  --huruf-judul: 'Fraunces', Georgia, 'Times New Roman', serif;
-  --huruf-badan: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+       Fredoka — nama, judul, dan kutipan Olen. Bulat, tumpul, tebal.
+       Nunito  — segala sisanya. Bulat juga, tapi tenang.
+     Tidak pernah dicampur dalam satu kalimat.
 
-  /* Fraunces punya sumbu SOFT dan WONK. Nilai ini yang membuatnya terasa
-     bulat dan sedikit miring-ceria, bukan serif kaku. Selalu dipasang
-     bersamaan — Fraunces tanpa ini terlihat seperti huruf yang salah. */
-  --judul-sumbu: 'SOFT' 50, 'WONK' 1, 'opsz' 144;
+     Diganti 31 Agustus 2026, dari Fraunces + Outfit. Alasannya bukan
+     selera semata: yang lama serif dengan badan di bobot 300, dan Yaya
+     benar waktu bilang "ketebalan kurang, terlalu serius". Kapsul ini
+     hadiah untuk anak SMP, bukan terbitan berkala.
+
+     PENTING — keduanya huruf variabel dengan rentang bobot penuh
+     (Fredoka 400..700, Nunito 400..800). Jadi bobot berapa pun di
+     antaranya boleh dipakai TANPA menambah permintaan jaringan. Kalau
+     nanti ada yang ingin bobot 650, langsung tulis saja; jangan
+     menambahkannya ke URL @import, itu tidak diperlukan dan justru
+     memperbesar berkasnya. */
+  /* --font-judul / --font-badan dipasang oleh next/font di <html>. Nama
+     hurufnya sengaja TIDAK ditulis di sini: kalau ditulis dua kali, yang
+     satu pasti tertinggal waktu diganti — persis yang terjadi pada 'Outfit'
+     di aset.css. */
+  --huruf-judul: var(--font-judul), 'Trebuchet MS', Verdana, sans-serif;
+  --huruf-badan: var(--font-badan), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Fraunces punya sumbu SOFT dan WONK; Fredoka tidak. Dikosongkan, BUKAN
+     dihapus, karena empat berkas memakainya lewat font-variation-settings
+     dan `normal` adalah satu-satunya nilai sah yang berarti "tanpa
+     penyetelan". Menghapus variabelnya membuat keempatnya jadi
+     font-variation-settings tanpa nilai, yang membatalkan seluruh
+     deklarasinya diam-diam. */
+  --judul-sumbu: normal;
+
+  /* Bobot bawaan. Ditulis di sini, bukan diulang di tiap berkas, supaya
+     ada SATU tempat kalau nanti terasa kurang tebal lagi. */
+  --tebal-judul: 600;
+  --tebal-badan: 400;
+  --tebal-tegas: 700;
 
   /* Skala ukuran. Naik pelan di bawah, melompat di atas — karena teks kecil
      dibaca dan teks besar dilihat, dan keduanya tidak butuh langkah yang

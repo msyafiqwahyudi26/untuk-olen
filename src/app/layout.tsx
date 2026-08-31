@@ -1,10 +1,44 @@
 import type { Metadata, Viewport } from "next";
+import { Fredoka, Nunito } from "next/font/google";
 import "./globals.css";
 /* Design system. Urutannya penting: token dulu (nilai), lalu ui (bentuk yang
    memakai nilai itu), baru CSS tiap halaman (penempatan) yang dimuat sendiri
    oleh halamannya. */
 import "@/design/tokens.css";
 import "@/design/ui.css";
+
+/*
+ * ═══ HURUF ═══
+ *
+ * Dimuat lewat `next/font`, BUKAN `@import url(...)` di dalam CSS.
+ *
+ * Bukan soal gaya. Sampai 31 Agustus 2026 tokens.css memuatnya dengan
+ * `@import url('https://fonts.googleapis.com/...')`, dan itu TIDAK PERNAH
+ * BEKERJA: pipeline CSS Next 16 membuang baris itu, dan kata "googleapis"
+ * tidak muncul satu kali pun di seluruh hasil build. Jadi selama berbulan-
+ * bulan seluruh situs tampil dengan huruf cadangan sistem — Georgia untuk
+ * judul, Segoe UI untuk badan — sementara kodenya terbaca seolah memakai
+ * Fraunces dan Outfit. Tidak ada galat, tidak ada peringatan; build sukses
+ * tiap kali. Yang menangkapnya cuma menghitung kemunculan "googleapis" di
+ * berkas yang benar-benar tersaji.
+ *
+ * `next/font` menyalin berkas hurufnya ke domain sendiri saat build, jadi
+ * ia tidak bisa hilang diam-diam: kalau gagal, build-nya yang gagal.
+ *
+ * Keduanya huruf VARIABEL, jadi `weight` sengaja tidak disebut — satu berkas
+ * memuat seluruh rentang bobot (Fredoka 300..700, Nunito 200..1000). Menulis
+ * daftar bobot justru memaksa Next mengunduh berkas statis satu per satu.
+ */
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  variable: "--font-judul",
+  display: "swap",
+});
+const nunito = Nunito({
+  subsets: ["latin"],
+  variable: "--font-badan",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Len",
@@ -21,7 +55,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id">
+    <html lang="id" className={`${fredoka.variable} ${nunito.variable}`}>
       <head>
         {/* Kalau JavaScript mati atau gagal dimuat, semua yang menunggu
             animasi masuk tetap harus terbaca. */}

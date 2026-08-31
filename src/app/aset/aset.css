@@ -5,7 +5,11 @@
   min-height: 100svh;
   background: #FFFFFF;
   color: #14384F;
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* SATU PEMILIK: nama hurufnya cuma ada di src/design/tokens.css. Baris ini
+     sempat menyebut 'Outfit' sendiri, dan ikut tertinggal waktu hurufnya
+     diganti — halaman ini jadi satu-satunya yang masih memanggil huruf yang
+     tidak dimuat lagi. */
+  font-family: var(--huruf-badan, -apple-system, 'Segoe UI', sans-serif);
   padding: clamp(1.25rem, 3vw, 2.5rem);
 }
 .as *, .as *::before, .as *::after { box-sizing: border-box; }

@@ -313,36 +313,34 @@
 
 
 
-/* Di layar sempit tidak ada ruang untuk dua sisi; semuanya jadi satu kolom
-   di tengah. Kalau tidak, kutipan sisi kanan akan tergencet di 22% lebar. */
-@media (max-width: 720px) {
-  .kn, .kn-kiri, .kn-kanan {
-    left: 50%;
-    right: auto;
-    width: min(30rem, 88vw);
-    transform: translate(-50%, -50%);
-  }
-}
+/* CATATAN 31 Agustus 2026 — di sini dulu ada aturan yang MERUSAK tampilan HP.
+   Isinya `left: 50%` dan `transform: translate(-50%, -50%)` untuk `.kn`,
+   `.kn-kiri`, `.kn-kanan`. Itu benar selama ketiganya dipaku dengan
+   `position: absolute`. Begitu `.kn` pindah ke alir dokumen (position:
+   relative, di dalam flex column yang sudah center), aturan itu tidak ikut
+   dibuang, dan diam-diam berubah arti:
 
-.kn-kutip {
-  margin: 0;
-  font-family: var(--huruf-judul, Georgia, serif);
-  /* Lebih besar dan lebih lega. Kutipan ini yang dibaca lama, kadang waktu
-     Olen sedang tidak baik-baik saja, dan huruf yang rapat membuat orang
-     berhenti membaca sebelum kalimatnya selesai. */
-  font-size: clamp(1.32rem, 3.4vw, 1.95rem);
-  line-height: 1.55;
-  letter-spacing: -0.005em;
-  text-wrap: balance;
-  color: #f2f9ff;
-  text-shadow: 0 1px 14px rgba(2, 12, 26, 0.8);
-}
+     left: 50%           geser kanan 50% lebar INDUK
+     translateX(-50%)    geser kiri 50% lebar SENDIRI (88vw jadi 44vw)
+        hasil            sekitar 6vw meleset ke kanan, tiap kenangan
+     translateY(-50%)    tarik NAIK setengah tinggi sendiri
+        hasil            menabrak kenangan sebelumnya
+
+   Jadi di HP tiap blok miring ke kanan sekaligus melompat ke atas. Persis
+   yang dilaporkan sebagai "berantakan" dan "ada bagian yang terlewat".
+   `.kn-kiri` dan `.kn-kanan` sendiri sudah tidak ada di Turunan.tsx.
+
+   Lebarnya sudah diatur di blok HP paling bawah berkas ini, jadi tidak ada
+   yang perlu menggantikan aturan ini. Pelajarannya: waktu sebuah elemen
+   pindah dari `absolute` ke alir dokumen, `left`/`right`/`transform`
+   miliknya TIDAK ikut mati, cuma berubah arti. */
+
 
 .kn-kaki {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  margin-top: 1rem;
+  gap: 0.9rem;
+  margin-top: 1.6rem;
 }
 
 .kn-tanggal {
@@ -352,15 +350,6 @@
   opacity: 0.55;
 }
 
-/* Suara Yaya, bukan suara Olen — dan harus terlihat begitu tanpa perlu
-   dijelaskan. Garis di tepi kiri dan huruf yang lebih kecil sudah cukup. */
-.kn-catatan {
-  border-left: 1px solid rgba(255, 255, 255, 0.22);
-  padding-left: 0.8rem;
-  font-size: 0.82rem;
-  line-height: 1.7;
-  opacity: 0.72;
-}
 
 
 /* ═══════════════ TOMBOL DENGAR ═══════════════
@@ -407,14 +396,6 @@
 .kn-dengar.on .kn-gelombang i:nth-child(4) { animation-delay: 0.36s; }
 @keyframes knBatang { 0%, 100% { height: 4px; } 50% { height: 12px; } }
 
-/* Kalimat dari Yaya dibedakan tipis: bukan warna lain, cuma huruf yang
-   sedikit lebih kecil dan garis di kiri. Kalau dibedakan mencolok, dasar
-   laut akan terasa seperti iklan yang menyusup di akhir perjalanan. */
-.kn-yaya .kn-kutip {
-  font-size: clamp(1.02rem, 2.6vw, 1.32rem);
-  border-left: 1px solid rgba(255, 255, 255, 0.22);
-  padding-left: 1.1rem;
-}
 
 /* ═══════════════ REL KEDALAMAN ═══════════════
    Turunan sepanjang 800 m tanpa ini tidak punya ujung yang terlihat: tidak
@@ -514,10 +495,6 @@
   transition: opacity 240ms ease;
 }
 
-/* Huruf tetap perlu bayangnya sendiri: pita menurunkan latar secara merata,
-   tapi makhluk yang lewat TEPAT di belakang satu kata tetap bisa menaikkan
-   terangnya di situ saja. */
-.kn-kutip { text-shadow: 0 1px 3px rgba(2, 11, 24, 0.95), 0 2px 18px rgba(2, 11, 24, 0.8); }
 
 /* ═══════════════ DI HP ═══════════════
    Yang diperiksa bukan cuma muat atau tidak, tapi apakah tetap ringan.
@@ -525,7 +502,6 @@
 @media (max-width: 720px) {
   .kn { width: min(34rem, 90vw); }
   .kn-kutip { font-size: clamp(1.08rem, 4.6vw, 1.35rem); line-height: 1.6; }
-  .kn-catatan { font-size: 0.78rem; }
   .tr-pita { height: 64vh; }
   /* Kaca buram itu yang paling mahal di HP. Tombol tetap terbaca tanpa
      blur karena latarnya sudah gelap. */
@@ -604,52 +580,24 @@
    suara Yaya. Sebelumnya keduanya cuma beda ukuran sedikit, jadi terbaca
    seperti satu paragraf yang mengecil di tengah jalan.
 
-   Sekarang bedanya jenis huruf: Olen serif, Yaya sans. Perbedaan bentuk
-   huruf terbaca lebih cepat daripada perbedaan ukuran, dan tidak perlu
-   dijelaskan. */
-.kn-kutip {
-  font-family: var(--huruf-judul, Georgia, serif);
-  font-weight: 400;
-  color: #f4faff;
-}
-.kn-kaki {
-  gap: 0.75rem;
-  margin-top: 1.35rem;
-}
+   Bedanya jenis huruf: Olen memakai huruf JUDUL (Fredoka, bulat dan tebal),
+   Yaya memakai huruf BADAN (Nunito, lebih tenang). Perbedaan bentuk terbaca
+   lebih cepat daripada perbedaan ukuran, dan tidak perlu dijelaskan.
+
+   (Sampai 31 Agustus 2026 komentar ini berbunyi "Olen serif, Yaya sans".
+   Itu benar waktu huruf judulnya Fraunces. Sekarang keduanya sans; yang
+   membedakan ketebalan dan kebulatannya.) */
 .kn-tanggal {
   font-family: var(--huruf-badan, system-ui, sans-serif);
   font-size: 0.68rem;
+  font-weight: 600;
   letter-spacing: 0.24em;
-  opacity: 0.45;
-}
-.kn-catatan {
-  font-family: var(--huruf-badan, system-ui, sans-serif);
-  /* Naik dari 0,82rem. Ini kalimat Yaya ke Olen, bukan keterangan gambar. */
-  font-size: clamp(0.9rem, 2.2vw, 1.02rem);
-  line-height: 1.75;
-  max-width: 34ch;
-  opacity: 0.8;
-  border-left-color: rgba(255, 255, 255, 0.16);
-  padding-left: 1rem;
-}
-
-/* Kalimat Yaya yang berdiri sendiri (pembuka, pola, dua di dasar) memakai
-   huruf badan juga, bukan serif: begitu ia dibedakan dari kutipan Olen,
-   pembaca tahu siapa yang sedang bicara tanpa satu kata penjelasan pun. */
-.kn-yaya .kn-kutip {
-  font-family: var(--huruf-badan, system-ui, sans-serif);
-  font-size: clamp(1.06rem, 2.7vw, 1.34rem);
-  line-height: 1.72;
-  letter-spacing: 0;
-  border-left: 1px solid rgba(255, 255, 255, 0.2);
-  padding-left: 1.15rem;
-  max-width: 40ch;
+  opacity: 0.5;
 }
 
 @media (max-width: 720px) {
   .kn-kutip { font-size: clamp(1.18rem, 5vw, 1.5rem); line-height: 1.5; }
   .kn-yaya .kn-kutip { font-size: clamp(1rem, 4.3vw, 1.2rem); }
-  .kn-catatan { font-size: 0.9rem; max-width: none; }
   .kn-video { width: min(15rem, 62vw); }
 }
 
@@ -666,34 +614,44 @@
    kesatuan. Begitu Olen tahu di mana matanya harus mulai, dia berhenti
    mencari dan mulai membaca. */
 .kn-pembuka {
-  margin: 0 0 1.1rem;
+  margin: 0 0 1.15rem;
   font-family: var(--huruf-badan, system-ui, sans-serif);
+  font-weight: 500;
   font-size: clamp(0.96rem, 2.3vw, 1.08rem);
   line-height: 1.75;
   color: rgba(236, 246, 255, 0.72);
   max-width: 46ch;
 }
 .kn-kutip {
-  margin: 0 0 1.4rem;
-  font-family: var(--huruf-judul, Georgia, serif);
-  font-weight: 400;
-  font-size: clamp(1.35rem, 3.6vw, 2.05rem);
-  line-height: 1.45;
-  letter-spacing: -0.008em;
-  color: #f6fbff;
+  margin: 0 0 1.5rem;
+  font-family: var(--huruf-judul, 'Trebuchet MS', sans-serif);
+  /* 600, bukan 400. Fredoka di bobot 400 terlihat seperti huruf antarmuka
+     biasa; yang membuatnya terasa bulat dan hangat justru ketebalannya.
+     Ini juga jawaban langsung atas "ketebalan kurang okey". */
+  font-weight: 600;
+  font-size: clamp(1.42rem, 3.9vw, 2.2rem);
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  color: #f8fcff;
   text-wrap: balance;
   /* Garis di kiri, bukan kotak. Ia menandai "ini bukan suara Kakak" tanpa
-     menggambar bidang apa pun. */
-  border-left: 2px solid rgba(255, 255, 255, 0.28);
-  padding-left: clamp(0.9rem, 2.4vw, 1.3rem);
+     menggambar bidang apa pun. Warnanya kuning pucat yang sama dengan
+     tanda-tanda lain di kapsul ini, supaya suara Olen punya satu warna
+     tetap di seluruh perjalanan. */
+  border-left: 3px solid rgba(244, 228, 176, 0.5);
+  padding-left: clamp(0.95rem, 2.5vw, 1.4rem);
   text-shadow: 0 1px 3px rgba(2, 11, 24, 0.95), 0 2px 18px rgba(2, 11, 24, 0.8);
 }
 .kn-cerita {
   margin: 0 0 0.95rem;
   font-family: var(--huruf-badan, system-ui, sans-serif);
-  font-size: clamp(0.98rem, 2.4vw, 1.1rem);
-  line-height: 1.8;
-  color: rgba(240, 248, 255, 0.9);
+  /* 450: Nunito 400 di atas air gelap terbaca tipis, 500 mulai berebut
+     perhatian dengan kutipannya. Huruf variabel, jadi 450 tidak menambah
+     satu pun permintaan jaringan. */
+  font-weight: 450;
+  font-size: clamp(1rem, 2.45vw, 1.12rem);
+  line-height: 1.78;
+  color: rgba(242, 249, 255, 0.92);
   max-width: 46ch;
   text-shadow: 0 1px 10px rgba(2, 11, 24, 0.9);
 }
@@ -703,6 +661,9 @@
    perlu dibedakan dari apa pun di situ. */
 .kn-yaya .kn-kutip {
   font-family: var(--huruf-badan, system-ui, sans-serif);
+  /* 500, bukan 600. Ini suara Kakak: hadir, tapi tidak boleh lebih keras
+     dari kutipan Olen di halaman yang sama. */
+  font-weight: 500;
   font-size: clamp(1.12rem, 2.9vw, 1.42rem);
   line-height: 1.7;
   letter-spacing: 0;
@@ -711,7 +672,6 @@
   max-width: 44ch;
 }
 
-.kn-kaki { margin-top: 1.6rem; gap: 0.9rem; }
 .kn-video { margin: 0 0 1.6rem; }
 
 /* Pita baca lebih tinggi: yang harus tetap terbaca sekarang satu blok
