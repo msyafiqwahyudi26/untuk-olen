@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { aset } from "@/lib/basis";
 import { PALET, type Waktu } from "./waktu";
 import {
   HUNI,
@@ -114,10 +115,59 @@ const TEMPAT = {
   ],
 };
 
+/**
+ * Letak tiap kenangan di sepanjang GULIR, bukan di sepanjang meter.
+ *
+ * Rel di tepi kanan harus menandai kenangan di tempat jari akan berada waktu
+ * kenangan itu muncul. Karena gulir dipetakan ke perubahan (lihat
+ * `kedalamanDi`), 400 m bukan di setengah rel melainkan di sekitar 89%.
+ * Menandainya menurut `di / DASAR` akan menaruh semua tanda menumpuk di
+ * seperempat atas dan rel-nya jadi bohong.
+ *
+ * Jadi peta baliknya dicari dengan mencuplik `kedalamanDi` sekali, lalu
+ * mencari di pecahan berapa kedalamannya melewati `di`.
+ */
+function pecahanUntuk(di: number): number {
+  const N = 400;
+  for (let i = 1; i <= N; i++) {
+    if (kedalamanDi(i / N) >= di) return (i - 1) / N;
+  }
+  return 1;
+}
+
 export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () => void }) {
   const akar = useRef<HTMLDivElement>(null);
   const bacaan = useRef<HTMLParagraphElement>(null);
   const suhuEl = useRef<HTMLSpanElement>(null);
+  const relTitik = useRef<HTMLSpanElement>(null);
+  const suaraEl = useRef<HTMLAudioElement>(null);
+  /* Satu-satunya state di berkas ini, dan sengaja: ia berubah waktu Olen
+     menekan tombol, bukan waktu ia menggulir. Render ulang di sini tidak
+     pernah bersaing dengan gelung gulir. */
+  const [berbunyi, setBerbunyi] = useState<string | null>(null);
+
+  const tanda = useMemo(() => KENANGAN.map((k) => pecahanUntuk(k.di)), []);
+
+  const putar = (nama: string) => {
+    const a = suaraEl.current;
+    if (!a) return;
+    if (berbunyi === nama) {
+      a.pause();
+      setBerbunyi(null);
+      return;
+    }
+    a.src = aset(`/memori/vn/${nama}.m4a`);
+    a.currentTime = 0;
+    void a
+      .play()
+      .then(() => setBerbunyi(nama))
+      /* Kalau .m4a tidak ada atau ditolak, coba .opus sekali. Dua berkas
+         untuk tiap VN memang disiapkan begitu; lihat DEPLOY.md. */
+      .catch(() => {
+        a.src = aset(`/memori/vn/${nama}.opus`);
+        void a.play().then(() => setBerbunyi(nama)).catch(() => setBerbunyi(null));
+      });
+  };
   /* Satu rujukan per kenangan. Opasitasnya ditulis langsung ke elemennya di
      dalam gelung gulir — bukan lewat state, dan bukan lewat custom property
      baru per kenangan, karena jumlahnya akan tumbuh dan satu variabel CSS per
@@ -159,18 +209,45 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
          dilewati. Bentuk lengkungnya smoothstep, sama seperti kehadiran
          penghuni — datang dan perginya berlaju nol, jadi tidak ada yang
          terasa disisipkan. */
+      /* ── SATU SEKALIGUS, bukan semua yang kebetulan masuk jendela ──
+       *
+       * Versi pertama memberi tiap kenangan jendelanya sendiri dan
+       * menampilkan semua yang jendelanya mengandung `d`. Akibatnya di
+       * beberapa kedalaman DUA kutipan berdiri bersamaan di kiri dan kanan
+       * layar, dan yang terbaca bukan satu kalimat melainkan dua yang saling
+       * berebut. Yaya: "bentuknya masih aneh… biar Olen beneran enak
+       * bacanya".
+       *
+       * Bukan jendelanya yang salah — jendela itu yang membuat kutipan datang
+       * dan pergi dengan halus. Yang salah tidak adanya aturan siapa yang
+       * BERHAK tampil. Sekarang: yang paling dekat saja, sisanya nol. */
+      let dekat = -1;
+      let jarakDekat = Infinity;
+      for (let i = 0; i < KENANGAN.length; i++) {
+        const jarak = Math.abs(d - KENANGAN[i].di);
+        if (jarak < jarakDekat) {
+          jarakDekat = jarak;
+          dekat = i;
+        }
+      }
+
       for (let i = 0; i < KENANGAN.length; i++) {
         const el = kenanganEl.current[i];
         if (!el) continue;
-        const k = KENANGAN[i];
-        const j = jendelaDi(k.di);
-        const jarak = Math.abs(d - k.di) / j;
-        const a = jarak >= 1 ? 0 : 1 - jarak * jarak * (3 - 2 * jarak);
+        let a = 0;
+        if (i === dekat) {
+          const jarak = jarakDekat / jendelaDi(KENANGAN[i].di);
+          a = jarak >= 1 ? 0 : 1 - jarak * jarak * (3 - 2 * jarak);
+        }
         el.style.opacity = String(a);
         /* Yang tidak terlihat juga tidak boleh bisa disorot papan tik atau
            dibacakan pembaca layar. Opasitas nol saja tidak cukup. */
         el.style.visibility = a < 0.01 ? "hidden" : "visible";
       }
+
+      /* Titik pada rel kedalaman. Memakai `maju`, bukan kedalaman — supaya
+         ia bergerak rata mengikuti jari, bukan melambat sendiri di bawah. */
+      if (relTitik.current) relTitik.current.style.top = `${maju * 100}%`;
     };
 
     const onGulir = () => {
@@ -271,16 +348,47 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
               ref={(el) => {
                 kenanganEl.current[i] = el;
               }}
-              className={`kn kn-${k.sisi ?? (i % 2 ? "kanan" : "kiri")}`}
+              className={`kn${k.dari === "yaya" ? " kn-yaya" : ""}`}
               style={{ opacity: 0, visibility: "hidden" }}
             >
               <blockquote className="kn-kutip">{k.kutipan}</blockquote>
               <figcaption className="kn-kaki">
                 {k.tanggal && <span className="kn-tanggal">{k.tanggal}</span>}
                 {k.catatan && <span className="kn-catatan">{k.catatan}</span>}
+                {k.suara && (
+                  <button
+                    type="button"
+                    className={`kn-dengar${berbunyi === k.suara ? " on" : ""}`}
+                    onClick={() => putar(k.suara!)}
+                  >
+                    <span className="kn-gelombang" aria-hidden>
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                    </span>
+                    {berbunyi === k.suara ? "sedang terdengar" : "dengar suaranya"}
+                  </button>
+                )}
               </figcaption>
             </figure>
           ))}
+        </div>
+
+        {/*
+          REL KEDALAMAN
+          Bukan hiasan. Tanpa ini, turunan sepanjang ini tidak punya ujung yang
+          terlihat: Olen tidak tahu ia baru seperempat jalan atau hampir sampai,
+          dan tidak tahu masih ada yang menunggu di bawah. Tanda-tanda kecilnya
+          adalah letak tiap kenangan — jadi yang terlihat bukan cuma "masih
+          jauh", tapi "masih ada beberapa lagi".
+        */}
+        <div className="tr-rel" aria-hidden>
+          <span className="tr-rel-garis" />
+          {tanda.map((p, i) => (
+            <span key={i} className="tr-rel-tanda" style={{ top: `${p * 100}%` }} />
+          ))}
+          <span ref={relTitik} className="tr-rel-titik" style={{ top: "0%" }} />
         </div>
 
         {/* bacaan kedalaman */}
@@ -292,6 +400,11 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
             <span ref={suhuEl}>29.0°</span>
           </p>
         </div>
+
+        {/* Satu elemen audio untuk semua VN; sumbernya diganti saat ditekan.
+            Enam elemen audio yang menunggu tanpa pernah dipakai cuma memuat
+            metadata dan menahan memori. */}
+        <audio ref={suaraEl} onEnded={() => setBerbunyi(null)} preload="none" />
 
         <button type="button" className="tr-naik" onClick={onNaik}>
           kembali ke permukaan

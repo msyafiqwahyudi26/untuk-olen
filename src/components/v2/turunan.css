@@ -189,7 +189,9 @@
 
 .tr-naik {
   position: absolute;
-  right: max(1.2rem, env(safe-area-inset-right));
+  /* Digeser dari tepi sejauh lebar rel kedalaman + jarak, karena keduanya
+     sama-sama di sisi kanan. */
+  right: calc(max(1.2rem, env(safe-area-inset-right)) + 2.2rem);
   bottom: max(1.4rem, env(safe-area-inset-bottom));
   min-height: 44px;
   padding: 0.55rem 1rem;
@@ -243,20 +245,49 @@
   margin: 0;
   /* Selubung: paling pekat di tengah, habis di tepi, jadi tidak ada kotak
      yang terlihat — yang terlihat cuma airnya sedikit lebih dalam di situ. */
-  padding: clamp(1.4rem, 4vw, 2.4rem);
+  padding: clamp(2rem, 5vw, 3.2rem) clamp(1.8rem, 4.5vw, 2.8rem);
+  /* Selubung: paling pekat di tengah, habis di tepi — jadi tidak ada kotak
+     yang terlihat, yang terlihat cuma airnya lebih dalam di situ.
+     
+     DIPERKUAT dan DIPERLEBAR dari 0,62 ke 0,80. Sebabnya bisa dilihat: di
+     kedalaman ubur-ubur, makhluknya berenang tepat di belakang tulisan dan
+     pendarnya menembus dari bawah huruf. Selubung yang cuma cukup untuk air
+     kosong tidak cukup untuk air yang ada isinya. */
   background: radial-gradient(
-    ellipse at center,
-    rgba(2, 12, 26, 0.62) 0%,
-    rgba(2, 12, 26, 0.42) 45%,
-    rgba(2, 12, 26, 0) 78%
+    ellipse 62% 78% at center,
+    rgba(2, 11, 24, 0.86) 0%,
+    rgba(2, 11, 24, 0.74) 42%,
+    rgba(2, 11, 24, 0.34) 72%,
+    rgba(2, 11, 24, 0) 100%
   );
+  /* Sedikit buram di belakangnya. Bukan untuk gaya: makhluk yang lewat di
+     belakang kalimat tetap terlihat bergerak, tapi berhenti bersaing dengan
+     hurufnya. */
+  backdrop-filter: blur(2.5px);
+  -webkit-backdrop-filter: blur(2.5px);
   /* Teksnya boleh diblok meski induknya tidak menerima klik. */
   pointer-events: auto;
   transition: opacity 120ms linear;
 }
 
-.kn-kiri  { left: max(1.5rem, 6vw); }
-.kn-kanan { right: max(1.5rem, 6vw); }
+/* ── SATU KOLOM, DI TENGAH ──
+ *
+ * Dulu kenangan berselang-seling kiri dan kanan. Di tangkapan layar diam itu
+ * terlihat hidup; waktu dibaca, mata harus melompat menyeberangi layar untuk
+ * tiap kalimat berikutnya, dan dua kutipan yang kebetulan berdekatan berdiri
+ * bersamaan di dua sisi seperti dua kolom yang berebut.
+ *
+ * Membaca lama butuh tempat baca yang TETAP: satu kolom, di titik yang sama
+ * setiap kali, supaya yang berpindah cuma kalimatnya — bukan matanya.
+ *
+ * Aturan siapa yang boleh tampil ada di Turunan.tsx: yang paling dekat saja. */
+.kn, .kn-kiri, .kn-kanan {
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%);
+  width: min(34rem, 82vw);
+  text-align: left;
+}
 
 /* Di layar sempit tidak ada ruang untuk dua sisi; semuanya jadi satu kolom
    di tengah. Kalau tidak, kutipan sisi kanan akan tergencet di 22% lebar. */
@@ -300,4 +331,114 @@
   font-size: 0.82rem;
   line-height: 1.7;
   opacity: 0.72;
+}
+
+
+/* ═══════════════ TOMBOL DENGAR ═══════════════
+   Muncul cuma pada kenangan yang punya VN. Bentuknya sengaja sama dengan
+   tombol suara di layar pembuka — pil, huruf kecil, jarak huruf lebar —
+   supaya Olen tidak perlu belajar kontrol baru di tengah perjalanan. */
+.kn-dengar {
+  align-self: flex-start;
+  margin-top: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 40px;
+  padding: 0.45rem 0.95rem 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: inherit;
+  font: inherit;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: lowercase;
+  cursor: pointer;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.kn-dengar:hover { background: rgba(255, 255, 255, 0.16); }
+.kn-dengar.on { background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.6); }
+.kn-dengar:focus-visible { outline: 2px solid rgba(244, 228, 176, 0.9); outline-offset: 3px; }
+
+.kn-gelombang { display: inline-flex; align-items: center; gap: 2.5px; height: 13px; }
+.kn-gelombang i {
+  display: block;
+  width: 2.5px;
+  height: 4px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.85;
+}
+.kn-dengar.on .kn-gelombang i { animation: knBatang 1s ease-in-out infinite; }
+.kn-dengar.on .kn-gelombang i:nth-child(2) { animation-delay: 0.12s; }
+.kn-dengar.on .kn-gelombang i:nth-child(3) { animation-delay: 0.24s; }
+.kn-dengar.on .kn-gelombang i:nth-child(4) { animation-delay: 0.36s; }
+@keyframes knBatang { 0%, 100% { height: 4px; } 50% { height: 12px; } }
+
+/* Kalimat dari Yaya dibedakan tipis: bukan warna lain, cuma huruf yang
+   sedikit lebih kecil dan garis di kiri. Kalau dibedakan mencolok, dasar
+   laut akan terasa seperti iklan yang menyusup di akhir perjalanan. */
+.kn-yaya .kn-kutip {
+  font-size: clamp(1.02rem, 2.6vw, 1.32rem);
+  border-left: 1px solid rgba(255, 255, 255, 0.22);
+  padding-left: 1.1rem;
+}
+
+/* ═══════════════ REL KEDALAMAN ═══════════════
+   Turunan sepanjang 800 m tanpa ini tidak punya ujung yang terlihat: tidak
+   ada cara tahu apakah baru seperempat jalan atau hampir sampai, dan tidak
+   ada tanda masih ada sesuatu di bawah. Tanda kecilnya letak tiap kenangan —
+   jadi yang terbaca bukan "masih jauh" melainkan "masih ada beberapa lagi". */
+.tr-rel {
+  position: absolute;
+  top: 12vh;
+  bottom: 12vh;
+  right: max(0.85rem, env(safe-area-inset-right));
+  width: 12px;
+  pointer-events: none;
+}
+.tr-rel-garis {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.18),
+    rgba(255, 255, 255, 0.05)
+  );
+}
+.tr-rel-tanda {
+  position: absolute;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  margin-top: -1.5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+}
+.tr-rel-titik {
+  position: absolute;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  margin-top: -3.5px;
+  border-radius: 50%;
+  background: #eaf6ff;
+  box-shadow: 0 0 10px rgba(200, 235, 255, 0.8);
+}
+
+/* Di layar sempit rel dan tombol berebut tepi kanan yang sama. Rel yang
+   mengalah: ia berguna, tapi tombol pulang lebih penting. */
+@media (max-width: 560px) {
+  .tr-rel { display: none; }
+  .tr-naik { right: max(1.2rem, env(safe-area-inset-right)); }
 }

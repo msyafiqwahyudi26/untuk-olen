@@ -52,8 +52,28 @@ export type Kenangan = {
   dari?: "olen" | "yaya";
   /** Satu kalimat dari Yaya. Bukan bagian dari kutipannya. */
   catatan?: string;
-  /** Di sisi mana ia muncul. Berselang-seling kalau tidak diisi. */
+  /**
+   * TIDAK DIPAKAI LAGI. Dulu kenangan muncul berselang-seling kiri dan kanan.
+   *
+   * Kelihatannya bagus di tangkapan layar diam, dan buruk waktu dibaca: mata
+   * harus melompat menyeberangi layar untuk tiap kalimat berikutnya. Yaya:
+   * "biar Olen beneran enak bacanya". Membaca lama butuh tempat baca yang
+   * TETAP — satu kolom, di posisi yang sama tiap kali.
+   *
+   * Nilainya dibiarkan supaya berkas ini tidak perlu diedit ulang, tapi
+   * `Turunan.tsx` tidak lagi membacanya.
+   */
   sisi?: "kiri" | "kanan";
+  /**
+   * Nama berkas VN di `public/memori/vn`, TANPA ekstensi. Dimuat `.m4a`
+   * lebih dulu, `.opus` sebagai cadangan — sama seperti audio lain di
+   * halaman ini.
+   *
+   * Kenangan yang punya suara memberi tombol dengar di bawah kutipannya.
+   * Ini yang membuat turunan ini bukan sekadar bacaan: di beberapa titik,
+   * yang terdengar Olen sendiri.
+   */
+  suara?: string;
 };
 
 /**
@@ -131,6 +151,7 @@ export const KENANGAN: Kenangan[] = [
   {
     di: 21,
     kutipan: "MIMPI DIKEJAR TUYUL KALI DIA MAU LARI TP MASI GENGGAM HANDPHONE",
+    suara: "ketawa-nular",
     tanggal: "29/12/23",
     catatan: "Kamu selalu punya penjelasan untuk hal yang nggak perlu dijelasin.",
   },
@@ -143,6 +164,7 @@ export const KENANGAN: Kenangan[] = [
   {
     di: 42,
     kutipan: "KAYAK ROTI",
+    suara: "nahan-ketawa",
     tanggal: "09/11/24",
     catatan: "Itu jawabanmu waktu ditanya kenapa suaramu serak.",
   },
@@ -164,6 +186,7 @@ export const KENANGAN: Kenangan[] = [
   {
     di: 96,
     kutipan: "kek gw suka aja seneng liat tmn gw happy",
+    suara: "ketawa-2026",
     tanggal: "29/08/26",
     sisi: "kanan",
   },
