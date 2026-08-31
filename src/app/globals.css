@@ -76,13 +76,28 @@
 /* ═══════════════ Base ═══════════════ */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
-html { -webkit-text-size-adjust: 100%; }
+html {
+  -webkit-text-size-adjust: 100%;
+  /* Guntingan mendatar dipasang DI SINI, bukan di <body>.
+     Sebabnya spesifikasi overflow: kalau satu sumbu bukan `visible`, sumbu
+     satunya yang `visible` ikut berubah jadi `auto`. Di <body> itu berarti
+     <body> berubah jadi wadah gulirnya sendiri — dan di halaman turunan roda
+     mouse tertelan di wadah itu sampai halamannya berhenti bergerak, padahal
+     `window.scrollTo()` lewat skrip tetap jalan. Persis pola "kadang bisa
+     kadang tidak" yang bikin lama ketemunya.
+     Di <html> efek yang sama justru yang diinginkan: overflow elemen akar
+     merambat ke viewport, jadi mendatarnya digunting dan menurunnya tetap
+     digulir viewport seperti biasa, sementara <body> tetap blok biasa.
+     (`overflow-x: clip` di <body> juga tidak menolong — Turbopack
+     menurunkannya kembali jadi `hidden` demi peramban lama.) */
+  overflow-x: hidden;
+}
 body {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 300;
   color: var(--text-primary);
   background: var(--night-sky-top);
-  overflow-x: hidden;
+  /* Sengaja TIDAK ada overflow di sini — lihat catatan di aturan html. */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }

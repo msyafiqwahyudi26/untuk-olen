@@ -19,7 +19,13 @@
 .tr-tetap {
   position: sticky;
   top: 0;
-  height: 100svh;
+  /* `lvh`, BUKAN `svh`.
+     Di HP kedua angka ini berbeda: `svh` layar waktu bilah alamat MASIH ada,
+     `lvh` waktu bilahnya sudah tersembunyi. Lapisan ini latar — begitu Olen
+     menggulir dan bilah alamatnya naik, layar jadi lebih tinggi dari `svh`
+     dan yang muncul di sisa ruangnya hitam polos. Dengan `lvh` ia selalu
+     menutup penuh; yang "berlebih" cuma air, dan air berlebih tidak apa-apa. */
+  height: 100lvh;
   overflow: hidden;
   color: #dceefc;
 }
@@ -235,48 +241,55 @@
  * yang bisa meleset; selubung menyelesaikannya sekali untuk semua kedalaman.
  */
 
-.tr-kenangan { position: absolute; inset: 0; pointer-events: none; }
+/* Kenangan MENGALIR, tidak lagi dipaku.
+   Dulu lapisan ini `position: absolute; inset: 0` dan tiap blok diberi `top`
+   sendiri-sendiri. Selama isinya satu kalimat itu aman. Begitu isinya empat
+   paragraf, blok yang meternya berdekatan (3, 8, 18, 30 m) saling menindih
+   dan tidak ada satu pun yang terbaca — tidak ada yang bisa mencegahnya,
+   karena `top` tidak tahu apa-apa soal tinggi tetangganya.
+   Dalam alir dokumen, tetangga saling tahu. Menumpuk jadi mustahil, bukan
+   sekadar tidak terjadi. */
+.tr-kenangan {
+  position: relative;
+  z-index: 3;
+  /* Membatalkan kotak alir milik .tr-tetap yang menempel, supaya kenangan
+     lewat DI ATAS pemandangan sejak awal, bukan sesudah satu layar kosong. */
+  margin-top: -100lvh; /* satu satuan dengan tinggi .tr-tetap di atas */ /* HARUS svh, sama persis dengan tinggi .tr-tetap.
+                          Di HP `vh` dihitung dari layar tanpa bilah alamat
+                          dan `svh` dari layar dengan bilahnya; kalau kedua
+                          angka ini beda satuan, selisihnya muncul sebagai
+                          celah atau tumpang tindih yang hanya terjadi di HP. */
+  padding-block: 126svh 88svh; /* ini boleh svh: yang diatur jarak baca,
+                                  bukan tutupan latar */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 .kn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(30rem, 78vw);
+  /* Blok baca yang IKUT TERGULIR. Sebelumnya ia dipaku di tengah layar dan
+     memudar mengikuti jari; itu bekerja waktu isinya satu kalimat, dan
+     berhenti bekerja begitu isinya paragraf. Yaya: "biar Olen beneran enak
+     bacanya".
+
+     `top` datang dari React (pecahan gulir tiap kenangan). Yang di sini cuma
+     lebar kolom dan jaraknya dari tepi. */
+  position: relative;
+  width: min(38rem, 86vw);
   margin: 0;
-  /* ── TIDAK ADA SELUBUNG DI SINI ──
-     
-     Sempat ada, dan itu keliru dua kali. Versi lemah tidak cukup menahan
-     ubur-ubur yang berenang di belakang huruf; versi kuat menahan, tapi
-     tepinya jadi terlihat — Yaya: "kayak ada frame itemnya gt loh aneh
-     banget". Bentuk apa pun yang punya tepi akan terbaca sebagai kotak,
-     seberapa lembut pun gradiennya, karena mata mencari batas.
-     
-     Yang menggantikannya `.tr-pita`: satu pita gelap SELEBAR LAYAR di
-     ketinggian baca. Ia tidak punya tepi kiri-kanan untuk dilihat, jadi yang
-     terbaca bukan kotak melainkan air yang memang lebih dalam di situ. */
-  /* Teksnya boleh diblok meski induknya tidak menerima klik. */
-  pointer-events: auto;
-  transition: opacity 120ms linear;
+  padding: 0;
+  transition: opacity 260ms ease;
 }
 
-/* ── SATU KOLOM, DI TENGAH ──
- *
- * Dulu kenangan berselang-seling kiri dan kanan. Di tangkapan layar diam itu
- * terlihat hidup; waktu dibaca, mata harus melompat menyeberangi layar untuk
- * tiap kalimat berikutnya, dan dua kutipan yang kebetulan berdekatan berdiri
- * bersamaan di dua sisi seperti dua kolom yang berebut.
- *
- * Membaca lama butuh tempat baca yang TETAP: satu kolom, di titik yang sama
- * setiap kali, supaya yang berpindah cuma kalimatnya — bukan matanya.
- *
- * Aturan siapa yang boleh tampil ada di Turunan.tsx: yang paling dekat saja. */
-.kn, .kn-kiri, .kn-kanan {
-  left: 50%;
-  right: auto;
-  transform: translate(-50%, -50%);
-  width: min(34rem, 82vw);
-  text-align: left;
+/* Jarak antar kenangan. Angka inilah yang menjamin cuma ada SATU kenangan di
+   layar pada satu waktu — dijamin tata letak, bukan dijamin opasitas. Dalam
+   vh, karena yang harus dijaga jaraknya adalah "seberapa banyak layar penuh
+   air" di antara dua kenangan, dan itu ukuran layar, bukan ukuran huruf. */
+.kn + .kn {
+  margin-top: 64vh;
 }
+
+
 
 /* Di layar sempit tidak ada ruang untuk dua sisi; semuanya jadi satu kolom
    di tengah. Kalau tidak, kutipan sisi kanan akan tergencet di 22% lebar. */
@@ -456,12 +469,21 @@
   height: min(30rem, 62vh);
   transform: translateY(-50%);
   pointer-events: none;
+  /* Dataran LEBAR, tepi yang dilembutkan tipis. Dulu pekatnya memuncak di
+     tengah lalu turun ke nol di 26% dan 74%, jadi paragraf pertama dan
+     terakhir tiap kenangan justru duduk di bagian pita yang paling tipis —
+     tepat di tempat tulisannya masih ada. Sekarang seluruh badan teks kena
+     pekat yang sama, dan yang dilembutkan cuma 12% di atas dan di bawah
+     supaya tidak ada garis batas yang kelihatan.
+     `--pita` datang dari React dan nilainya dihitung dari warna air; lihat
+     catatan di tabelPita(). Cadangan 0 dipasang di sini supaya kalau angkanya
+     belum sempat ditulis, yang terjadi pitanya tidak muncul — bukan pitanya
+     muncul dengan pekat sembarangan. */
   background: linear-gradient(
     to bottom,
     rgba(2, 11, 24, 0) 0%,
-    rgba(2, 11, 24, 0.5) 26%,
-    rgba(2, 11, 24, 0.66) 50%,
-    rgba(2, 11, 24, 0.5) 74%,
+    rgba(2, 11, 24, var(--pita, 0)) 12%,
+    rgba(2, 11, 24, var(--pita, 0)) 88%,
     rgba(2, 11, 24, 0) 100%
   );
   /* Ikut memudar bersama kutipan yang sedang tampil — kalau tetap ada waktu
@@ -504,7 +526,7 @@
   display: block;
   /* Jauh lebih besar dari sebelumnya (9rem). Video note itu WAJAH Olen;
      seukuran ikon ia jadi lampiran, bukan orang. */
-  width: clamp(14rem, 42vw, 20rem);
+  width: clamp(17rem, 54vw, 26rem);
   aspect-ratio: 1;
   margin: 0 0 1.4rem;
   padding: 0;
@@ -607,4 +629,78 @@
   .kn-yaya .kn-kutip { font-size: clamp(1rem, 4.3vw, 1.2rem); }
   .kn-catatan { font-size: 0.9rem; max-width: none; }
   .kn-video { width: min(15rem, 62vw); }
+}
+
+
+/* ═══════════════ SATU KENANGAN, DIBACA DARI ATAS KE BAWAH ═══════════════
+   Urutannya sekarang tetap dan selalu sama:
+
+     pembuka   kalimat Kakak yang mengajak ingat
+     kutipan   kata Olen, di dalam tanda petik
+     cerita    paragraf Kakak sesudahnya
+     kaki      tanggal, tombol dengar
+
+   Bentuk yang selalu sama itu yang membuat halaman panjang terasa satu
+   kesatuan. Begitu Olen tahu di mana matanya harus mulai, dia berhenti
+   mencari dan mulai membaca. */
+.kn-pembuka {
+  margin: 0 0 1.1rem;
+  font-family: var(--huruf-badan, system-ui, sans-serif);
+  font-size: clamp(0.96rem, 2.3vw, 1.08rem);
+  line-height: 1.75;
+  color: rgba(236, 246, 255, 0.72);
+  max-width: 46ch;
+}
+.kn-kutip {
+  margin: 0 0 1.4rem;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-weight: 400;
+  font-size: clamp(1.35rem, 3.6vw, 2.05rem);
+  line-height: 1.45;
+  letter-spacing: -0.008em;
+  color: #f6fbff;
+  text-wrap: balance;
+  /* Garis di kiri, bukan kotak. Ia menandai "ini bukan suara Kakak" tanpa
+     menggambar bidang apa pun. */
+  border-left: 2px solid rgba(255, 255, 255, 0.28);
+  padding-left: clamp(0.9rem, 2.4vw, 1.3rem);
+  text-shadow: 0 1px 3px rgba(2, 11, 24, 0.95), 0 2px 18px rgba(2, 11, 24, 0.8);
+}
+.kn-cerita {
+  margin: 0 0 0.95rem;
+  font-family: var(--huruf-badan, system-ui, sans-serif);
+  font-size: clamp(0.98rem, 2.4vw, 1.1rem);
+  line-height: 1.8;
+  color: rgba(240, 248, 255, 0.9);
+  max-width: 46ch;
+  text-shadow: 0 1px 10px rgba(2, 11, 24, 0.9);
+}
+.kn-cerita:last-of-type { margin-bottom: 0; }
+
+/* Kalimat Kakak yang berdiri sendiri: tanpa garis, karena tidak ada yang
+   perlu dibedakan dari apa pun di situ. */
+.kn-yaya .kn-kutip {
+  font-family: var(--huruf-badan, system-ui, sans-serif);
+  font-size: clamp(1.12rem, 2.9vw, 1.42rem);
+  line-height: 1.7;
+  letter-spacing: 0;
+  border-left: none;
+  padding-left: 0;
+  max-width: 44ch;
+}
+
+.kn-kaki { margin-top: 1.6rem; gap: 0.9rem; }
+.kn-video { margin: 0 0 1.6rem; }
+
+/* Pita baca lebih tinggi: yang harus tetap terbaca sekarang satu blok
+   paragraf, bukan satu baris. */
+.tr-pita { height: min(46rem, 88vh); }
+
+@media (max-width: 720px) {
+  .kn { width: 88vw; }
+  .kn-kutip { font-size: clamp(1.22rem, 5.4vw, 1.55rem); line-height: 1.4; }
+  .kn-yaya .kn-kutip { font-size: clamp(1.05rem, 4.6vw, 1.25rem); }
+  .kn-pembuka, .kn-cerita { font-size: 0.98rem; line-height: 1.75; max-width: none; }
+  .kn-video { width: min(19rem, 76vw); }
+  .tr-pita { height: 96vh; }
 }
