@@ -12,7 +12,24 @@ function tanggal(s: string) {
   return `${Number(m[3])} ${bulan[Number(m[2]) - 1]} ${m[1]}`;
 }
 
-export default function NoteSpace({ initial }: { initial: NoteRow[] }) {
+/**
+ * `daftar` dan `onTambah` ditambahkan 1 September supaya layar jurnal bisa
+ * menampilkan catatannya sebagai BUKU — bertanggal, satu halaman satu entri —
+ * tanpa membangun ruang tulis kedua.
+ *
+ * Bawaannya tetap seperti semula, jadi pemakaian di v1 tidak berubah sama
+ * sekali. Yang butuh tampilan lain mematikan daftarnya dan menangkap catatan
+ * baru lewat onTambah.
+ */
+export default function NoteSpace({
+  initial,
+  daftar = true,
+  onTambah,
+}: {
+  initial: NoteRow[];
+  daftar?: boolean;
+  onTambah?: (n: NoteRow) => void;
+}) {
   const [notes, setNotes] = useState<NoteRow[]>(initial);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -46,6 +63,7 @@ export default function NoteSpace({ initial }: { initial: NoteRow[] }) {
       if (!r.ok) throw new Error();
       const note = (await r.json()) as NoteRow;
       setNotes((n) => [note, ...n]);
+      onTambah?.(note);
       setDraft("");
     } catch {
       setErr("Belum kesimpan. Coba lagi sebentar.");
@@ -104,7 +122,7 @@ export default function NoteSpace({ initial }: { initial: NoteRow[] }) {
         </div>
       </div>
 
-      {notes.length > 0 && (
+      {daftar && notes.length > 0 && (
         <ul style={{ listStyle: "none", margin: "28px 0 0", padding: 0 }}>
           {notes.map((n) => (
             <li

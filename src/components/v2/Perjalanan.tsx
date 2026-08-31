@@ -42,11 +42,39 @@ import { waktuSekarang, type Waktu } from "./waktu";
 
 type Layar = "pembuka" | "turun" | "naik";
 
+/**
+ * Empat perpindahan, dan tiap satu punya namanya sendiri.
+ *
+ * Sebelumnya "naik" dipakai untuk DUA hal berbeda — kembali dari laut dan
+ * kembali dari langit — dan keduanya jatuh ke tirai air. Jadi turun dari
+ * langit disambut air yang naik dari bawah, seolah kita menuju laut.
+ *
+ * Satu nama untuk dua tujuan adalah cara paling mudah untuk salah tanpa
+ * ketahuan, karena kodenya tetap masuk akal dibaca sekilas.
+ */
+type Pindah = "ke-laut" | "dari-laut" | "ke-langit" | "dari-langit";
+
+/** Tirai mana untuk perpindahan mana. Yang menyangkut langit pakai awan. */
+const TIRAI: Record<Pindah, "air" | "awan"> = {
+  "ke-laut": "air",
+  "dari-laut": "air",
+  "ke-langit": "awan",
+  "dari-langit": "awan",
+};
+
+/** Layar tujuan tiap perpindahan. */
+const TUJUAN: Record<Pindah, Layar> = {
+  "ke-laut": "turun",
+  "dari-laut": "pembuka",
+  "ke-langit": "naik",
+  "dari-langit": "pembuka",
+};
+
 export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
   const [layar, setLayar] = useState<Layar>("pembuka");
-  /* null = tidak sedang berpindah. Selama bukan null, tirai air terpasang di
+  /* null = tidak sedang berpindah. Selama bukan null, tirainya terpasang di
      atas segalanya dan pergantian layarnya terjadi DI BALIKNYA. */
-  const [selam, setSelam] = useState<"turun" | "naik" | "naik-langit" | null>(null);
+  const [selam, setSelam] = useState<Pindah | null>(null);
   /* Nilai awal tetap, jamnya dibaca sesudah terpasang — server tidak tahu jam
      Olen, dan membacanya saat render adalah hydration mismatch. Jebakan yang
      sudah tercatat di HANDOVER. */
@@ -58,14 +86,14 @@ export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
     const turun = (e: Event) => {
       const w = (e as CustomEvent<{ waktu?: Waktu }>).detail?.waktu;
       if (w) setWaktu(w);
-      setSelam("turun");
+      setSelam("ke-laut");
     };
     /* Arah kedua. Peristiwanya terpisah dari olen:next supaya tombol yang
        memancarkannya tidak perlu tahu apa pun soal layar tujuan. */
     const keLangit = (e: Event) => {
       const w = (e as CustomEvent<{ waktu?: Waktu }>).detail?.waktu;
       if (w) setWaktu(w);
-      setSelam("naik-langit");
+      setSelam("ke-langit");
     };
 
     window.addEventListener("olen:next", turun);
@@ -90,7 +118,7 @@ export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
     window.scrollTo(0, 0);
   };
 
-  const naik = () => setSelam("naik");
+  const naik = () => setSelam("dari-laut");
 
   return (
     <>
@@ -99,17 +127,13 @@ export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
       </div>
       {layar === "turun" && <Turunan waktu={waktu} onNaik={naik} />}
       {layar === "naik" && (
-        <Jurnal waktu={waktu} catatan={catatan} onTurun={() => setSelam("naik")} />
+        <Jurnal waktu={waktu} catatan={catatan} onTurun={() => setSelam("dari-langit")} />
       )}
       {selam && (
         <Selam
           waktu={waktu}
-          /* Awan untuk yang menuju langit; air untuk sisanya. Arah datangnya
-             tirai yang memberi tahu ke mana kita bergerak. */
-          jenis={selam === "naik-langit" ? "awan" : "air"}
-          onTutup={() =>
-            tukar(selam === "turun" ? "turun" : selam === "naik-langit" ? "naik" : "pembuka")
-          }
+          jenis={TIRAI[selam]}
+          onTutup={() => tukar(TUJUAN[selam])}
           onSelesai={() => setSelam(null)}
         />
       )}

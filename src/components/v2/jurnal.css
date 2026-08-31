@@ -76,11 +76,84 @@
   padding-bottom: 40vh;
 }
 
+/* Urutan DOM-nya terbalik mengikuti arah gulirnya: paling atas di halaman =
+   paling tinggi di langit. Sambutan ada di PALING BAWAH karena di situlah
+   Olen berangkat. */
 .jr-sambut {
   min-height: 92svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  text-align: center;
+}
+
+/* Ajakan menggulir ke atas. Panahnya bergerak naik — arahnya sendiri yang
+   memberi tahu, kata-katanya cuma penegas. */
+.jr-ajak {
+  margin: 2.2rem 0 0;
+  font-size: 0.66rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+.jr-ajak::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 38px;
+  margin: 12px auto 0;
+  background: linear-gradient(to top, rgba(244, 228, 176, 0.6), transparent);
+  animation: jrTarik 3s ease-in-out infinite;
+}
+@keyframes jrTarik {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50%      { transform: translateY(-8px); opacity: 1; }
+}
+
+/* ── buku catatan ──
+   Bertanggal, satu halaman satu entri. Daftar mengundang membaca sekilas dari
+   atas ke bawah; buku mengundang berhenti di satu halaman. Yang ditulis di
+   sini bukan tugas yang perlu ditinjau, melainkan hari-hari yang perlu dibaca
+   satu per satu. */
+
+.jr-buku {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 12vh, 6rem);
+  padding: 18vh 0 12vh;
+}
+
+.jr-halaman {
+  padding: clamp(1.6rem, 5vw, 2.6rem);
+  border-radius: var(--r-lg, 22px);
+  background: rgba(6, 18, 38, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.jr-tanggal {
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  padding-bottom: 0.9rem;
+  margin-bottom: 1.2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.jr-badan {
+  margin: 0;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: clamp(1rem, 3.6vw, 1.12rem);
+  line-height: 2;
+  white-space: pre-wrap;
+  color: rgba(236, 246, 255, 0.88);
+}
+
+.jr-tulis .jr-judul {
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  margin-bottom: 1.4rem;
   text-align: center;
 }
 
@@ -168,6 +241,41 @@
   .jr-km  { font-size: clamp(1.4rem, 6.5vw, 1.9rem); }
 }
 
+/* ── bintang jatuh ──
+   Kepekatannya ikut --bintang, jadi ia tidak pernah melintas di langit siang
+   yang masih terang: di sana ia memang tidak akan terlihat, dan
+   menampilkannya justru merusak. */
+
+.jr-jatuh {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--bintang, 0);
+}
+
+.jr-jatuh span {
+  position: absolute;
+  height: 1.5px;
+  transform-origin: left center;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.95) 82%, #fff);
+  border-radius: 2px;
+  opacity: 0;
+  animation-name: jrJatuh;
+  animation-timing-function: cubic-bezier(0.3, 0, 0.7, 1);
+  animation-iteration-count: infinite;
+}
+
+/* Terlihat hanya di 8 persen pertama putaran; sisanya sunyi. Satu putaran 15
+   detik memberi lintasan sekitar 1,2 detik lalu 13,8 detik tanpa apa-apa. */
+@keyframes jrJatuh {
+  0%   { opacity: 0; scale: 0 1; }
+  1%   { opacity: 1; }
+  6%   { opacity: 1; scale: 1 1; }
+  8%   { opacity: 0; scale: 1 1; }
+  100% { opacity: 0; scale: 1 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .jr-bintang span { animation: none; }
+  .jr-bintang span, .jr-jatuh span, .jr-ajak::after { animation: none; }
+  .jr-jatuh { display: none; }
 }
