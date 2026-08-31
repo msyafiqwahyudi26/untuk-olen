@@ -37,7 +37,68 @@ Yang sudah berjalan:
 | matahari & bulan | bergerak di busur menurut jam; bulan naik saat matahari turun |
 | audio | ombak sejak halaman dibuka, lagu saat MULAI, montase suara Olen 96 dtk |
 | pengaturan | tombol pojok kanan atas: suara + pilihan waktu |
-| library aset | `/aset` — tiap model 3D bisa dinilai sendirian |
+| library aset | `/aset` — tiap model 3D bisa dinilai sendirian, ruang `darat` dan `laut` |
+| design system | `src/design/` + `/design` — token, kontrol, kontras diturunkan dari langit |
+
+---
+
+## ⚠ SEDANG DIKERJAKAN — layar kedua, turun ke laut dalam
+
+**Berhenti di tengah jalan.** Baca bagian ini sebelum melanjutkan apa pun.
+
+Yaya memilih: **turun ke laut dulu** (bukan naik ke langit), dan turunannya
+**menerus tanpa tahap** — bukan dangkal→sedang→dalam yang dipotong-potong,
+melainkan satu turunan panjang yang makin gelap, makhluk muncul dan lewat
+sesuai kedalamannya. Ini pilihan yang paling sulit disetel dan ia tahu itu.
+
+Ke atas (jurnal Olen di langit berbintang) dikerjakan setelahnya. Asetnya
+sebagian besar sudah ada — bintang, bulan, awan — dan tabel `notes` di
+`data/olen.db` beserta `src/app/api/notes/route.ts` dan `NoteSpace.tsx`
+sudah dibangun sejak v1. Jangan dibangun ulang; dipakai lagi.
+
+### Sudah selesai
+
+| berkas | keadaan |
+|---|---|
+| `/aset` ruang `laut` | **selesai.** Latar gelap, cahaya dari permukaan, kabut biru. Aset baru pakai `ruang: "laut"` di `index.ts`. |
+| `assets/UburUbur.tsx` | **selesai, sudah dilihat di browser.** Terbaca sebagai ubur-ubur. |
+
+### Belum selesai — ada cacat yang SUDAH TERLIHAT
+
+`assets/LumbaLumba.tsx` **belum lolos**. Sudah dibuka di `/aset` dan tiga
+hal salah kelihatan jelas di layar. Jangan dianggap jadi:
+
+1. **Sirip dada melayang lepas dari badan.** Di pratinjau ada sirip
+   mengambang jauh di kiri-atas, terpisah dari lumba-lumbanya. Penyebab yang
+   paling mungkin: `pangkalDiKanan()` menggeser geometri memakai `boundingBox`
+   SESUDAH bevel, lalu `position` + `rotation` yang saya tulis menganggap
+   pangkalnya masih di tempat lain. Ini persis kelas cacat yang sama dengan
+   sirip punggung paus yang melayang 0,54 satuan — **jangan diperbaiki dengan
+   menggeser angkanya sampai kelihatan benar.** Turunkan letaknya dari
+   `permukaan(x, sudut)`, dan periksa pangkal geometrinya dengan mencetak
+   `boundingBox` sungguhan, bukan menebak dari titik kendali bezier.
+2. **Lekuk jidat–moncong tidak terbaca.** Terjunan 0,75 → 0,30 di `PROFIL`
+   ada di kode, tapi di layar kepalanya masih tumpul. Kemungkinan
+   `LatheGeometry` menghaluskannya karena jarak antar titik terlalu jauh, atau
+   perut (salinan badan yang diturunkan 0,16) menutupi lekuknya dari samping.
+   Periksa dengan mematikan mesh perut dulu.
+3. **Perut terang menyembul di tempat yang salah.** Trik "salinan badan yang
+   lebih kurus dan diturunkan" bekerja untuk badan silinder, tapi di moncong
+   yang jari-jarinya cuma 0,2 satuan, pergeseran 0,16 lebih besar daripada
+   jari-jarinya sendiri — jadi perutnya menembus keluar di ujung moncong.
+   Pergeserannya harus SEBANDING dengan jari-jari setempat, bukan tetap.
+
+### Belum dimulai
+
+| apa | catatan |
+|---|---|
+| `assets/Terumbu.tsx` | karang bercabang, meja, kipas. Untuk bagian dangkal. |
+| `src/components/v2/kedalaman.ts` | **kerjakan ini sebelum scene.** Saudara dari `world.ts`: satu angka kedalaman → warna air, kabut, cahaya, dan siapa hidup di situ. Semuanya fungsi menerus, tanpa tahap. Ini yang menjaga "menerus tanpa tahap" jadi kenyataan dan bukan tiga scene yang disambung. |
+| scene turunan | kamera turun menerus; makhluk muncul dan lewat sesuai kedalamannya |
+| rangka navigasi naik-turun | dipakai kedua arah. `Opening.tsx` sudah memancarkan `CustomEvent("olen:next")` waktu tombol "keep going" ditekan — belum ada yang menangkapnya. |
+
+Paus dipakai ulang apa adanya. Yaya minta **objeknya jangan banyak-banyak** —
+hewan saja: ubur-ubur, paus, lumba-lumba, terumbu karang.
 
 ---
 
@@ -166,14 +227,15 @@ python3 scripts/build-voice.py     # butuh ekspor WhatsApp di folder induk
 
 ## Berikutnya
 
-1. **Design system** — token warna, tipografi, jarak, komponen. Sekarang
-   nilainya masih tersebar di `palette.ts`, `waktu.ts`, dan `v2.css`.
-2. **Layar kedua** — momen awal perkenalan, Nov 2023:
-   *"Floren ini ka syafiq"* → *"oh oke"*. Lagu kedua (`track-2`, Stuff We
-   Did) dipasang di transisi ke sana.
-3. **Jurnal harian** — dari layar pembuka ke ATAS menuju catatan Olen; ke
-   BAWAH tetap harus melewati ceritanya dulu.
-4. Transisi bawah laut (ubur-ubur, lumba-lumba) antara layar 1 dan 2.
+1. **Betulkan `LumbaLumba.tsx`** — tiga cacat di atas, di `/aset` ruang
+   `laut`, sebelum menyentuh scene apa pun.
+2. **`Terumbu.tsx`**, juga di `/aset` dulu.
+3. **`kedalaman.ts`** — sistem kedalaman menerus. Kerjakan sebelum scene.
+4. **Scene turunan** ke laut dalam + rangka navigasi naik-turun.
+5. **Layar jurnal (ke atas)** — langit berbintang. Pakai `notes` di
+   `data/olen.db`, API-nya, dan `NoteSpace.tsx` yang sudah ada dari v1.
+6. **Layar perkenalan** — Nov 2023: *"Floren ini ka syafiq"* → *"oh oke"*.
+   Lagu kedua (`track-2`, Stuff We Did) di transisinya.
 
 **Menggantung:**
 - Pilihan kutipan chat pernah dinilai *"jelek banget"* — belum dibongkar

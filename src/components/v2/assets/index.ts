@@ -28,6 +28,16 @@ export type AssetEntry = {
    * separuhnya tenggelam di bawah lantai panggung.
    */
   angkat?: number;
+  /**
+   * Ruang pratinjau. Bakunya `darat`: latar terang, cahaya matahari.
+   *
+   * Makhluk laut harus dinilai di ruang `laut` — gelap, cahaya dari atas,
+   * kabut biru. Alasannya sama dengan alasan bintang laut harus dilihat dari
+   * atas: ubur-ubur yang menyala dinilai di ruang putih terang tidak
+   * menunjukkan apa pun yang perlu dinilai. Pendarnya hilang, badan tembus
+   * cahayanya jadi buram, dan yang tersisa cuma siluet.
+   */
+  ruang?: "darat" | "laut";
   Comp: ComponentType<{ animate?: boolean }>;
 };
 
@@ -49,6 +59,25 @@ export const ASSETS: AssetEntry[] = [
     tinggi: 6.6,
     angkat: 1.9,
     Comp: load(() => import("./Paus")),
+  },
+  {
+    id: "lumba-lumba",
+    nama: "Lumba-lumba",
+    catatan:
+      "Bukan paus yang dikecilkan. Tiga hal yang membedakan: lekuk antara jidat dan moncong, sirip punggung berbentuk sabit (tepi belakang CEKUNG — kalau lurus jadi hiu), dan badan 5,6:1 bukan 2:1. Ekornya mengayun naik-turun, bukan ke samping.",
+    tinggi: 9.5,
+    angkat: 1.4,
+    ruang: "laut",
+    Comp: load(() => import("./LumbaLumba")),
+  },
+  {
+    id: "ubur-ubur",
+    nama: "Ubur-ubur",
+    catatan:
+      "Denyutnya tidak simetris — mengatup cepat, mengembang pelan — dan tentakelnya tertinggal 0,18 periode di belakang payung. Dua hal itu yang membuatnya berenang, bukan bernapas. Empat tapal kuda di dalam payung yang membuatnya terbaca sebagai ubur-ubur.",
+    tinggi: 4.6,
+    ruang: "laut",
+    Comp: load(() => import("./UburUbur")),
   },
   {
     id: "kepiting",

@@ -54,15 +54,53 @@ function Putaran({ aktif, children }: { aktif: boolean; children: React.ReactNod
   return <group ref={g}>{children}</group>;
 }
 
+/**
+ * Dua ruang, bukan satu.
+ *
+ * Ruang `darat` terang seperti siang di pantai. Itu benar untuk flamingo dan
+ * keranjang piknik, dan salah total untuk ubur-ubur: pendar dinilai dari
+ * seberapa jauh ia mengalahkan gelap di sekitarnya, dan di ruang putih tidak
+ * ada gelap untuk dikalahkan.
+ *
+ * Pelajaran yang sama dengan `pandang: "atas"` pada bintang laut — panggung
+ * yang salah membuat cacat bentuk tidak mungkin terlihat.
+ */
+const RUANG = {
+  darat: {
+    langit: "#F1F6FA",
+    lantai: "#E9EFF4",
+    kisi: ["#BFD1DE", "#DBE6EE"] as [string, string],
+    ambient: { i: 1.05, c: "#FFFFFF" },
+    utama: { pos: [8, 12, 7] as [number, number, number], i: 1.7, c: "#FFF6DC" },
+    isi: { pos: [-9, 4, -5] as [number, number, number], i: 0.5, c: "#BFE6FA" },
+    kabut: null as null | [string, number, number],
+  },
+  laut: {
+    langit: "#0E3350",
+    lantai: "#0A2942",
+    kisi: ["#1D4E70", "#153E5C"] as [string, string],
+    // Cahaya bawah air datang dari SATU arah — permukaan, di atas. Cahaya isi
+    // dibuat dari bawah dan sangat redup: itu pantulan dasar laut, dan tanpa
+    // itu bagian bawah tiap makhluk jadi siluet hitam pekat.
+    ambient: { i: 0.5, c: "#7FC4E8" },
+    utama: { pos: [3, 16, 5] as [number, number, number], i: 1.5, c: "#CFEEFF" },
+    isi: { pos: [-4, -6, -3] as [number, number, number], i: 0.22, c: "#2E6E9E" },
+    kabut: ["#0E3350", 6, 34] as [string, number, number],
+  },
+} as const;
+
+type Ruang = keyof typeof RUANG;
+
 /** lantai + kisi: satu-satunya cara melihat benda menempel atau melayang */
-function Lantai({ r }: { r: number }) {
+function Lantai({ r, ruang }: { r: number; ruang: Ruang }) {
+  const t = RUANG[ruang];
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.003, 0]}>
         <circleGeometry args={[r, 56]} />
-        <meshBasicMaterial color="#E9EFF4" />
+        <meshBasicMaterial color={t.lantai} />
       </mesh>
-      <gridHelper args={[r * 2, 16, "#BFD1DE", "#DBE6EE"]} />
+      <gridHelper args={[r * 2, 16, t.kisi[0], t.kisi[1]]} />
     </group>
   );
 }
@@ -71,11 +109,14 @@ export default function Galeri() {
   const [pilih, setPilih] = useState(0);
   const [putar, setPutar] = useState(true);
   const [paksaPandang, setPaksaPandang] = useState<Pandang | null>(null);
+  const [paksaRuang, setPaksaRuang] = useState<Ruang | null>(null);
   const [gerak, setGerak] = useState(true);
 
   const aset = ASSETS[pilih];
   const { Comp, tinggi, angkat = 0 } = aset;
   const pandang: Pandang = paksaPandang ?? aset.pandang ?? "miring";
+  const ruang: Ruang = paksaRuang ?? aset.ruang ?? "darat";
+  const t = RUANG[ruang];
 
   return (
     <main className="as">
@@ -100,6 +141,7 @@ export default function Galeri() {
               onClick={() => {
                 setPilih(i);
                 setPaksaPandang(null);
+                setPaksaRuang(null);
               }}
             >
               <span className="as-item-nama">{a.nama}</span>
@@ -112,12 +154,13 @@ export default function Galeri() {
           <div className="as-panggung">
             {/* satu-satunya konteks WebGL di halaman ini */}
             <Canvas dpr={[1, 2]} camera={{ fov: 38, near: 0.05, far: 400 }} gl={{ antialias: true }}>
-              <color attach="background" args={["#F1F6FA"]} />
-              <ambientLight intensity={1.05} />
-              <directionalLight position={[8, 12, 7]} intensity={1.7} color="#FFF6DC" />
-              <directionalLight position={[-9, 4, -5]} intensity={0.5} color="#BFE6FA" />
+              <color attach="background" args={[t.langit]} />
+              {t.kabut && <fog attach="fog" args={[t.kabut[0], t.kabut[1], t.kabut[2]]} />}
+              <ambientLight intensity={t.ambient.i} color={t.ambient.c} />
+              <directionalLight position={t.utama.pos} intensity={t.utama.i} color={t.utama.c} />
+              <directionalLight position={t.isi.pos} intensity={t.isi.i} color={t.isi.c} />
               <Panggung tinggi={tinggi} pandang={pandang} />
-              <Lantai r={Math.max(tinggi * 0.8, 1.2)} />
+              <Lantai r={Math.max(tinggi * 0.8, 1.2)} ruang={ruang} />
               <Putaran aktif={putar}>
                 <group position={[0, angkat, 0]}>
                   <Comp animate={gerak} />
@@ -141,6 +184,16 @@ export default function Galeri() {
                 onClick={() => setPaksaPandang(p)}
               >
                 {p}
+              </button>
+            ))}
+            <span className="as-pisah" />
+            {(["darat", "laut"] as Ruang[]).map((r) => (
+              <button
+                key={r}
+                className={`as-tombol${ruang === r ? " on" : ""}`}
+                onClick={() => setPaksaRuang(r)}
+              >
+                {r}
               </button>
             ))}
           </div>

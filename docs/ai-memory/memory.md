@@ -7,6 +7,84 @@ Format: entri terbaru di **atas**.
 
 ---
 
+## 31 Agustus 2026 (malam, lanjutan) — MULAI LAYAR KEDUA: TURUN KE LAUT
+
+**Berhenti di tengah jalan** karena sesi mau habis. Keadaan lengkapnya di
+`HANDOVER.md` bagian "SEDANG DIKERJAKAN".
+
+### Keputusan Yaya
+
+Turun ke laut **dulu**, bukan naik ke langit — meski saya merekomendasikan
+langit dulu (asetnya sudah ada, dan rangka navigasi naik-turun sebaiknya
+lahir sambil mengerjakan halaman yang murah). Alasannya: *"itu yang membawa
+ceritanya"*. Rekomendasi saya soal urutan tetap dicatat di sini supaya kalau
+rangka navigasinya nanti terasa dipaksakan, sebabnya sudah diketahui.
+
+Turunannya **menerus tanpa tahap** — bukan dangkal/sedang/dalam yang
+dipotong. Ia memilih yang paling sulit disetel dengan sadar.
+
+Objek dibatasi: hewan saja — ubur-ubur, paus, lumba-lumba, terumbu karang.
+
+### Panggung `laut` di /aset — pelajaran yang berulang
+
+`/aset` cuma punya satu ruang: latar putih terang, cahaya matahari. Benar
+untuk flamingo, salah total untuk ubur-ubur. **Pendar dinilai dari seberapa
+jauh ia mengalahkan gelap di sekitarnya; di ruang putih tidak ada gelap untuk
+dikalahkan.**
+
+Ini pelajaran yang PERSIS sama dengan `pandang: "atas"` pada bintang laut —
+panggung yang salah membuat cacat bentuk tidak mungkin terlihat. Dua kali
+sudah. Aturannya sekarang: **sebelum menilai aset jenis baru, tanya dulu
+apakah panggungnya bisa menunjukkan hal yang perlu dinilai.**
+
+### Ubur-ubur — selesai
+
+Dua hal yang membuatnya hidup, keduanya diturunkan dari SATU fungsi fase:
+
+- **Denyut tidak simetris.** Mengatup cepat (0,3 periode), mengembang pelan
+  (0,7). Sinus biasa membuatnya terbaca BERNAPAS, bukan berenang.
+- **Tentakel tertinggal 0,18 periode.** Tentakel yang sefase dengan payung
+  terlihat seperti rok yang dijahit ke badan.
+
+Cacat yang ditemukan dan dibetulkan waktu melihatnya:
+- Kubah dalam dulu SALINAN payung diperkecil 0,82. Salinan itu juga terbuka
+  di bawah, dan tepi terbukanya terlihat sebagai garis mendatar tajam yang
+  memotong payung — seperti tutup panci. Diganti gumpalan bulat: bentuk tanpa
+  tepi terbuka tidak bisa menimbulkan garis itu.
+- Empat tapal kuda (penanda yang membuatnya terbaca sebagai ubur-ubur, sama
+  perannya dengan senyum pada paus) dibuat terlalu kecil dan pucat — di balik
+  payung tembus cahaya ia hampir hilang. **Detail penanda yang tidak terbaca
+  sama saja dengan tidak ada.**
+- Tepi payung tanpa rumbai berakhir sebagai garis bersih dan seluruhnya
+  terbaca seperti benda cetakan. Masalah yang sama dengan pasir tanpa kerang.
+
+Emissive di sini **disengaja**, kebalikan dari kasus awan: awan tidak
+memancarkan cahaya sendiri jadi harus ikut gelap; ubur-ubur memang
+memancarkan, dan justru harus tetap menyala waktu airnya menggelap.
+
+### Lumba-lumba — BELUM lolos, tiga cacat terlihat di layar
+
+Jangan dianggap jadi. Rinciannya di `HANDOVER.md`. Ringkasnya:
+
+1. Sirip dada melayang lepas dari badan.
+2. Lekuk jidat–moncong tidak terbaca meski ada di `PROFIL`.
+3. Perut terang menembus keluar di ujung moncong — trik "salinan badan yang
+   diturunkan" memakai pergeseran TETAP 0,16, padahal jari-jari moncong cuma
+   0,2. Pergeserannya harus sebanding dengan jari-jari setempat.
+
+Cacat nomor 3 itu contoh murni dari aturan proyek ini: satu angka tetap
+dipakai di tempat yang ukurannya berubah-ubah. Yang benar diturunkan dari
+`radiusDi(x)`.
+
+Satu jebakan baru yang layak dicatat: **`bladeGeometry()` memanggil
+`center()` di akhirnya.** Titik nol geometri jadi tengah kotak batasnya,
+bukan pangkal siripnya. Sirip setinggi 1,2 satuan yang ditempel tanpa
+memperhitungkan itu akan terkubur 0,6 satuan ke dalam badan. Sudah dibuatkan
+`pangkalDiBawah()` dan `pangkalDiKanan()` yang membaca `boundingBox`
+sungguhan — tapi belum terbukti benar, karena siripnya masih melayang.
+
+---
+
 ## 31 Agustus 2026 (malam) — DESIGN SYSTEM
 
 Sesudah repo naik ke GitHub. Yang dibangun: `src/design/` + halaman `/design`.

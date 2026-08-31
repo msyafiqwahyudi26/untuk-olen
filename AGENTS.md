@@ -103,6 +103,26 @@ sebuah benda bisa terlihat salah karena sepuluh sebab sekaligus — sudut
 kamera, air yang memotongnya, benda lain yang menimpanya. Dipajang sendirian,
 salahnya ketahuan dalam hitungan detik.
 
+**Sebelum menilai aset jenis baru, pastikan panggungnya bisa menunjukkan hal
+yang perlu dinilai.** Sudah dua kali terlewat: bintang laut yang dilihat
+mendatar cuma terbaca sebagai kubah (`pandang: "atas"`), dan ubur-ubur yang
+menyala dinilai di ruang putih terang — pendar dinilai dari seberapa jauh ia
+mengalahkan gelap, dan di ruang putih tidak ada gelap untuk dikalahkan
+(`ruang: "laut"`). Panggung yang salah membuat cacat mustahil terlihat.
+
+**`bladeGeometry()` memanggil `center()` di akhir.** Titik nol geometrinya
+jadi tengah kotak batas, bukan pangkal siripnya. Sirip setinggi 1,2 satuan
+yang ditempel tanpa memperhitungkan itu terkubur 0,6 satuan ke dalam badan.
+Pakai `pangkalDiBawah()` / `pangkalDiKanan()` di `LumbaLumba.tsx` — keduanya
+membaca `boundingBox` sungguhan, karena kurva bezier boleh melewati titik
+kendalinya dan menghitung batas dari titik kendali akan meleset.
+
+**Pergeseran tetap di badan yang jari-jarinya berubah selalu salah di ujung.**
+Perut terang lumba-lumba dibuat dari salinan badan yang diturunkan 0,16 —
+bekerja di badan (jari-jari 0,85), menembus keluar di moncong (jari-jari
+0,2). Apa pun yang menempel sepanjang badan harus sebanding dengan
+`radiusDi(x)`, bukan angka tetap.
+
 `?cepat` di URL `/v2` mempercepat siklus paus 30 dtk → 9 dtk untuk menyetel.
 
 **Menempelkan sesuatu ke badan makhluk: jangan menebak angka.** Aset yang
