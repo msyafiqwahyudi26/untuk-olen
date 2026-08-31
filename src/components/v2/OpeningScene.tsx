@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { PALET, posisiMatahari, posisiBulan, tinggiMatahari, tinggiBulan, type Waktu } from "./waktu";
@@ -11,7 +11,7 @@ import { WATERLINE, sandAt } from "./world";
 import Awan from "./assets/Awan";
 import Matahari from "./assets/Matahari";
 import Bulan from "./assets/Bulan";
-import Paus, { pausPuncak } from "./assets/Paus";
+import Paus, { pausPuncak, type PausKendali } from "./assets/Paus";
 import Beach from "./beach";
 
 /*
@@ -582,7 +582,9 @@ const PAUS = { z: -84, skala: 5.6, x0: -76, x1: -30, siklus: 30 };
 
 function PausBerenang() {
   const grp = useRef<THREE.Group>(null);
-  const [spout, setSpout] = useState(0);
+  /* Objek yang dimutasi tiap frame dan dibaca langsung oleh asetnya — BUKAN
+     useState. Lihat catatan PausKendali di assets/Paus.tsx. */
+  const kendali = useRef<PausKendali>({ spout: 0 }).current;
   const cepat = useMemo(
     () => typeof window !== "undefined" && window.location.search.includes("cepat"),
     []
@@ -606,17 +608,49 @@ function PausBerenang() {
    * permukaan, lalu menukik turun. Bagian turunnya sengaja lebih panjang
    * daripada naiknya — hewan menyelam itu meluncur, tidak jatuh.
    */
+  /**
+   * ═══ SAMBUNGAN ANTAR BABAK HARUS MULUS, DAN DULU TIDAK ═══
+   *
+   * Lintasan ini punya tiga babak. Yang menentukan bukan bentuk tiap babak,
+   * melainkan apa yang terjadi TEPAT DI SAMBUNGANNYA. Diukur pada versi
+   * sebelumnya:
+   *
+   *     k = 0,22   nilai 2,4000 → 2,4000   (nyambung)
+   *                laju  2,76   → 10,68    (melompat hampir 4x)
+   *
+   *     k = 0,62   nilai 1,5916 → 2,4000   (LOMPAT 0,81 satuan)
+   *                laju  3,17   → −1,24
+   *
+   * Lompatan 0,81 satuan itu dikali skala paus 5,6 menjadi sekitar 4,5 satuan
+   * dunia dalam SATU bingkai: pausnya benar-benar berpindah tempat seketika di
+   * tengah luncuran. Itulah "patah di tengah" yang terlihat.
+   *
+   * Sebabnya babak permukaan memakai `sin(u · π · 1,6)`. Faktor 1,6 bukan
+   * kelipatan bulat, jadi di u = 1 gelombangnya berhenti di tengah ayunan —
+   * bukan di nol. Babak berikutnya memulai dari 2,4, dan selisihnya jadi
+   * lompatan.
+   *
+   * Perbaikannya bukan menggeser angka sampai kelihatan benar, melainkan
+   * memakai bentuk yang secara matematis WAJIB nol di kedua ujungnya:
+   * gelombang penuh `sin(2πu)` dikalikan amplop `sin(πu)`. Keduanya nol di
+   * u = 0 dan u = 1, dan karena hasil kalinya, LAJUNYA pun nol di sana
+   * (aturan perkalian turunan: kedua sukunya lenyap).
+   *
+   * Hasilnya keempat sambungan menyambung pada nilai maupun laju. Tidak ada
+   * satu pun angka yang perlu disetel dengan mata.
+   */
   const tinggiDi = useMemo(() => {
     const halus = (a: number) => a * a * (3 - 2 * a);
     return (k: number) => {
       if (k < 0.22) {
-        // naik dari kedalaman ke permukaan
+        // naik dari kedalaman ke permukaan; halus() sudah berlaju nol di ujung
         return -20 + halus(k / 0.22) * 22.4;
       }
       if (k < 0.62) {
-        // meluncur di permukaan, naik-turun sangat pelan bersama ombak
+        // meluncur di permukaan, satu ayunan penuh yang diamplop supaya
+        // berangkat dan berakhir tepat di 2,4 dengan laju nol
         const u = (k - 0.22) / 0.4;
-        return 2.4 + Math.sin(u * Math.PI * 1.6) * 0.85;
+        return 2.4 + Math.sin(u * Math.PI * 2) * Math.sin(Math.PI * u) * 1.15;
       }
       // menukik turun, makin lama makin dalam
       const u = (k - 0.62) / 0.38;
@@ -656,12 +690,12 @@ function PausBerenang() {
     const puncak = y + pausPuncak(miring) * PAUS.skala;
     o.visible = k > 0.01 && k < 0.999 && puncak > -1;
 
-    setSpout(Math.max(0, Math.sin(seg(0.28, 0.48) * Math.PI) ** 1.3));
+    kendali.spout = Math.max(0, Math.sin(seg(0.28, 0.48) * Math.PI) ** 1.3);
   });
 
   return (
     <group ref={grp} position={[PAUS.x0, -30, PAUS.z]} scale={PAUS.skala} visible={false}>
-      <Paus animate={false} spout={spout} />
+      <Paus animate={false} kendali={kendali} />
     </group>
   );
 }
