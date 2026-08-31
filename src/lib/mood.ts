@@ -36,3 +36,35 @@ export type Mood = (typeof MOOD)[number];
 
 export const sahMood = (v: unknown): v is Mood =>
   typeof v === "string" && (MOOD as readonly string[]).includes(v);
+
+/**
+ * ═══ LEBIH DARI SATU PERASAAN ═══
+ *
+ * Disimpan sebagai satu teks berisi daftar dipisah koma, bukan tabel
+ * tersendiri. Alasannya bukan kemalasan: kolomnya sudah ada dan sudah berisi
+ * satu nilai tunggal, dan daftar berkoma tetap terbaca sebagai nilai tunggal
+ * oleh kode lama. Jadi catatan yang sudah ditulis sebelum hari ini tidak
+ * perlu disentuh sama sekali.
+ *
+ * Dan yang lebih penting: satu hari MEMANG bisa dua perasaan sekaligus.
+ * Bahagia dan sedih di hari yang sama bukan kebingungan yang perlu
+ * diluruskan — itu bentuk hari yang paling sering terjadi, dan memaksa
+ * memilih salah satu membuat catatannya kurang jujur.
+ */
+
+/** "senang,sedih" → ["senang", "sedih"]. Tahan terhadap nilai lama, kosong,
+ *  maupun nama yang sudah tidak dikenal. */
+export function baca(mood: string | null | undefined): Mood[] {
+  if (!mood) return [];
+  return mood
+    .split(",")
+    .map((m) => m.trim())
+    .filter(sahMood);
+}
+
+/** ["senang", "sedih"] → "senang,sedih". Urutannya mengikuti MOOD supaya dua
+ *  pilihan yang sama selalu tersimpan dengan teks yang sama. */
+export function tulis(daftar: readonly string[]): string | null {
+  const bersih = MOOD.filter((m) => daftar.includes(m));
+  return bersih.length ? bersih.join(",") : null;
+}

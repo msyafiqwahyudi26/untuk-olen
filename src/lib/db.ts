@@ -3,7 +3,7 @@ import path from "node:path";
 import fs from "node:fs";
 /* Daftar perasaannya tinggal di berkas sendiri karena layar jurnal — yang
    berjalan di peramban — juga memerlukannya. Lihat catatan di lib/mood.ts. */
-import { sahMood } from "./mood";
+import { baca as bacaMood, tulis as tulisMood } from "./mood";
 
 const DB_PATH = process.env.OLEN_DB ?? path.join(process.cwd(), "data", "olen.db");
 
@@ -200,7 +200,7 @@ function rekam(id: number, sebab: "diubah" | "dihapus") {
 export function addNote(body: string, mood?: string | null) {
   const trimmed = body.trim().slice(0, 4000);
   if (!trimmed) return null;
-  const m = sahMood(mood) ? mood : null;
+  const m = tulisMood(bacaMood(mood));
   db().prepare("INSERT INTO notes (body, mood) VALUES (?, ?)").run(trimmed, m);
   return getNotes()[0] ?? null;
 }
@@ -211,7 +211,7 @@ export function ubahNote(id: number, body: string, mood?: string | null) {
   rekam(id, "diubah");
   db()
     .prepare("UPDATE notes SET body = ?, mood = ?, diubah = datetime('now') WHERE id = ?")
-    .run(trimmed, sahMood(mood) ? mood : null, id);
+    .run(trimmed, tulisMood(bacaMood(mood)), id);
   return satu(id);
 }
 

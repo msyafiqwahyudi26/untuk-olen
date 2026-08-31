@@ -68,7 +68,7 @@
 
 .jr-jatuh span {
   position: absolute;
-  height: 1.5px;
+  height: 2px;
   transform-origin: left center;
   background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.95) 82%, #fff);
   border-radius: 2px;
@@ -78,13 +78,30 @@
   animation-iteration-count: infinite;
 }
 
-/* Terlihat hanya di 8 persen pertama putaran; sisanya sunyi. */
+/*
+ * MELINTAS, bukan tumbuh di tempat.
+ *
+ * Versi pertama cuma memanjangkan garisnya dari nol ke penuh tanpa berpindah
+ * posisi. Dinilai "aneh, tidak seperti bintang jatuh, hanya garis jatuh" —
+ * dan itu tepat: yang membuat mata mengenali bintang jatuh adalah GERAK
+ * MENYEBERANG, bukan garis yang memanjang.
+ *
+ * Sekarang ia benar-benar berpindah sejauh 120vmax di sepanjang sumbunya
+ * sendiri, jadi ia masuk dari satu tepi layar dan keluar di tepi lain.
+ * `translate` diterapkan SEBELUM `transform` dalam urutan CSS, jadi
+ * perpindahannya ikut terputar mengikuti kemiringan garisnya — melintang
+ * diagonal, bukan mendatar.
+ *
+ * Ekornya memudar di ujung perjalanan, bukan menghilang mendadak: bintang
+ * jatuh sungguhan padam pelan sesudah puncaknya.
+ */
 @keyframes jrJatuh {
-  0%   { opacity: 0; scale: 0 1; }
-  1%   { opacity: 1; }
-  6%   { opacity: 1; scale: 1 1; }
-  8%   { opacity: 0; scale: 1 1; }
-  100% { opacity: 0; scale: 1 1; }
+  0%   { opacity: 0; translate: -20vmax 0; }
+  2%   { opacity: 0.9; }
+  5%   { opacity: 1; }
+  9%   { opacity: 0.55; }
+  12%  { opacity: 0; translate: 110vmax 0; }
+  100% { opacity: 0; translate: 110vmax 0; }
 }
 
 /* ── lembar ── */
@@ -526,3 +543,50 @@
 }
 
 .jr-pulih { flex: 0 0 auto; font-size: 0.62rem; padding: 0.4rem 0.7rem; min-height: 36px; }
+
+/* ═══ DI LAYAR LEBAR ═══
+ *
+ * Satu kolom 38rem di tengah layar 1900 piksel meninggalkan dua bidang kosong
+ * yang lebih luas daripada isinya — dinilai "berantakan di laptop", dan
+ * memang begitu terlihat: bukan berantakan karena tumpang tindih, melainkan
+ * karena tidak ada yang mengisi.
+ *
+ * Dua kolom: menulis di kiri karena itu yang dituju, kalender dan arsip di
+ * kanan karena keduanya untuk melihat-lihat. Yang sering dipakai tetap di
+ * jalur baca yang utama.
+ */
+@media (min-width: 1080px) {
+  .jr { padding-inline: 3vw; }
+
+  .jr-lembar {
+    width: min(72rem, 100%);
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    grid-template-areas:
+      "kepala kepala"
+      "tulis  samping";
+    column-gap: clamp(2rem, 4vw, 4rem);
+    align-items: start;
+  }
+
+  .jr-kepala { grid-area: kepala; }
+
+  /* Semua yang menyangkut menulis dan membaca satu catatan tinggal di kolom
+     kiri. Dipilih per-nama, bukan dengan :nth-child, supaya menambah bagian
+     baru nanti tidak diam-diam menggeser tata letaknya. */
+  .jr-rasa, .jr-garis, .jr-kaki, .jr-baca { grid-column: 1; }
+
+  .jr-kalender {
+    grid-area: samping;
+    margin-top: 1.6rem;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  /* Arsip dan laci menyusul di kolom kanan, di bawah kalender. */
+  .jr-arsip, .jr-laci { grid-column: 2; }
+  .jr-arsip { margin-top: 1.8rem; }
+
+  .jr-kal-tgl { font-size: 0.8rem; }
+  .jr-garis { --baris: 2.3rem; font-size: 1.06rem; }
+}

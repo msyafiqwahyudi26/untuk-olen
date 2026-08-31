@@ -121,32 +121,52 @@
 .sl-awan .sl-buih { display: none; }
 
 /*
- * Tepi awan: LINGKARAN CSS yang diulang, bukan SVG yang diregangkan.
+ * ═══ TEPI AWAN — KABUT, BUKAN GARIS ═══
  *
- * Percobaan pertama memakai <svg preserveAspectRatio="none">, dan di HP
- * hasilnya gepeng: lebar 200 persen dipaksa masuk tinggi 26 piksel, jadi
- * gumpalan bulatnya terpipihkan jadi riak. Yang tergambar bukan awan
- * melainkan air yang dibalik.
+ * Dua percobaan sebelumnya sama-sama gagal, dan gagalnya karena hal yang
+ * sama: keduanya menggambar TEPI YANG JELAS.
  *
- * Lingkaran berjari-jari vmin tetap BULAT berapa pun bentuk layarnya, karena
- * ukurannya tidak pernah diregangkan mengikuti wadahnya. Dua lapis dengan
- * ukuran dan pergeseran berbeda memberi tepi yang bergumpal tidak teratur —
- * awan tidak punya puncak dan lembah yang berulang rapi.
+ *   1. SVG dengan preserveAspectRatio="none" — di HP gumpalannya terpipihkan
+ *      jadi riak, karena lebar 200 persen dipaksa masuk tinggi 26 piksel.
+ *   2. Lingkaran CSS berulang — bulatnya benar, tapi di layar lebar
+ *      keteraturannya justru terlihat: deretan setengah lingkaran seukuran
+ *      sama, berjajar rapi. Dinilai "terlalu statis dan tidak smooth".
+ *
+ * Awan tidak punya tepi. Yang membuat sesuatu terbaca sebagai awan justru
+ * ketiadaan garis batas — ia menebal dan menipis tanpa pernah berhenti di
+ * satu tempat.
+ *
+ * Jadi tepinya sekarang KABUT: beberapa gumpalan lembut berukuran berbeda,
+ * dikaburkan kuat, bergerak dengan laju berbeda-beda. Tidak ada satu pun
+ * garis yang bisa dipipihkan, dan tidak ada pola yang bisa terbaca berulang.
  */
 .sl-awan .sl-badan::before {
   content: "";
   position: absolute;
-  left: -20%;
-  right: -20%;
-  top: calc(100% - 1px);
-  height: clamp(30px, 7svh, 72px);
+  left: -30%;
+  right: -30%;
+  top: calc(100% - 12vmin);
+  height: 24vmin;
   background-image:
-    radial-gradient(circle 7.5vmin at 50% 0%, var(--air-atas, #4b739c) 99%, transparent 100%),
-    radial-gradient(circle 5vmin at 50% 0%, var(--air-atas, #4b739c) 99%, transparent 100%);
-  background-size: 15vmin 100%, 9.5vmin 100%;
-  background-position: 0 0, 4.2vmin 0;
-  background-repeat: repeat-x, repeat-x;
-  animation: geserOmbak 5.4s linear infinite;
+    radial-gradient(38% 60% at 12% 42%, var(--air-atas, #4b739c) 0 55%, transparent 78%),
+    radial-gradient(30% 52% at 34% 52%, var(--air-atas, #4b739c) 0 58%, transparent 80%),
+    radial-gradient(44% 66% at 58% 38%, var(--air-atas, #4b739c) 0 52%, transparent 76%),
+    radial-gradient(28% 48% at 78% 55%, var(--air-atas, #4b739c) 0 60%, transparent 82%),
+    radial-gradient(36% 58% at 94% 44%, var(--air-atas, #4b739c) 0 54%, transparent 78%);
+  filter: blur(2.2vmin);
+  animation: awanHanyut 9s ease-in-out infinite alternate;
+}
+
+/* Lapis kedua bergerak lebih pelan ke arah berlawanan. Dua laju yang berbeda
+   itu yang membuat kabutnya terbaca punya kedalaman alih-alih satu bidang
+   yang digeser. */
+.sl-awan .sl-badan::after {
+  animation: awanHanyut 14s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes awanHanyut {
+  from { transform: translateX(-3vmin) scaleY(1); }
+  to   { transform: translateX(3vmin) scaleY(1.12); }
 }
 
 /* Kabut putih tipis di dalam tirainya — yang membuat bidang berwarna langit

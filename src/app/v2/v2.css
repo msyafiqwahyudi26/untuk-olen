@@ -339,18 +339,27 @@
    both, dan itu akan menimpa pemusatannya. Cacat yang sama pernah membuat
    "keep going" meleset dari tengah. */
 
+/*
+ * DI POJOK KIRI ATAS, bukan di tengah.
+ *
+ * Semula ia dipusatkan mendatar, dan di layar lebar ia menabrak "MEMORIES OF"
+ * — teks tengahnya duduk lebih tinggi di layar pendek-lebar, dan keduanya
+ * berebut jalur yang sama. Menggesernya turun cuma memindahkan tabrakan ke
+ * ukuran layar yang lain.
+ *
+ * Pojok kiri atas tidak dipakai apa pun: kendali suara dan pengaturan ada di
+ * kanan, judulnya di tengah, "keep going" di bawah. Arah panahnya sendiri
+ * yang tetap memberi tahu ke mana ia menuju.
+ */
 .op-up {
   position: absolute;
-  inset-inline: 0;
-  margin-inline: auto;
-  width: fit-content;
-  top: max(calc(var(--tepi-y) + 52px), calc(env(safe-area-inset-top) + 52px));
+  left: max(var(--tepi-x), env(safe-area-inset-left));
+  top: max(var(--tepi-y), env(safe-area-inset-top));
   z-index: 4;
-  flex-direction: column;
-  gap: .3rem;
-  padding: .4rem 1rem .5rem;
+  gap: .5rem;
+  padding: .48rem .9rem;
   font-size: var(--t-kecil);
-  letter-spacing: .3em;
+  letter-spacing: .18em;
   text-transform: lowercase;
   animation: uiNaik var(--d-masuk) var(--ease) .55s both;
 }

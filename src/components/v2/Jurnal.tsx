@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { NoteRow } from "@/lib/db";
 /* MOOD dari lib/mood, BUKAN dari lib/db. Mengimpor nilai dari db.ts ke
    komponen klien menyeret node:sqlite ke bundel peramban dan build-nya gagal.
    Impor TIPE di baris atas aman — ia hilang saat dikompilasi. */
-import { MOOD } from "@/lib/mood";
+import { MOOD, baca as bacaMood, tulis as tulisMood } from "@/lib/mood";
 import { PALET, type Waktu } from "./waktu";
 import { warnaLangitDi } from "./ketinggian";
 import { aset } from "@/lib/basis";
@@ -82,7 +82,8 @@ export default function Jurnal({
 }) {
   const [tulisan, setTulisan] = useState<NoteRow[]>(catatan);
   const [draft, setDraft] = useState("");
-  const [rasa, setRasa] = useState<string | null>(null);
+  /** Bisa lebih dari satu. Satu hari memang bisa bahagia sekaligus sedih. */
+  const [rasa, setRasa] = useState<string[]>([]);
   const [sibuk, setSibuk] = useState(false);
   const [galat, setGalat] = useState<string | null>(null);
   /** null = sedang menulis hari ini. Berisi id = sedang membaca yang lama. */
@@ -114,22 +115,54 @@ export default function Jurnal({
 
   const sedangDibaca = dibaca === null ? null : (tulisan.find((t) => t.id === dibaca) ?? null);
 
-  async function simpan() {
+  /**
+   * Catatan hari ini, kalau sudah ada.
+   *
+   * Satu hari satu halaman. Menulis lagi di hari yang sama MENGUBAH halaman
+   * itu, bukan membuat halaman kedua — dan itu yang membuat mood bisa
+   * diperbaiki sepanjang hari masih berjalan. Kalau tiap penyimpanan membuat
+   * catatan baru, "ganti mood" akan berarti "buat catatan lagi", dan
+   * kalendernya jadi penuh entri kembar.
+   */
+  const catatanHariIni = useMemo(() => {
+    const n = new Date();
+    const kunci = `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(
+      n.getDate(),
+    ).padStart(2, "0")}`;
+    return tulisan.find((t) => t.created_at.startsWith(kunci)) ?? null;
+  }, [tulisan]);
+
+  /* Isi dan mood hari ini dimuat ke ruang tulis sekali, saat halaman dibuka
+     atau saat catatan hari ini baru saja tersimpan. */
+  useEffect(() => {
+    if (!catatanHariIni) return;
+    setDraft((d) => (d ? d : catatanHariIni.body));
+    setRasa((r) => (r.length ? r : bacaMood(catatanHariIni.mood)));
+  }, [catatanHariIni]);
+
+  async function simpan(rasaBaru?: string[]) {
     const isi = draft.trim();
-    if (!isi || sibuk) return;
+    const m = rasaBaru ?? rasa;
+    /* Mood boleh disimpan tanpa tulisan HANYA kalau halaman hari ini sudah
+       ada; catatan baru tetap butuh isi. */
+    if (sibuk) return;
+    if (!isi && !catatanHariIni) return;
     setSibuk(true);
     setGalat(null);
     try {
+      const sudahAda = catatanHariIni;
       const r = await fetch(aset("/api/notes"), {
-        method: "POST",
+        method: sudahAda ? "PATCH" : "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ body: isi, mood: rasa }),
+        body: JSON.stringify(
+          sudahAda
+            ? { id: sudahAda.id, body: isi || sudahAda.body, mood: tulisMood(m) }
+            : { body: isi, mood: tulisMood(m) },
+        ),
       });
       if (!r.ok) throw new Error();
-      const baru = (await r.json()) as NoteRow;
-      setTulisan((t) => [baru, ...t]);
-      setDraft("");
-      setRasa(null);
+      const n = (await r.json()) as NoteRow;
+      setTulisan((t) => (t.some((x) => x.id === n.id) ? t.map((x) => (x.id === n.id ? n : x)) : [n, ...t]));
     } catch {
       setGalat("belum kesimpan. coba lagi sebentar.");
     } finally {
@@ -265,9 +298,13 @@ export default function Jurnal({
         {sedangDibaca ? (
           <article className="jr-baca">
             <div className="jr-baca-atas">
-              {sedangDibaca.mood && (
+              {bacaMood(sedangDibaca.mood).length > 0 && (
                 <p className="jr-rasa-lama">
-                  <span aria-hidden>{RASA[sedangDibaca.mood]}</span> {sedangDibaca.mood}
+                  {bacaMood(sedangDibaca.mood).map((m) => (
+                    <span key={m} className="jr-rasa-cap">
+                      <span aria-hidden>{RASA[m]}</span> {m}
+                    </span>
+                  ))}
                 </p>
               )}
               <button
@@ -355,9 +392,19 @@ export default function Jurnal({
                   <button
                     key={m}
                     type="button"
-                    className={`jr-rasa-tombol${rasa === m ? " on" : ""}`}
-                    aria-pressed={rasa === m}
-                    onClick={() => setRasa((r) => (r === m ? null : m))}
+                    className={`jr-rasa-tombol${rasa.includes(m) ? " on" : ""}`}
+                    aria-pressed={rasa.includes(m)}
+                    onClick={() => {
+                      const baru = rasa.includes(m)
+                        ? rasa.filter((x) => x !== m)
+                        : [...rasa, m];
+                      setRasa(baru);
+                      /* Kalau halaman hari ini sudah tersimpan, moodnya ikut
+                         tersimpan seketika — tidak perlu menekan simpan lagi.
+                         Ini yang membuat "takut salah pencet" hilang: salah
+                         tekan tinggal ditekan lagi. */
+                      if (catatanHariIni) void simpan(baru);
+                    }}
                   >
                     <span aria-hidden>{RASA[m]}</span>
                     <span className="jr-rasa-nama">{m}</span>
@@ -379,13 +426,21 @@ export default function Jurnal({
 
             <div className="jr-kaki">
               <span className="jr-hitung">
-                {galat ?? `${draft.trim() ? draft.trim().split(/\s+/).length : 0} kata`}
+                {galat ??
+                  (catatanHariIni
+                    ? `${draft.trim().split(/\s+/).filter(Boolean).length} kata · halaman hari ini`
+                    : `${draft.trim() ? draft.trim().split(/\s+/).length : 0} kata`)}
               </span>
               <button
                 type="button"
                 className="jr-tombol jr-simpan"
-                onClick={simpan}
-                disabled={!draft.trim() || sibuk}
+                /* () => simpan(), BUKAN simpan.
+                   Mengoper fungsinya langsung membuat React mengirim objek
+                   peristiwa klik sebagai argumen pertama — yang di sini
+                   berarti daftar mood. Ditangkap TypeScript sebelum sempat
+                   tayang. */
+                onClick={() => simpan()}
+                disabled={(!draft.trim() && !catatanHariIni) || sibuk}
               >
                 {sibuk ? "menyimpan" : "simpan"}
               </button>
@@ -464,7 +519,9 @@ export default function Jurnal({
                     >
                       <span className="jr-arsip-tgl">{t.pendek}</span>
                       {n.penting ? <span aria-hidden className="jr-arsip-penting">★</span> : null}
-                      {n.mood && <span aria-hidden>{RASA[n.mood]}</span>}
+                      {bacaMood(n.mood).map((m) => (
+                        <span key={m} aria-hidden>{RASA[m]}</span>
+                      ))}
                       <span className="jr-arsip-cuplik">{n.body.slice(0, 42)}</span>
                     </button>
                   </li>
