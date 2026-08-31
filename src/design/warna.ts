@@ -166,6 +166,53 @@ export function lapisSecukupnya(
   return batas;
 }
 
+/**
+ * Alfa PALING KECIL yang membuat `tinta` mencapai `target` kontras di atas
+ * `latar`.
+ *
+ * Kenapa dicari, bukan dipatok. Tinta 55% terlihat "cukup samar" di atas
+ * langit malam dan sekaligus "tidak terbaca" di atas langit siang; angka
+ * yang sama menghasilkan dua hal yang berbeda. Yang sebenarnya ingin dijaga
+ * bukan alfanya melainkan keterbacaannya, jadi itu yang dijadikan masukan.
+ *
+ * Naik 0,02 per langkah dan mengembalikan yang pertama lolos, jadi hasilnya
+ * selalu yang paling samar yang masih terbaca. Kalau sampai 1 pun tidak
+ * tercapai (tinta dan latar terlalu mirip), dikembalikan 1 supaya gagalnya
+ * ke arah PALING TERBACA, bukan paling samar.
+ */
+export function alfaSecukupnya(latar: string, tinta: string, target: number): number {
+  /* Melangkah dengan bilangan BULAT lalu dibagi seratus, bukan menambah 0,02
+     berulang kali lalu dibulatkan di akhir. Versi pertama memakai
+     `a += 0.02` dan `+a.toFixed(2)`, dan itu mengembalikan angka yang
+     BERBEDA dari yang barusan diuji: pembulatannya bisa turun sedikit, dan
+     hasilnya 4,48 : 1 untuk target 4,5. Meleset 0,02, cukup untuk membuat
+     laporan "lolos" jadi bohong. */
+  for (let i = 20; i <= 100; i++) {
+    const a = i / 100;
+    if (kontras(tumpuk(tinta, a, latar), latar) >= target) return a;
+  }
+  /* Tidak tercapai bahkan pada alfa penuh. Artinya tintanya sendiri memang
+     tidak sanggup: kontras tinta pekat terhadap latarnya lebih rendah dari
+     target. Dikembalikan 1, yaitu yang PALING terbaca yang mungkin ada.
+     Ini terjadi sungguhan di langit sore, yang tinta pekatnya cuma 6,39 : 1
+     sementara tingkat "lembut" meminta 7. Yang salah bukan fungsinya; target
+     7 memang mustahil di sana, dan 6,39 adalah jawaban terbaik yang ada. */
+  return 1;
+}
+
+/**
+ * Tinta paling redup dari sebuah tangga pilihan yang masih mencapai target.
+ *
+ * Dipakai untuk warna sorot: `#f4e4b0` bagus di langit malam dan cuma
+ * 1,4 : 1 di langit siang. Daripada memilih di antara dua nilai dan berharap
+ * salah satunya cukup, di sini seluruh tangganya dicoba dari yang paling
+ * dekat ke aslinya.
+ */
+export function sorotSecukupnya(latar: string, tangga: string[], target: number): string {
+  for (const c of tangga) if (kontras(c, latar) >= target) return c;
+  return tangga[tangga.length - 1];
+}
+
 /** `#RRGGBB` + alfa → `rgba(r, g, b, a)` untuk ditulis ke CSS. */
 export function rgba(hex: string, alfa: number): string {
   const [r, g, b] = keRgb(hex);

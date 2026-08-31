@@ -10,6 +10,7 @@ import { PALET, type Waktu } from "./waktu";
 import { warnaLangitDi } from "./ketinggian";
 import Settings, { type Pengaturan } from "./Settings";
 import { variabelTema } from "@/design/tema";
+import { alfaSecukupnya, rgba, sorotSecukupnya, tintaTerbaik } from "@/design/warna";
 import { aset } from "@/lib/basis";
 import "./jurnal.css";
 
@@ -123,7 +124,97 @@ export default function Jurnal({
      berlaku, jadi ia berganti sendiri antara pagi, siang, sore, dan malam.
      Diturunkan, bukan dipatok — sama seperti seluruh proyek ini. */
   const langit = warnaLangitDi(0, PALET[waktu].langit[1]);
-  const gelap = waktu === "malam" || waktu === "sore";
+
+  /*
+   * ═══ TINTA DITURUNKAN DARI LANGIT, TIDAK DIPATOK ═══
+   *
+   * Sampai 1 September 2026 seluruh jurnal memakai tinta putih (#eef6ff)
+   * apa pun waktunya. Diukur, hasilnya:
+   *
+   *     pagi   langit #A9C6E8   kontras 1.61 : 1
+   *     siang  langit #6FC6EC   kontras 1.76 : 1
+   *     sore   langit #7E9CC4   kontras 2.59 : 1
+   *     malam  langit #1C3B6B   kontras 10.21 : 1
+   *
+   * Ambang terbaca 4.5 : 1. Jadi tiga dari empat waktu praktis tidak bisa
+   * dibaca sama sekali, dan yang satu lolos cuma karena kebetulan berkas ini
+   * memang dirancang untuk langit malam. Yaya: "di bagian sky itu calender
+   * notes dll nggak keliatan jir dia jadi tipis banget."
+   *
+   * `tintaTerbaik` memilih di antara dua tinta mana yang lebih terbaca di
+   * atas langit yang SEDANG dipakai. Hasilnya #0b1726 untuk tiga waktu
+   * terang (6.4 sampai 10.2 : 1) dan #eef6ff untuk malam.
+   */
+  const tinta = tintaTerbaik(langit, ["#0b1726", "#eef6ff"]);
+
+  /*
+   * `gelap` sekarang DITURUNKAN dari tintanya, bukan dari daftar nama waktu.
+   *
+   * Sebelumnya `waktu === "malam" || waktu === "sore"`, dan itu salah untuk
+   * sore: langit sore #7E9CC4 luminansinya tinggi, jadi ia terang. Daftar
+   * nama harus dijaga sendiri tiap kali paletnya berubah; nilai yang
+   * diturunkan ikut sendiri.
+   */
+  const gelap = tinta === "#eef6ff";
+
+  /*
+   * Sorot emas dicari di sebuah tangga, bukan dipilih dari dua.
+   *
+   * #f4e4b0 bagus di langit malam (8.78 : 1) dan cuma 1.4 : 1 di langit
+   * siang. Percobaan pertama memakai satu pengganti gelap #6b4e05, dan itu
+   * masih gagal: 4.39 di pagi, 4.04 di siang, 2.74 di sore. Angka yang
+   * "kelihatan cukup gelap" ternyata tidak cukup, dan sore yang paling
+   * parah justru karena langitnya keabu-abuan.
+   *
+   * Sekarang tangganya dicoba dari yang paling dekat ke emas aslinya sampai
+   * ada yang mencapai 4.5 : 1. Jadi yang dipakai selalu yang paling emas
+   * yang masih terbaca, dan tidak ada waktu yang bisa lolos tanpa diperiksa.
+   */
+  const sorot = sorotSecukupnya(
+    langit,
+    ["#f4e4b0", "#a8801a", "#7d5c08", "#5c4204", "#3d2b00", "#241900"],
+    4.5,
+  );
+
+  /*
+   * Lapisan kaca ikut tinta, bukan selalu putih.
+   *
+   * Ini bagian yang paling gampang terlewat: `rgba(255,255,255,0.09)` di
+   * atas langit biru muda tidak kelihatan sama sekali, jadi seluruh tombol,
+   * kotak mood, dan sel kalender kehilangan bentuknya. Diturunkan dari
+   * tinta, ia jadi lapisan gelap tipis waktu langitnya terang dan lapisan
+   * terang tipis waktu langitnya gelap. Satu rumus, dua hasil.
+   */
+  /*
+   * Tiga tingkat teks, alfanya DICARI bukan dipatok.
+   *
+   * 0,78 / 0,55 / 0,34 terasa masuk akal waktu ditulis, dan diukur ternyata
+   * 0,55 cuma menghasilkan 2,79 : 1 di langit sore. Angka alfa yang sama
+   * berarti keterbacaan yang berbeda-beda di langit yang berbeda, dan yang
+   * ingin dijaga keterbacaannya.
+   *
+   * Targetnya turun bertingkat karena perannya memang bertingkat: yang
+   * dibaca lama butuh 7, keterangan butuh 4,5, dan yang cuma penanda
+   * kehadiran butuh 3.
+   */
+  const rias = {
+    "--jr-tinta": tinta,
+    "--jr-lembut": rgba(tinta, alfaSecukupnya(langit, tinta, 7)),
+    "--jr-samar": rgba(tinta, alfaSecukupnya(langit, tinta, 4.5)),
+    "--jr-hantu": rgba(tinta, alfaSecukupnya(langit, tinta, 3)),
+    /* Garis dan lapisan kaca BUKAN teks: yang dijaga cuma supaya bentuknya
+       kelihatan. Ambangnya 1,4 sampai 2, jauh di bawah ambang teks, karena
+       garis setebal ambang teks berubah jadi kotak yang berteriak. */
+    "--jr-garis": rgba(tinta, alfaSecukupnya(langit, tinta, 1.35)),
+    "--jr-garis-kuat": rgba(tinta, alfaSecukupnya(langit, tinta, 1.7)),
+    "--jr-kaca-1": rgba(tinta, alfaSecukupnya(langit, tinta, 1.12)),
+    "--jr-kaca-2": rgba(tinta, alfaSecukupnya(langit, tinta, 1.2)),
+    "--jr-kaca-3": rgba(tinta, alfaSecukupnya(langit, tinta, 1.35)),
+    "--jr-kaca-4": rgba(tinta, alfaSecukupnya(langit, tinta, 1.6)),
+    "--jr-sorot": sorot,
+    "--jr-sorot-tepi": rgba(sorot, alfaSecukupnya(langit, sorot, 1.7)),
+    "--jr-sorot-kaca": rgba(sorot, alfaSecukupnya(langit, sorot, 1.25)),
+  } as React.CSSProperties;
 
   const hariIni = useMemo(() => {
     const n = new Date();
@@ -325,7 +416,11 @@ export default function Jurnal({
      */
     <div
       className={`jr${gelap ? " jr-gelap" : ""}`}
-      style={{ ...(variabelTema(waktu) as React.CSSProperties), ["--langit" as string]: langit }}
+      style={{
+        ...(variabelTema(waktu) as React.CSSProperties),
+        ...rias,
+        ["--langit" as string]: langit,
+      }}
     >
       <div className="jr-latar" aria-hidden>
         <div className="jr-bintang" />
