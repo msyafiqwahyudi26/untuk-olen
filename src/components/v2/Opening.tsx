@@ -448,11 +448,21 @@ export default function Opening() {
         <source src={aset("/audio/voice-of-olen.opus")} type="audio/ogg; codecs=opus" />
       </audio>
 
-      {/* Arah kedua: naik ke langit tempat jurnal Olen. Ditaruh di ATAS layar,
-          berseberangan dengan "keep going" yang di bawah — arahnya sendiri
-          yang memberi tahu ke mana ia menuju, tanpa perlu dijelaskan. */}
-      {started && (
-        <button
+      {/*
+        Arah kedua: naik ke langit tempat jurnal Olen. Ditaruh di ATAS layar,
+        berseberangan dengan "keep going" yang di bawah — arahnya sendiri yang
+        memberi tahu ke mana ia menuju, tanpa perlu dijelaskan.
+
+        TIDAK dikunci di balik `started`, dan itu diperbaiki 1 September.
+        Sebelumnya ia baru muncul sesudah tombol suara ditekan, jadi untuk
+        menulis satu kalimat Olen harus memutar montase suaranya dulu. Menulis
+        adalah satu-satunya hal di kapsul ini yang dilakukan Olen SENDIRI, dan
+        justru itu yang paling tidak boleh diberi syarat.
+
+        Labelnya "sky notes", bukan "your sky": yang perlu diketahui bukan
+        tempatnya melainkan bahwa di sana ia bisa menulis.
+      */}
+      <button
           className="ui-pil z-atas op-up"
           onClick={() =>
             window.dispatchEvent(new CustomEvent("olen:up", { detail: { waktu: set.waktu } }))
@@ -461,9 +471,8 @@ export default function Opening() {
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
             <path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <span>your sky</span>
+          <span>sky notes</span>
         </button>
-      )}
 
       {ajakGeser && (
         <div className="op-geser" role="status">

@@ -104,6 +104,9 @@ export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
       {selam && (
         <Selam
           waktu={waktu}
+          /* Awan untuk yang menuju langit; air untuk sisanya. Arah datangnya
+             tirai yang memberi tahu ke mana kita bergerak. */
+          jenis={selam === "naik-langit" ? "awan" : "air"}
           onTutup={() =>
             tukar(selam === "turun" ? "turun" : selam === "naik-langit" ? "naik" : "pembuka")
           }
