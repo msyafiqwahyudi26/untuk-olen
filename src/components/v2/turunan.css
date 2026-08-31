@@ -1043,3 +1043,155 @@
   .kn + .kn-buka-babak { margin-top: 78vh; }
   .kn-babak { margin-bottom: 2.6rem; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * ANIMASI MASUK
+ *
+ * Yaya: "biar kalimatnya ada animasinya nggak statis."
+ *
+ * Yang bergerak ANAK-ANAK `.kn`, tidak pernah `.kn` itu sendiri. Opasitas
+ * `.kn` sudah ditulis penggulir tiap frame; menambahkan transition di sana
+ * berarti dua pemilik untuk satu nilai, dan akibatnya blok berkedip tiap
+ * kali jari bergerak.
+ *
+ * Temponya dari satu tempat: `--tempo` dan `--jeda` di bawah. Tiap unsur
+ * punya nomor urutnya, dan tundanya nomor kali jeda. Jadi mempercepat
+ * seluruh halaman cukup satu angka, bukan dua belas.
+ *
+ * Arah geraknya NAIK (translateY positif ke nol). Ini turunan ke dasar
+ * laut; benda yang muncul sambil naik sedikit terasa seperti sesuatu yang
+ * kita lewati, bukan seperti kartu yang jatuh dari atas.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.tr-kenangan {
+  --tempo: 620ms;
+  --jeda: 85ms;
+  --angkat: 16px;
+}
+
+.kn-babak-meter,
+.kn-babak h2,
+.kn-babak p,
+.kn-pembuka,
+.kn-kutip,
+.kn-kumpul li,
+.kn-foto-satu,
+.kn-video,
+.kn-cerita,
+.kn-kaki {
+  opacity: 0;
+  transform: translateY(var(--angkat));
+  transition:
+    opacity var(--tempo) cubic-bezier(0.22, 0.68, 0.3, 1) var(--tunda, 0ms),
+    transform var(--tempo) cubic-bezier(0.22, 0.68, 0.3, 1) var(--tunda, 0ms);
+}
+
+.kn-masuk .kn-babak-meter,
+.kn-masuk .kn-babak h2,
+.kn-masuk .kn-babak p,
+.kn-masuk .kn-pembuka,
+.kn-masuk .kn-kutip,
+.kn-masuk .kn-kumpul li,
+.kn-masuk .kn-foto-satu,
+.kn-masuk .kn-video,
+.kn-masuk .kn-cerita,
+.kn-masuk .kn-kaki {
+  opacity: 1;
+  transform: none;
+}
+
+/* Urutan datangnya, mengikuti urutan baca. Angkanya nomor giliran, bukan
+   milidetik: yang mengubahnya jadi waktu cuma satu baris, --jeda di atas. */
+.kn-babak-meter { --tunda: calc(var(--jeda) * 0); }
+.kn-babak h2    { --tunda: calc(var(--jeda) * 1); }
+.kn-babak p     { --tunda: calc(var(--jeda) * 2); }
+.kn-pembuka     { --tunda: calc(var(--jeda) * 1); }
+.kn-kutip       { --tunda: calc(var(--jeda) * 2); }
+.kn-kumpul li   { --tunda: calc(var(--jeda) * (2 + var(--urut, 1))); }
+.kn-foto-satu   { --tunda: calc(var(--jeda) * (3 + var(--urut, 1))); }
+.kn-video       { --tunda: calc(var(--jeda) * 4); }
+.kn-cerita      { --tunda: calc(var(--jeda) * (4 + var(--urut, 1))); }
+.kn-kaki        { --tunda: calc(var(--jeda) * 9); }
+
+/* Blok yang membuka babak datang lebih pelan dan lebih jauh. Ia menandai
+   pergantian, dan pergantian yang cepat tidak terasa sebagai pergantian. */
+.kn-buka-babak { --tempo: 900ms; --jeda: 120ms; --angkat: 26px; }
+
+/* Kutipan naik sedikit lebih jauh daripada yang lain. Ia yang paling besar
+   di blok itu, dan gerak yang sama pada huruf yang lebih besar terbaca
+   sebagai gerak yang lebih kecil. */
+.kn-kutip { --angkat: 22px; }
+
+/* Foto masuk sambil membesar sedikit. Cuma foto: teks yang membesar terbaca
+   sebagai teks yang tadinya salah ukuran. */
+.kn-foto-satu { transform: translateY(var(--angkat)) scale(0.965); }
+.kn-masuk .kn-foto-satu { transform: none; }
+
+/*
+ * Kalau ada yang minta gerak dikurangi, SEMUANYA langsung tampil.
+ *
+ * Ini bukan kelengkapan formalitas. Tanpa blok ini, pembaca dengan setelan
+ * itu melihat halaman yang isinya opacity: 0 selamanya, karena yang
+ * memunculkannya adalah transition yang barusan dimatikan. Aturan
+ * aksesibilitas yang setengah jadi lebih buruk daripada tidak ada.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .kn-babak-meter,
+  .kn-babak h2,
+  .kn-babak p,
+  .kn-pembuka,
+  .kn-kutip,
+  .kn-kumpul li,
+  .kn-foto-satu,
+  .kn-video,
+  .kn-cerita,
+  .kn-kaki {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/*
+ * Dan kalau JavaScript mati, kelas `.kn-masuk` tidak pernah terpasang.
+ * Hasilnya sama: halaman kosong yang terlihat seperti gagal dimuat. Jadi
+ * tanpa JS semuanya juga langsung tampil.
+ */
+@media (scripting: none) {
+  .kn-babak-meter,
+  .kn-babak h2,
+  .kn-babak p,
+  .kn-pembuka,
+  .kn-kutip,
+  .kn-kumpul li,
+  .kn-foto-satu,
+  .kn-video,
+  .kn-cerita,
+  .kn-kaki {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * LETAK MEDIA (diubah 31 Agustus 2026)
+ *
+ * Foto dan video sekarang berdiri SESUDAH kutipan, bukan sebelum pembuka.
+ *
+ * Bukan soal rapi. Kenangan di 78 m dibuka dengan kalimat "Olen lihat apa
+ * yang ada di foto ini?" dan fotonya tergambar DI ATAS pertanyaan itu, jadi
+ * pertanyaannya menunjuk sesuatu yang sudah lewat. Urutannya sekarang
+ * mengikuti urutan membaca:
+ *
+ *   babak  ->  pertanyaan  ->  kata Olen  ->  buktinya  ->  kata Kakak
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.kn-foto { margin-top: 0.4rem; }
+.kn-video { margin: 0.4rem 0 1.6rem; }
+
+/* Foto dan video note tidak pernah berdampingan di kenangan mana pun untuk
+   saat ini, tapi kalau nanti ada, keduanya harus tetap sejajar dan tidak
+   saling menempel. */
+.kn-video + .kn-foto { margin-top: 0; }

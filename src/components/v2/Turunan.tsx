@@ -429,9 +429,47 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
     const pengamat = new ResizeObserver(ukurLaluGambar);
     for (const e of kenanganEl.current) if (e) pengamat.observe(e);
 
+    /*
+     * ═══ ANIMASI MASUK ═══
+     *
+     * Yaya: "biar kalimatnya ada animasinya nggak statis."
+     *
+     * Kelasnya dipasang SEKALI, waktu blok pertama kali masuk layar, lalu
+     * pengamatannya dicabut. Tiga hal yang bikin ini harus begitu:
+     *
+     *   1. Animasi yang mengulang tiap kali blok lewat berubah jadi
+     *      gangguan pada gulir ke atas, dan Olen memang akan menggulir ke
+     *      atas untuk membaca ulang.
+     *   2. Yang menganimasikan CSS, bukan JavaScript. Di sini cuma dipasang
+     *      satu kelas; sisanya transition di turunan.css. JavaScript yang
+     *      menggerakkan opasitas tiap frame akan berebut dengan
+     *      `e.style.opacity` yang sudah dipakai penggulirnya.
+     *   3. Yang dianimasikan ANAK-ANAKNYA, bukan `.kn` itu sendiri. Opasitas
+     *      `.kn` sudah punya pemilik: penggulir di atas menulisinya tiap
+     *      frame. Dua pemilik untuk satu nilai adalah kelas kesalahan nomor
+     *      satu di PELAJARAN.md, dan di sini akibatnya blok yang berkedip.
+     *
+     * `rootMargin` negatif di bawah: blok baru dianggap masuk setelah
+     * benar-benar naik ke dalam layar, bukan waktu ujung atasnya baru
+     * menyentuh tepi bawah. Tanpa itu animasinya selesai sebelum ada yang
+     * sempat melihatnya.
+     */
+    const masuk = new IntersectionObserver(
+      (baris) => {
+        for (const b of baris) {
+          if (!b.isIntersecting) continue;
+          b.target.classList.add("kn-masuk");
+          masuk.unobserve(b.target);
+        }
+      },
+      { rootMargin: "0px 0px -18% 0px", threshold: 0.01 },
+    );
+    for (const e of kenanganEl.current) if (e) masuk.observe(e);
+
     window.addEventListener("scroll", onGulir, { passive: true });
     window.addEventListener("resize", ukurLaluGambar);
     return () => {
+      masuk.disconnect();
       pengamat.disconnect();
       window.removeEventListener("scroll", onGulir);
       window.removeEventListener("resize", ukurLaluGambar);
@@ -606,6 +644,65 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
               style={{ opacity: 0, visibility: "hidden" }}
             >
               {/*
+                PENANDA BABAK.
+
+                Yaya: "gua baca ulang kayak bingung gitu ini mau di bawa
+                kemana sih narasinya nggak jelas."
+
+                Ini jawabannya yang paling langsung: sebuah judul yang
+                menyebut di mana kita sekarang dan kenapa bagian ini
+                dikumpulkan jadi satu. Batas babaknya berimpit dengan batas
+                cahaya di `kedalaman.ts`, jadi yang dibaca dan yang dilihat
+                berganti pada meter yang sama.
+
+                `<h2>` sungguhan, bukan div yang dibesarkan: ini memang
+                kepala bagian, dan pembaca layar butuh tahu itu untuk bisa
+                melompat antar babak.
+              */}
+              {k.babak && (
+                <header className="kn-babak">
+                  <span className="kn-babak-meter">{k.di} m</span>
+                  <h2>{k.babak}</h2>
+                  {k.pengantar?.map((baris, n) => (
+                    <p key={n}>{baris}</p>
+                  ))}
+                </header>
+              )}
+              {k.pembuka && <p className="kn-pembuka">{k.pembuka}</p>}
+              {/* Tanda petik ditulis di sini, bukan di dalam datanya: yang
+                  disimpan harus kata Olen apa adanya, supaya bisa dicocokkan
+                  ke ekspornya kapan saja tanpa ada tanda tambahan. */}
+              {k.kutipan && (
+                <blockquote className="kn-kutip">
+                  {k.dari === "yaya" ? k.kutipan : `\u201C${k.kutipan}\u201D`}
+                </blockquote>
+              )}
+
+              {/*
+                KUMPULAN — beberapa kalimat kecil sekaligus.
+
+                Dipakai untuk kutipan yang tidak sanggup menahan satu layar
+                sendirian. Bentuknya sengaja BEDA dari kutipan besar: lebih
+                kecil, bernomor lewat garis, dan tiap satu langsung diikuti
+                satu kalimat Kakak. Kalau bentuknya sama, pembaca menyangka
+                ini tiga kenangan terpisah yang kebetulan berdempetan, dan
+                justru pola yang mau ditunjukkan itu yang hilang.
+              */}
+              {k.kumpulan?.length ? (
+                <ul className="kn-kumpul">
+                  {k.kumpulan.map((s, n) => (
+                    <li key={n} style={{ "--urut": n + 1 } as React.CSSProperties}>
+                      <p className="kn-kumpul-kutipan">{`\u201C${s.kutipan}\u201D`}</p>
+                      <p className="kn-kumpul-catatan">
+                        {s.catatan}
+                        {s.tanggal && <span className="kn-kumpul-tanggal">{s.tanggal}</span>}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+
+              {/*
                 VIDEO NOTE — bulat, seperti aslinya di WhatsApp.
 
                 `preload="none"`: tidak ada satu bita pun yang diunduh sampai
@@ -675,35 +772,14 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
                 angka yang sedang dibaca. Angkanya perkiraan 3:4 dan itu tidak
                 apa-apa, yang penting nisbahnya dipesan lebih dulu.
               */}
-              {/*
-                PENANDA BABAK.
-
-                Yaya: "gua baca ulang kayak bingung gitu ini mau di bawa
-                kemana sih narasinya nggak jelas."
-
-                Ini jawabannya yang paling langsung: sebuah judul yang
-                menyebut di mana kita sekarang dan kenapa bagian ini
-                dikumpulkan jadi satu. Batas babaknya berimpit dengan batas
-                cahaya di `kedalaman.ts`, jadi yang dibaca dan yang dilihat
-                berganti pada meter yang sama.
-
-                `<h2>` sungguhan, bukan div yang dibesarkan: ini memang
-                kepala bagian, dan pembaca layar butuh tahu itu untuk bisa
-                melompat antar babak.
-              */}
-              {k.babak && (
-                <header className="kn-babak">
-                  <span className="kn-babak-meter">{k.di} m</span>
-                  <h2>{k.babak}</h2>
-                  {k.pengantar?.map((baris, n) => (
-                    <p key={n}>{baris}</p>
-                  ))}
-                </header>
-              )}
               {k.foto?.length ? (
                 <div className={`kn-foto kn-foto-${Math.min(k.foto.length, 3)}`}>
                   {k.foto.map((f, n) => (
-                    <figure key={n} className="kn-foto-satu">
+                    <figure
+                      key={n}
+                      className="kn-foto-satu"
+                      style={{ "--urut": n + 1 } as React.CSSProperties}
+                    >
                       <img
                         src={aset(`/memori/${f.berkas}`)}
                         alt={f.alt}
@@ -717,41 +793,13 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
                   ))}
                 </div>
               ) : null}
-              {k.pembuka && <p className="kn-pembuka">{k.pembuka}</p>}
-              {/* Tanda petik ditulis di sini, bukan di dalam datanya: yang
-                  disimpan harus kata Olen apa adanya, supaya bisa dicocokkan
-                  ke ekspornya kapan saja tanpa ada tanda tambahan. */}
-              {k.kutipan && (
-                <blockquote className="kn-kutip">
-                  {k.dari === "yaya" ? k.kutipan : `\u201C${k.kutipan}\u201D`}
-                </blockquote>
-              )}
-
-              {/*
-                KUMPULAN — beberapa kalimat kecil sekaligus.
-
-                Dipakai untuk kutipan yang tidak sanggup menahan satu layar
-                sendirian. Bentuknya sengaja BEDA dari kutipan besar: lebih
-                kecil, bernomor lewat garis, dan tiap satu langsung diikuti
-                satu kalimat Kakak. Kalau bentuknya sama, pembaca menyangka
-                ini tiga kenangan terpisah yang kebetulan berdempetan, dan
-                justru pola yang mau ditunjukkan itu yang hilang.
-              */}
-              {k.kumpulan?.length ? (
-                <ul className="kn-kumpul">
-                  {k.kumpulan.map((s, n) => (
-                    <li key={n}>
-                      <p className="kn-kumpul-kutipan">{`\u201C${s.kutipan}\u201D`}</p>
-                      <p className="kn-kumpul-catatan">
-                        {s.catatan}
-                        {s.tanggal && <span className="kn-kumpul-tanggal">{s.tanggal}</span>}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
               {k.cerita?.map((baris, n) => (
-                <p key={n} className="kn-cerita">
+                /* Tunda dinaikkan per paragraf supaya kalimatnya datang
+                   berurutan, seperti pesan yang dikirim satu-satu. Nomornya
+                   dikirim sebagai variabel CSS, bukan sebagai milidetik
+                   jadi: yang menentukan panjang jedanya tetap CSS, jadi
+                   mengubah temponya cukup di satu tempat. */
+                <p key={n} className="kn-cerita" style={{ "--urut": n + 1 } as React.CSSProperties}>
                   {baris}
                 </p>
               ))}
