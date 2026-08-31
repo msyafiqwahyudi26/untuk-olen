@@ -123,6 +123,16 @@
   text-align: center;
 }
 
+.jr-setelan { position: absolute; left: 0; top: -0.5rem; }
+.jr-setelan .st { position: static; }
+.jr-setelan .st-panel { position: absolute; left: 0; right: auto; top: 46px; }
+
+.jr-pulang {
+  position: absolute;
+  right: 0;
+  top: -0.2rem;
+}
+
 .jr-menu-tombol {
   position: absolute;
   right: 0;
@@ -618,37 +628,44 @@
  * kanan karena keduanya untuk melihat-lihat. Yang sering dipakai tetap di
  * jalur baca yang utama.
  */
+/*
+ * ═══ DUA KOLOM DI LAYAR LEBAR ═══
+ *
+ * Versi pertama menaruh tiap bagian langsung sebagai anak grid dan
+ * menugaskan kolomnya satu per satu. Hasilnya berantakan, dan sebabnya
+ * jelas begitu dilihat: tiap bagian jadi BARIS sendiri, dan tinggi tiap
+ * baris ditentukan oleh yang tertinggi di baris itu. Kalender yang tinggi di
+ * kanan langsung meninggalkan lubang kosong raksasa di kiri, antara judul dan
+ * sub-judul.
+ *
+ * Sekarang tiap sisi dibungkus satu wadah. Grid-nya cuma punya dua anak di
+ * baris isi, jadi tidak ada baris yang bisa saling menarik.
+ */
 @media (min-width: 1080px) {
   .jr { padding-inline: 3vw; }
 
   .jr-lembar {
-    width: min(72rem, 100%);
+    width: min(74rem, 100%);
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    grid-template-areas:
-      "kepala kepala"
-      "tulis  samping";
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
     column-gap: clamp(2rem, 4vw, 4rem);
     align-items: start;
   }
 
-  .jr-kepala { grid-area: kepala; }
+  .jr-kepala { grid-column: 1 / -1; }
 
-  /* Semua yang menyangkut menulis dan membaca satu catatan tinggal di kolom
-     kiri. Dipilih per-nama, bukan dengan :nth-child, supaya menambah bagian
-     baru nanti tidak diam-diam menggeser tata letaknya. */
-  .jr-rasa, .jr-garis, .jr-kaki, .jr-baca { grid-column: 1; }
+  /* Ruang tulis MENEMPEL di atas. Tidak ada margin-top di anak pertamanya,
+     karena itulah yang dulu menyisakan celah kosong di puncak kolom. */
+  .jr-kolom-tulis > :first-child,
+  .jr-kolom-tulis .jr-judul-isian { margin-top: 0; }
+  .jr-kolom-tulis { padding-top: 1.6rem; }
 
-  .jr-kalender {
-    grid-area: samping;
-    margin-top: 1.6rem;
+  .jr-kolom-samping { padding-top: 1.6rem; }
+  .jr-kolom-samping .jr-kalender {
+    margin-top: 0;
     padding-top: 0;
     border-top: none;
   }
-
-  /* Arsip dan laci menyusul di kolom kanan, di bawah kalender. */
-  .jr-arsip, .jr-laci { grid-column: 2; }
-  .jr-arsip { margin-top: 1.8rem; }
 
   .jr-kal-tgl { font-size: 0.8rem; }
   .jr-garis { --baris: 2.3rem; font-size: 1.06rem; }

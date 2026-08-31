@@ -44,7 +44,24 @@ const OMBAK_MENGALAH = 0.12; // ombak waktu Olen bicara
 const LAGU_UTAMA = 0.36;
 const LAGU_MENGALAH = 0.09;
 const JEDA_SUARA = 6.5;      // detik: lagu berdiri dulu, baru Olen masuk
-export default function Opening() {
+/**
+ * ═══ SETELANNYA DIPEGANG DI ATAS, BUKAN DI SINI ═══
+ *
+ * `set` dan `ubahSet` datang dari `Perjalanan`. Sebelumnya keduanya milik
+ * komponen ini, dan itu berarti layar jurnal — yang juga perlu mematikan
+ * ombak dan lagu — tidak bisa menyentuhnya sama sekali.
+ *
+ * Menyalin state-nya ke jurnal akan membuat dua sumber kebenaran untuk satu
+ * hal yang sama: mematikan suara di satu layar tidak akan berlaku di layar
+ * lain, dan yang menang tergantung layar mana yang terakhir dibuka.
+ */
+export default function Opening({
+  set,
+  ubahSet,
+}: {
+  set: Pengaturan;
+  ubahSet: (patch: Partial<Pengaturan>) => void;
+}) {
   const [quality, setQuality] = useState<"low" | "high" | null>(null);
   const [started, setStarted] = useState(false);
   const [voice, setVoice] = useState(false);
@@ -58,13 +75,6 @@ export default function Opening() {
    * React melapor hydration mismatch — yang asli, bukan ulah ekstensi.
    * Jam sebenarnya baru dibaca sesudah halaman hidup, di useEffect.
    */
-  const [set, setSet] = useState<Pengaturan>({
-    bisu: false,
-    ombak: true,
-    lagu: true,
-    waktu: "siang",
-    waktuOtomatis: true,
-  });
   const muted = set.bisu;
 
   const seaRef = useRef<HTMLAudioElement | null>(null);
@@ -165,26 +175,9 @@ export default function Opening() {
     const small = window.innerWidth < 820;
     const cores = navigator.hardwareConcurrency ?? 4;
     setQuality(small || cores <= 4 ? "low" : "high");
-    setSet((p) => (p.waktuOtomatis ? { ...p, waktu: waktuSekarang() } : p));
   }, []);
 
-  /**
-   * Kalau mengikuti jam, langitnya ikut berpindah waktu Olen membiarkan
-   * halaman terbuka lama — diperiksa tiap menit. Ini bukan sekadar kerapian:
-   * halaman ini memang dimaksudkan untuk dibuka berkali-kali di jam berbeda.
-   */
-  useEffect(() => {
-    if (!set.waktuOtomatis) return;
-    const id = window.setInterval(() => {
-      const w = waktuSekarang();
-      setSet((p) => (p.waktuOtomatis && p.waktu !== w ? { ...p, waktu: w } : p));
-    }, 60000);
-    return () => window.clearInterval(id);
-  }, [set.waktuOtomatis]);
 
-  const ubahSet = useCallback((patch: Partial<Pengaturan>) => {
-    setSet((p) => ({ ...p, ...patch }));
-  }, []);
 
   /**
    * Jam pecahan yang menentukan letak matahari dan bulan di busurnya.
@@ -338,7 +331,7 @@ export default function Opening() {
   }, [set.bisu, set.ombak, set.lagu, voice, started, fade]);
 
   const toggleMute = useCallback(() => {
-    setSet((p) => ({ ...p, bisu: !p.bisu }));
+    ubahSet({ bisu: !set.bisu });
   }, []);
 
   return (

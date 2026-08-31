@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Opening from "./Opening";
 import Turunan from "./Turunan";
 import Selam from "./Selam";
 import Jurnal from "./Jurnal";
 import type { NoteRow } from "@/lib/db";
-import { waktuSekarang, type Waktu } from "./waktu";
+import { JAM_WAKIL, waktuSekarang, type Waktu } from "./waktu";
+import type { Pengaturan } from "./Settings";
 
 /**
  * ═══ PERJALANAN — yang memegang "kita sedang di mana" ═══
@@ -75,12 +76,53 @@ export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
   /* null = tidak sedang berpindah. Selama bukan null, tirainya terpasang di
      atas segalanya dan pergantian layarnya terjadi DI BALIKNYA. */
   const [selam, setSelam] = useState<Pindah | null>(null);
-  /* Nilai awal tetap, jamnya dibaca sesudah terpasang — server tidak tahu jam
-     Olen, dan membacanya saat render adalah hydration mismatch. Jebakan yang
-     sudah tercatat di HANDOVER. */
-  const [waktu, setWaktu] = useState<Waktu>("siang");
+  /**
+   * Setelan dipegang DI SINI, bukan di dalam layar pembuka.
+   *
+   * Layar jurnal juga perlu mematikan ombak dan lagu. Menyalin state-nya ke
+   * sana akan membuat dua sumber kebenaran untuk satu hal yang sama:
+   * mematikan suara di satu layar tidak berlaku di layar lain, dan yang
+   * menang tergantung layar mana yang terakhir dibuka.
+   *
+   * Nilai awal waktunya TETAP "siang", jamnya dibaca sesudah terpasang —
+   * server tidak tahu jam Olen, dan membacanya saat render adalah hydration
+   * mismatch. Jebakan yang sudah tercatat di HANDOVER.
+   */
+  const [set, setSet] = useState<Pengaturan>({
+    bisu: false,
+    ombak: true,
+    lagu: true,
+    waktu: "siang",
+    waktuOtomatis: true,
+  });
+  const waktu = set.waktu;
 
-  useEffect(() => setWaktu(waktuSekarang()), []);
+  const ubahSet = useCallback((patch: Partial<Pengaturan>) => {
+    setSet((p) => ({ ...p, ...patch }));
+  }, []);
+
+  const setWaktu = useCallback(
+    (w: Waktu) => setSet((p) => ({ ...p, waktu: w })),
+    [],
+  );
+
+  useEffect(() => {
+    setSet((p) => (p.waktuOtomatis ? { ...p, waktu: waktuSekarang() } : p));
+  }, []);
+
+  /**
+   * Kalau mengikuti jam, langitnya ikut berpindah waktu halaman dibiarkan
+   * terbuka lama — diperiksa tiap menit. Ini bukan sekadar kerapian: halaman
+   * ini memang dimaksudkan untuk dibuka berkali-kali di jam berbeda.
+   */
+  useEffect(() => {
+    if (!set.waktuOtomatis) return;
+    const id = window.setInterval(() => {
+      const w = waktuSekarang();
+      setSet((p) => (p.waktuOtomatis && p.waktu !== w ? { ...p, waktu: w } : p));
+    }, 60000);
+    return () => window.clearInterval(id);
+  }, [set.waktuOtomatis]);
 
   useEffect(() => {
     const turun = (e: Event) => {
@@ -123,11 +165,17 @@ export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
   return (
     <>
       <div hidden={layar !== "pembuka"}>
-        <Opening />
+        <Opening set={set} ubahSet={ubahSet} />
       </div>
       {layar === "turun" && <Turunan waktu={waktu} onNaik={naik} />}
       {layar === "naik" && (
-        <Jurnal waktu={waktu} catatan={catatan} onTurun={() => setSelam("dari-langit")} />
+        <Jurnal
+          waktu={waktu}
+          catatan={catatan}
+          set={set}
+          ubahSet={ubahSet}
+          onTurun={() => setSelam("dari-langit")}
+        />
       )}
       {selam && (
         <Selam

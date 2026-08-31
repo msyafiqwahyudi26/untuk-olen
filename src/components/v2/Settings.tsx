@@ -29,11 +29,14 @@ export default function Settings({
   onBuka,
   nilai,
   onUbah,
+  garisTiga = false,
 }: {
   buka: boolean;
   onBuka: (b: boolean) => void;
   nilai: Pengaturan;
-  onUbah: (p: Partial<Pengaturan>) => void;
+  onUbah: (p: Partial<Pengaturan>) => void
+  /** Dipakai layar jurnal: panelnya menempel ke KIRI, bukan ke kanan. */
+  garisTiga?: boolean;
 }) {
   const panel = useRef<HTMLDivElement>(null);
 
@@ -54,20 +57,24 @@ export default function Settings({
   }, [buka, onBuka]);
 
   return (
-    <div className="st" ref={panel}>
+    <div className={`st${garisTiga ? " st-kiri" : ""}`} ref={panel}>
       <button
         className={`ui-bulat z-atas st-buka ui-masuk tunda-6${buka ? " on" : ""}`}
         onClick={() => onBuka(!buka)}
         aria-expanded={buka}
         aria-label="Settings"
       >
-        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden>
-          <circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        {/* Tiga garis, bukan roda gigi.
+            Roda gigi berarti "pengaturan sistem" — sesuatu yang teknis dan
+            jarang disentuh. Yang ada di balik tombol ini bukan itu: ombak,
+            lagu, waktu. Tiga garis lebih jujur menyebutnya "ada menu di
+            sini", dan itu yang membuat orang membukanya. */}
+        <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden>
           <path
-            d="M12 3.6v2.2M12 18.2v2.2M20.4 12h-2.2M5.8 12H3.6M17.9 6.1l-1.6 1.6M7.7 16.3l-1.6 1.6M17.9 17.9l-1.6-1.6M7.7 7.7L6.1 6.1"
+            d="M4 7h16M4 12h16M4 17h16"
             fill="none"
             stroke="currentColor"
-            strokeWidth="1.6"
+            strokeWidth="1.7"
             strokeLinecap="round"
           />
         </svg>

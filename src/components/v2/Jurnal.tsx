@@ -8,6 +8,7 @@ import type { AcaraRow, NoteRow } from "@/lib/db";
 import { MOOD, baca as bacaMood, tulis as tulisMood } from "@/lib/mood";
 import { PALET, type Waktu } from "./waktu";
 import { warnaLangitDi } from "./ketinggian";
+import Settings, { type Pengaturan } from "./Settings";
 import { aset } from "@/lib/basis";
 import "./jurnal.css";
 
@@ -74,10 +75,14 @@ const RASA: Record<string, string> = {
 export default function Jurnal({
   waktu,
   catatan,
+  set,
+  ubahSet,
   onTurun,
 }: {
   waktu: Waktu;
   catatan: NoteRow[];
+  set: Pengaturan;
+  ubahSet: (patch: Partial<Pengaturan>) => void;
   onTurun: () => void;
 }) {
   const [tulisan, setTulisan] = useState<NoteRow[]>(catatan);
@@ -343,37 +348,19 @@ export default function Jurnal({
               Isi menunya masih sedikit — itu disengaja: rangkanya dibuat dulu
               supaya menambah tujuan baru nanti tidak menuntut menata ulang
               kepala halaman. */}
-          <p className="jr-kop">sky notes</p>
-          <button
-            type="button"
-            className="jr-menu-tombol"
-            aria-expanded={menu}
-            aria-label="Menu"
-            onClick={() => setMenu((m) => !m)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
+          {/* Garis tiga di KIRI: setelan suara. Panel yang dipakai sama persis
+              dengan yang di layar pembuka — komponen yang sama, state yang
+              sama. Dua panel serupa yang mengatur hal yang sama adalah cara
+              paling mudah membuat "sudah saya matikan" jadi tidak benar. */}
+          <div className="jr-setelan">
+            <Settings buka={menu} onBuka={setMenu} nilai={set} onUbah={ubahSet} garisTiga />
+          </div>
 
-          {menu && (
-            <div className="jr-menu" role="menu">
-              <button type="button" className="jr-menu-isi" role="menuitem" onClick={onTurun}>
-                kembali ke bumi
-              </button>
-              <button
-                type="button"
-                className="jr-menu-isi"
-                role="menuitem"
-                onClick={() => {
-                  setMenu(false);
-                  void bukaLaci();
-                }}
-              >
-                yang dihapus
-              </button>
-            </div>
-          )}
+          <p className="jr-kop">sky notes</p>
+
+          <button type="button" className="jr-tombol jr-pulang" onClick={onTurun}>
+            kembali ke bumi
+          </button>
 
           <h1 className="jr-tgl serif">
             {sedangDibaca ? pecahTanggal(sedangDibaca.created_at).panjang : hariIni.panjang}
@@ -383,6 +370,7 @@ export default function Jurnal({
           </p>
         </header>
 
+        <div className="jr-kolom-tulis">
         {sedangDibaca ? (
           <article className="jr-baca">
             <div className="jr-baca-atas">
@@ -548,6 +536,9 @@ export default function Jurnal({
           </>
         )}
 
+        </div>
+
+        <div className="jr-kolom-samping">
         <section className="jr-kalender" aria-label="Kalender catatan">
           <div className="jr-kal-kepala">
             <button
@@ -736,6 +727,7 @@ export default function Jurnal({
               </ul>
             ))}
         </section>
+        </div>
       </div>
     </div>
   );

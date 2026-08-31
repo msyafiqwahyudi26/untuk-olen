@@ -70,7 +70,11 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 0 6vw;
+  /* Jarak atas yang tidak bisa ditembus, supaya judulnya tidak pernah naik
+     sampai menabrak tombol "sky notes" yang duduk di tengah atas. Diberikan
+     sebagai padding, bukan sebagai batas atas, supaya isinya tetap terpusat
+     di ruang yang tersisa. */
+  padding: calc(max(var(--tepi-y), env(safe-area-inset-top)) + 78px) 6vw 0;
   pointer-events: none;
   /* naik sedikit supaya tidak menabrak garis air */
   transform: translateY(-14svh);
@@ -340,20 +344,22 @@
    "keep going" meleset dari tengah. */
 
 /*
- * DI POJOK KIRI ATAS, bukan di tengah.
+ * DI TENGAH ATAS.
  *
- * Semula ia dipusatkan mendatar, dan di layar lebar ia menabrak "MEMORIES OF"
- * — teks tengahnya duduk lebih tinggi di layar pendek-lebar, dan keduanya
- * berebut jalur yang sama. Menggesernya turun cuma memindahkan tabrakan ke
- * ukuran layar yang lain.
+ * Sempat saya pindah ke pojok kiri karena di tengah ia menabrak "MEMORIES
+ * OF". Itu memperbaiki tabrakannya dengan cara yang salah: yang menabrak
+ * bukan posisinya melainkan JARAKNYA — teks tengah duduk terlalu tinggi di
+ * layar pendek-lebar. Menyingkirkan tombolnya ke pojok cuma menyembunyikan
+ * gejalanya sekaligus menyembunyikan tombolnya.
  *
- * Pojok kiri atas tidak dipakai apa pun: kendali suara dan pengaturan ada di
- * kanan, judulnya di tengah, "keep going" di bawah. Arah panahnya sendiri
- * yang tetap memberi tahu ke mana ia menuju.
+ * Sekarang ia tetap di tengah dan yang diberi jarak adalah `.op-ui` di
+ * bawahnya, lewat padding-top yang tidak bisa ditembus.
  */
 .op-up {
   position: absolute;
-  left: max(var(--tepi-x), env(safe-area-inset-left));
+  inset-inline: 0;
+  margin-inline: auto;
+  width: fit-content;
   top: max(var(--tepi-y), env(safe-area-inset-top));
   z-index: 4;
   gap: .5rem;
