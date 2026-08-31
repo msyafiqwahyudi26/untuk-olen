@@ -5,6 +5,7 @@ import Reveal from "./Reveal";
 import Constellation from "./Constellation";
 import NoteSpace from "./NoteSpace";
 import type { ThingRow, MomentRow, ShiftRow, QuoteRow, StarRow, NoteRow } from "@/lib/db";
+import { aset } from "@/lib/basis";
 
 /* ─────────────────── kerangka bab ─────────────────── */
 
@@ -305,7 +306,7 @@ export function Moments({ items }: { items: MomentRow[] }) {
                 <figure style={{ margin: "1.6rem 0 0", maxWidth: 330 }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={`/memori/${m.photo}`}
+                    src={aset(`/memori/${m.photo}`)}
                     alt={m.title}
                     loading="lazy"
                     className="gc"

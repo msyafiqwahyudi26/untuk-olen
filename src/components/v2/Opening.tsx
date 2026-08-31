@@ -6,6 +6,7 @@ import Settings, { type Pengaturan } from "./Settings";
 import Langit from "./Langit";
 import { waktuSekarang, JAM_WAKIL } from "./waktu";
 import { variabelTema } from "@/design/tema";
+import { aset } from "@/lib/basis";
 
 const OpeningScene = dynamic(() => import("./OpeningScene"), { ssr: false });
 
@@ -335,19 +336,19 @@ export default function Opening() {
       </div>
 
       <audio ref={seaRef} loop preload="auto">
-        <source src="/audio/beach.m4a" type="audio/mp4" />
-        <source src="/audio/beach.opus" type="audio/ogg; codecs=opus" />
+        <source src={aset("/audio/beach.m4a")} type="audio/mp4" />
+        <source src={aset("/audio/beach.opus")} type="audio/ogg; codecs=opus" />
       </audio>
 
       {/* Bundle of Joy — lagu yang diminta Yaya untuk layar pembuka. */}
       <audio ref={musicRef} loop preload="auto">
-        <source src="/audio/track-1.m4a" type="audio/mp4" />
-        <source src="/audio/track-1.opus" type="audio/ogg; codecs=opus" />
+        <source src={aset("/audio/track-1.m4a")} type="audio/mp4" />
+        <source src={aset("/audio/track-1.opus")} type="audio/ogg; codecs=opus" />
       </audio>
 
       <audio ref={voiceRef} preload="auto" onEnded={() => setVoice(false)} onPause={() => setVoice(false)}>
-        <source src="/audio/voice-of-olen.m4a" type="audio/mp4" />
-        <source src="/audio/voice-of-olen.opus" type="audio/ogg; codecs=opus" />
+        <source src={aset("/audio/voice-of-olen.m4a")} type="audio/mp4" />
+        <source src={aset("/audio/voice-of-olen.opus")} type="audio/ogg; codecs=opus" />
       </audio>
 
       {started && (
