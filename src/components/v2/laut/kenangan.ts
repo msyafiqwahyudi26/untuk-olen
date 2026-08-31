@@ -140,7 +140,7 @@ export const KENANGAN: Kenangan[] = [
     di: 5,
     kutipan: "PAS MPLS ITU SERU BANGET, TAPI GA KERASA UDAH MAU NAIK KELAS",
     tanggal: "02/01/24",
-    catatan: "Kamu kelas tujuh waktu nulis ini. Sekarang kamu SMA.",
+    catatan: "Kelas tujuh, dan kamu udah heran sama waktu yang jalan sendiri. Sekarang kamu SMA dan mungkin masih heran. Kakak juga, Len. Nggak ada yang pernah benar-benar terbiasa.",
   },
   {
     di: 13,
@@ -153,7 +153,7 @@ export const KENANGAN: Kenangan[] = [
     kutipan: "MIMPI DIKEJAR TUYUL KALI DIA MAU LARI TP MASI GENGGAM HANDPHONE",
     suara: "ketawa-nular",
     tanggal: "29/12/23",
-    catatan: "Kamu selalu punya penjelasan untuk hal yang nggak perlu dijelasin.",
+    catatan: "Kamu selalu punya penjelasan buat hal yang sebenernya nggak perlu dijelasin. Itu bukan aneh — itu kepala yang nggak pernah bener-bener berhenti kerja, bahkan buat hal receh.",
   },
   {
     di: 31,
@@ -166,14 +166,14 @@ export const KENANGAN: Kenangan[] = [
     kutipan: "KAYAK ROTI",
     suara: "nahan-ketawa",
     tanggal: "09/11/24",
-    catatan: "Itu jawabanmu waktu ditanya kenapa suaramu serak.",
+    catatan: "Ditanya kenapa suaramu serak, dan itu jawabanmu. Nggak ada orang lain yang bakal ngejawab begitu. Simpan cara kamu ngeliat sesuatu — itu punya kamu.",
   },
   {
     di: 55,
     kutipan: "ktnya pemikiran aku detail trs ak jawab soalnya jg detail sama kyk yg dibuku",
     tanggal: "19/08/26",
     sisi: "kanan",
-    catatan: "Kamu menyampaikannya seperti mengulang kata orang lain. Padahal itu memang kamu.",
+    catatan: "Kamu nyampeinnya kayak lagi ngutip orang. Padahal itu emang kamu. Kamu boleh ngakuin hal baik tentang diri sendiri tanpa nunggu ada yang ngomongin duluan.",
   },
 
   /* ───────────── 75–195 m · mulai jujur ───────────── */
@@ -181,7 +181,7 @@ export const KENANGAN: Kenangan[] = [
     di: 76,
     kutipan: "kalo aku ngomong cape itu karna malas",
     tanggal: "30/11/24",
-    catatan: "Nggak banyak orang tahu bedanya pada dirinya sendiri. Kamu tahu.",
+    catatan: "Banyak orang seumur hidup nggak bisa bedain dua itu di diri sendiri. Kamu udah bisa umur segini. Yang jujur sama diri sendiri biasanya juga jujur sama orang lain — dan itu kenapa orang gampang percaya sama kamu.",
   },
   {
     di: 96,
@@ -195,7 +195,7 @@ export const KENANGAN: Kenangan[] = [
     kutipan:
       "KADANG WALAU GW BAWA DUIT PAS PASAN YA TRS TMN GW MAU INI ITU TP DIA GAMAU BELI, GW BELIIN JIR",
     tanggal: "29/08/26",
-    catatan: "Ini bukan sifat yang kebetulan. Ini yang kamu pilih, berkali-kali.",
+    catatan: "Ini bukan kebetulan. Ini kamu milih, berkali-kali, waktu nggak ada yang liat dan nggak ada yang bakal muji. Yang kayak gitu namanya watak, bukan sikap.",
   },
   {
     di: 156,
@@ -209,7 +209,7 @@ export const KENANGAN: Kenangan[] = [
     kutipan:
       "aku lebih pengen terbuka ke orang2, aku pengen bisa lancar kalo cerita tentang masalah aku ke orang yg udah aku percaya",
     tanggal: "13/11/24",
-    catatan: "Kamu nggak bilang kamu tertutup. Kamu bilang kamu pengen bisa. Itu beda.",
+    catatan: "Kamu nggak bilang kamu tertutup. Kamu bilang kamu pengen bisa. Itu beda jauh — yang satu vonis, yang satu arah. Kamu selalu milih yang kedua, bahkan waktu lagi susah.",
   },
 
   /* ───────────── 265–340 m · paling berat ─────────────
@@ -220,7 +220,7 @@ export const KENANGAN: Kenangan[] = [
     kutipan:
       "sekarang aku jadi lebih susah buat ngejalanin masalah2 yg aku hadapin, aku skrg jadi sering bgt gelisah aku gatau karena apa",
     tanggal: "12/11/24",
-    catatan: "Kamu nggak minta apa-apa waktu nulis ini. Kamu cuma bilang apa adanya.",
+    catatan: "Kamu nulis ini tanpa minta apa-apa. Nggak minta dikasihani, nggak minta dibenerin, nggak minta siapa-siapa panik. Cuma bilang apa adanya — dan buat ngaku lagi nggak baik-baik aja itu sendiri udah butuh berani.",
   },
   {
     di: 340,
@@ -228,7 +228,7 @@ export const KENANGAN: Kenangan[] = [
     tanggal: "26/11/24",
     sisi: "kanan",
     catatan:
-      "Kamu yang dulu nggak hilang. Dia cuma jadi bagian dari kamu yang sekarang — yang lebih tahu banyak hal, dan karena itu lebih capek.",
+      "Kamu yang dulu nggak hilang, Len. Dia cuma jadi bagian dari kamu yang sekarang — yang tahu lebih banyak, dan justru karena itu lebih capek. Capeknya bukan tanda kamu mundur. Itu ongkos dari tumbuh, dan semua orang bayar.",
   },
 
   /* ───────────── 480–640 m · yang ia pegang ─────────────
@@ -239,7 +239,7 @@ export const KENANGAN: Kenangan[] = [
     kutipan:
       "MENDING SAMA YG BENER2 SAYANG SAMA KT DAN BENER2 MAU JADI TEMEN KITA TANPA MANDANG EKONOMI",
     tanggal: "08/12/24",
-    catatan: "Umur tiga belas, dan kamu sudah tahu ini.",
+    catatan: "Umur tiga belas dan kamu udah tahu ini. Banyak orang yang jauh lebih tua masih belum. Pegang terus — ini yang bakal nentuin siapa yang ada di sekitar kamu sepuluh tahun lagi.",
   },
   {
     di: 560,
@@ -252,7 +252,7 @@ export const KENANGAN: Kenangan[] = [
     di: 640,
     kutipan: "prioritasin diri sendiri dulu kata gw mah yak",
     tanggal: "10/12/24",
-    catatan: "Kamu bilang ini ke orang lain. Sekarang giliran kamu yang dengar.",
+    catatan: "Kamu bilang ini ke orang lain waktu dia lagi berantakan. Sekarang giliran kamu yang dengerin sendiri. Nasihat kamu bagus, Len — sayang kalau cuma buat orang lain.",
   },
 
   /* ───────────── 735–775 m · dasar ─────────────
@@ -263,14 +263,14 @@ export const KENANGAN: Kenangan[] = [
     di: 735,
     dari: "yaya",
     kutipan:
-      "Kamu bisa nahan nangis di depan orang bukan karena kamu tertutup, tapi karena kamu milih kapan mau nunjukinnya. Kamu beliin temenmu jajan waktu uangmu sendiri pas-pasan. Kamu nanya orang baik-baik aja duluan, bahkan waktu kamu sendiri lagi enggak.",
-    catatan: "Itu semua kamu tulis sendiri, di hari yang berbeda-beda, tanpa sadar lagi menjelaskan siapa kamu.",
+      "Kakak nggak pernah ngajarin satu pun dari ini ke kamu. Kamu bisa nahan nangis di depan orang bukan karena tertutup — kamu milih kapan mau nunjukinnya. Kamu beliin temenmu jajan waktu duitmu sendiri pas-pasan. Kamu nanya orang baik-baik aja duluan, bahkan waktu kamu sendiri lagi enggak. Semua itu kamu yang bawa sendiri, dari dalam.",
+    catatan: "Kamu nulisnya kepisah-pisah, di hari yang beda-beda, tanpa sadar lagi ngejelasin siapa kamu. Kakak cuma ngumpulin.",
   },
   {
     di: 775,
     dari: "yaya",
     sisi: "kanan",
     kutipan:
-      "Jaga itu. Jangan sampai ada yang bikin kamu ngira itu kelemahan. Dan kalau nanti kamu ragu, dengerin dulu yang ada di hatimu — kadang kita takut, dan tetap tahu mana yang paling bener buat diri sendiri. Takut bukan tanda kamu salah.",
+      "Jaga itu, Len. Nanti bakal ada yang bilang kamu kebanyakan mikirin orang, atau kamu kegampangan kasihan. Jangan langsung percaya. Dan kalau kamu ragu sama sesuatu, dengerin dulu yang di dalem — kadang kita takut dan tetep tahu mana yang bener buat diri sendiri. Takut itu tandanya kamu peduli sama hasilnya, bukan tandanya kamu salah jalan.",
   },
 ];

@@ -140,6 +140,7 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
   const bacaan = useRef<HTMLParagraphElement>(null);
   const suhuEl = useRef<HTMLSpanElement>(null);
   const relTitik = useRef<HTMLSpanElement>(null);
+  const pita = useRef<HTMLDivElement>(null);
   const suaraEl = useRef<HTMLAudioElement>(null);
   /* Satu-satunya state di berkas ini, dan sengaja: ia berubah waktu Olen
      menekan tombol, bukan waktu ia menggulir. Render ulang di sini tidak
@@ -245,6 +246,13 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
         el.style.visibility = a < 0.01 ? "hidden" : "visible";
       }
 
+      /* Pita baca ikut kutipan yang sedang tampil. Tanpa ini ia berubah jadi
+         bayangan mendatar yang tinggal di layar tanpa sebab. */
+      if (pita.current) {
+        const el = kenanganEl.current[dekat];
+        pita.current.style.opacity = el ? el.style.opacity : "0";
+      }
+
       /* Titik pada rel kedalaman. Memakai `maju`, bukan kedalaman — supaya
          ia bergerak rata mengikuti jari, bukan melambat sendiri di bawah. */
       if (relTitik.current) relTitik.current.style.top = `${maju * 100}%`;
@@ -341,6 +349,9 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
           harus bisa diblok, dicari dengan Ctrl+F, dan dibacakan pembaca
           layar. Itu justru alasan utama layar ini 2D dan bukan WebGL.
         */}
+        {/* Pita baca — selebar layar, tanpa tepi. Lihat catatan di CSS. */}
+        <div ref={pita} className="tr-pita" aria-hidden />
+
         <div className="tr-kenangan">
           {KENANGAN.map((k, i) => (
             <figure
