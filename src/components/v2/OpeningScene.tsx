@@ -702,12 +702,43 @@ function PausBerenang() {
 
 /* ═══════════════════════ kamera ═══════════════════════ */
 
+/**
+ * ═══ DRIFT — kamera mengikuti perhatian ═══
+ *
+ * Di desktop: kamera menggeser sedikit mengikuti tetikus, jadi pemandangannya
+ * terasa punya ruang alih-alih seperti gambar tempel.
+ *
+ *
+ * ── DI HP IA MATI TOTAL, DAN ITU BARU KETAHUAN 31 AGUSTUS ──
+ *
+ * Ia hanya mendengarkan `pointermove`, yang di layar sentuh tidak pernah
+ * terjadi tanpa jari menempel. Jadi selama ini di HP kameranya benar-benar
+ * diam — dan justru di HP-lah geser itu paling berguna, karena pandangannya
+ * paling sempit dan paling banyak yang di luar layar.
+ *
+ * Sekarang jari bisa MENYERET pantainya ke kiri dan kanan. Bukan sekadar
+ * memindahkan sentuhan ke rumus yang sama: menyeret berarti pemandangan ikut
+ * sejauh jarinya bergerak, lalu BERHENTI di situ — bukan kembali ke tengah
+ * begitu jari diangkat. Kembali sendiri akan terasa seperti melawan.
+ *
+ * Batasnya diikat ke seberapa tegak layarnya. Di layar lebar hampir semua
+ * sudah terlihat, jadi geserannya cukup sehalus parallaks; di layar tegak
+ * ia perlu benar-benar bisa menjangkau tepi pantai.
+ */
+const GESER_TEGAK = 7.5;
+
 function Drift() {
-  const { camera } = useThree();
+  const { camera, size, gl } = useThree();
   const aim = useRef({ x: 0, y: 0 });
+  /** Geseran hasil seretan jari, dalam satuan dunia. Menetap. */
+  const seret = useRef(0);
 
   useEffect(() => {
     const on = (e: PointerEvent) => {
+      /* Sentuhan tidak ikut jalur ini — jari yang menempel di layar akan
+         memancarkan pointermove juga, dan kalau keduanya dipakai bersamaan
+         kameranya melompat dua kali untuk satu gerakan yang sama. */
+      if (e.pointerType === "touch") return;
       aim.current.x = (e.clientX / window.innerWidth - 0.5) * 2;
       aim.current.y = -(e.clientY / window.innerHeight - 0.5) * 2;
     };
@@ -715,10 +746,49 @@ function Drift() {
     return () => window.removeEventListener("pointermove", on);
   }, []);
 
+  /* ── seret jari ── */
+  useEffect(() => {
+    const el = gl.domElement;
+    let aktif = false;
+    let mulaiX = 0;
+    let mulaiSeret = 0;
+
+    const batas = () => GESER_TEGAK * tegaknya(size.width / Math.max(1, size.height));
+
+    const turun = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") return;
+      aktif = true;
+      mulaiX = e.clientX;
+      mulaiSeret = seret.current;
+    };
+    const gerak = (e: PointerEvent) => {
+      if (!aktif) return;
+      /* Sepertiga lebar layar = geser penuh dari tengah ke tepi. Lebih peka
+         dari itu terasa liar; kurang dari itu terasa berat. */
+      const per = (batas() * 2) / (window.innerWidth / 1.5);
+      const b = batas();
+      seret.current = Math.max(-b, Math.min(b, mulaiSeret - (e.clientX - mulaiX) * per));
+    };
+    const naik = () => {
+      aktif = false;
+    };
+
+    el.addEventListener("pointerdown", turun, { passive: true });
+    el.addEventListener("pointermove", gerak, { passive: true });
+    el.addEventListener("pointerup", naik, { passive: true });
+    el.addEventListener("pointercancel", naik, { passive: true });
+    return () => {
+      el.removeEventListener("pointerdown", turun);
+      el.removeEventListener("pointermove", gerak);
+      el.removeEventListener("pointerup", naik);
+      el.removeEventListener("pointercancel", naik);
+    };
+  }, [gl, size.width, size.height]);
+
   useFrame((_, dt) => {
     const t = performance.now() * 0.001;
     const k = Math.min(1, dt * 1.2);
-    const wantX = aim.current.x * 1.3 + Math.sin(t * 0.12) * 0.5;
+    const wantX = aim.current.x * 1.3 + seret.current + Math.sin(t * 0.12) * 0.5;
     const wantY = 6.5 + aim.current.y * 0.45 + Math.sin(t * 0.18) * 0.2;
     camera.position.x += (wantX - camera.position.x) * k;
     camera.position.y += (wantY - camera.position.y) * k;
@@ -774,32 +844,65 @@ const FOV_DASAR = 46;
 const NISBAH_DASAR = 16 / 9;
 const Z_DASAR = 48;
 const FOV_MAKS = 64;
-/** Sedekat apa kamera boleh berdiri di layar paling tegak. */
-const Z_DEKAT = 44;
+/**
+ * Jarak kamera di layar paling tegak.
+ *
+ * Diturunkan dari RAPAT, bukan dipilih. Dengan isi pantai dirapatkan 0,45,
+ * batas terjauhnya jadi |−5,6 × 0,45| + 3,3 (separuh lebar tikar) = 5,82,
+ * dan setengah-lebar pandangan di bidang piknik adalah
+ * (z − 34) × tan(32°) × nisbah. Menyamakan keduanya memberi z ≈ 54.
+ *
+ * Dua percobaan sebelumnya masing-masing gagal di satu sisi:
+ *     z 72  → semuanya muat, tapi bendanya 0,38× ukuran desktop
+ *     z 44  → bendanya besar, tapi cuma 27% isinya muat
+ * z 54 dengan rapat 0,45 memberi 0,69× dan tidak ada yang terpotong.
+ */
+const Z_TEGAK = 54;
+
+/**
+ * Seberapa dirapatkan isi pantai di layar paling tegak. Mengalikan KOORDINAT
+ * benda, bukan ukurannya — lihat catatan panjang di beach.tsx.
+ */
+export const RAPAT_TEGAK = 0.45;
 /** Nisbah tempat penyesuaiannya sudah mentok — kira-kira HP tegak. */
 const NISBAH_SEMPIT = 0.5;
+
+/**
+ * Seberapa tegak layarnya: 0 selebar desktop, 1 setegak HP.
+ *
+ * SATU fungsi, dipakai kamera DAN perapatan isi pantai. Kalau keduanya
+ * menghitung sendiri-sendiri, cukup satu diubah dan komposisinya langsung
+ * meleset — jarak kamera dan kerapatan benda adalah dua besaran yang saling
+ * terikat, dan aturan proyek ini jelas: kalau sebuah angka bisa diturunkan
+ * dari angka lain, turunkan.
+ *
+ * Smoothstep supaya layar di antaranya — tablet, jendela setengah — berubah
+ * halus dan tidak ada ukuran tertentu yang jadi patahan.
+ */
+function tegaknya(nisbah: number): number {
+  const x = Math.min(1, Math.max(0, (NISBAH_DASAR - nisbah) / (NISBAH_DASAR - NISBAH_SEMPIT)));
+  return x * x * (3 - 2 * x);
+}
 
 function Bingkai() {
   const { camera, size } = useThree();
 
   useEffect(() => {
     const cam = camera as THREE.PerspectiveCamera;
-    const nisbah = size.width / Math.max(1, size.height);
-
-    /* 0 di layar selebar desktop, 1 di layar setegak HP. Smoothstep supaya
-       layar di antaranya (tablet, jendela setengah) berubah halus dan tidak
-       ada ukuran tertentu yang jadi patahan. */
-    const t = (() => {
-      const x = Math.min(1, Math.max(0, (NISBAH_DASAR - nisbah) / (NISBAH_DASAR - NISBAH_SEMPIT)));
-      return x * x * (3 - 2 * x);
-    })();
-
+    const t = tegaknya(size.width / Math.max(1, size.height));
     cam.fov = FOV_DASAR + (FOV_MAKS - FOV_DASAR) * t;
-    cam.position.z = Z_DASAR + (Z_DEKAT - Z_DASAR) * t;
+    cam.position.z = Z_DASAR + (Z_TEGAK - Z_DASAR) * t;
     cam.updateProjectionMatrix();
   }, [camera, size.width, size.height]);
 
   return null;
+}
+
+/** Pantai yang isinya dirapatkan sesuai tegaknya layar. */
+function PantaiSesuaiLayar() {
+  const { size } = useThree();
+  const t = tegaknya(size.width / Math.max(1, size.height));
+  return <Beach rapat={1 + (RAPAT_TEGAK - 1) * t} />;
 }
 
 /* ═══════════════════════ ekspor ═══════════════════════ */
@@ -875,7 +978,7 @@ export default function OpeningScene({
       <Sea seg={seg} waktu={waktu} />
       <Shore waktu={waktu} />
       <PausBerenang />
-      <Beach />
+      <PantaiSesuaiLayar />
     </Canvas>
   );
 }

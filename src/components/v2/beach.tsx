@@ -45,7 +45,7 @@ function onMat(u: number, v: number): [number, number, number] {
 
 /* ═══════════════ tikar ═══════════════ */
 
-function TikarDiPasir() {
+function TikarDiPasir({ rapat }: { rapat: number }) {
   const geo = useMemo(() => new THREE.PlaneGeometry(MAT.w, MAT.d, 16, 12), []);
 
   /**
@@ -74,7 +74,7 @@ function TikarDiPasir() {
   }, [geo]);
 
   return (
-    <group position={[MAT.x, MAT_BASE_Y, MAT.z]} rotation={[0, MAT.rot, 0]}>
+    <group position={[MAT.x * rapat, MAT_BASE_Y, MAT.z]} rotation={[0, MAT.rot, 0]}>
       <Tikar w={MAT.w} d={MAT.d} lekuk={lekuk} />
     </group>
   );
@@ -159,7 +159,7 @@ function Jejak({ pos }: { pos: React.RefObject<{ x: number; z: number; t: number
   );
 }
 
-function KepitingBerjalan() {
+function KepitingBerjalan({ rapat }: { rapat: number }) {
   const grp = useRef<THREE.Group>(null);
   const jejak = useRef<{ x: number; z: number; t: number }[]>([]);
   const jejakBerikut = useRef(0);
@@ -206,7 +206,7 @@ function KepitingBerjalan() {
     const w = berhenti ? Math.sin(((k - 0.4) / 0.2) * Math.PI) : 0;
     kendali.melambai += (w - kendali.melambai) * 0.05;
 
-    const x = CRAB_X0 + (CRAB_X1 - CRAB_X0) * maju;
+    const x = (CRAB_X0 + (CRAB_X1 - CRAB_X0) * maju) * rapat;
     const z = CRAB_Z + Math.sin(now * 0.16) * 0.35;
     g.position.set(x, sandAt(x, z), z);
 
@@ -295,7 +295,44 @@ const LITTER: { x: number; z: number; jenis: 0 | 1 | 2; r: number; rot: number }
  */
 const BASKET_UV: [number, number] = [-0.86, -0.42];
 
-export default function Beach() {
+/**
+ * ═══ MERAPATKAN ISI PANTAI DI LAYAR TEGAK ═══
+ *
+ * `rapat` mengalikan KOORDINAT X setiap benda, bukan ukurannya. 1 berarti
+ * susunan aslinya; 0,45 berarti semuanya bergeser ke tengah sampai kurang
+ * dari separuh jaraknya semula, tetapi tikar tetap selebar tikar dan
+ * flamingo tetap setinggi flamingo.
+ *
+ *
+ * ── KENAPA INI PERLU, DAN KENAPA KAMERA SAJA TIDAK CUKUP ──
+ *
+ * Yang menentukan muat atau tidak adalah setengah-lebar pandangan DI BIDANG
+ * PIKNIK (z = 34), bukan di bidang kamera. Isi pantai membentang x = -9
+ * sampai +10,5, jadi dibutuhkan setengah-lebar 10,5. Terukur:
+ *
+ *     desktop 16:9   fov 46  z 48   →  10,56   pas, memang dikomposisi begitu
+ *     HP  fov 64  z 72               →  10,97   muat semua, tapi objeknya kecil
+ *     HP  fov 64  z 44               →   2,89   cuma 27 persen isinya muat
+ *
+ * Dua percobaan sebelumnya masing-masing mengorbankan satu sisi: yang jauh
+ * memuat semuanya tapi sekecil kuku, yang dekat besar tapi tikarnya
+ * terpotong di tepi. Keduanya salah dengan cara yang berbeda, dan tidak ada
+ * jarak kamera yang menyelesaikan keduanya — di layar setegak itu memang
+ * mustahil.
+ *
+ * Yang belum dicoba: menggeser BENDANYA. Dengan rapat 0,45 lebar yang
+ * dibutuhkan turun dari 10,7 ke 5,8, jadi kamera boleh berdiri di z = 54 dan
+ * bendanya tampil 0,69 kali ukuran desktop — bukan 0,38 seperti dua hari
+ * lalu, dan tidak ada yang terpotong.
+ *
+ * Ukuran benda TIDAK ikut dikalikan. Menskalakan seluruh kelompok akan
+ * memipihkan flamingo dan kepiting; yang dirapatkan jarak antar benda, bukan
+ * bendanya.
+ */
+export default function Beach({ rapat = 1 }: { rapat?: number }) {
+  /** x asli → x yang sudah dirapatkan, berikut tinggi pasir di titik BARU. */
+  const X = (x: number) => x * rapat;
+
   const [bx, , bz] = onMat(...BASKET_UV);
 
   /** benar-benar bebas dari keranjang? dipakai waktu menyusun, bukan saat render */
@@ -356,7 +393,26 @@ export default function Beach() {
 
   return (
     <group>
-      <TikarDiPasir />
+      {/* Isi piknik memakai onMat() yang mengembalikan koordinat dunia MUTLAK,
+          jadi ia tidak bisa dirapatkan lewat X() satu per satu. Seluruh
+          kelompoknya digeser sekaligus sejauh MAT.x * (rapat - 1) — hasilnya
+          sama dengan mengalikan x-nya, tanpa perlu menyentuh satu pun
+          koordinat di dalamnya. */}
+      {/*
+        SELURUH kelompok piknik digeser sekaligus, bukan tiap bendanya.
+
+        Isi tikar — keranjang, buah, piring, cangkir, bunga — ditempatkan
+        lewat onMat(), yang mengembalikan koordinat dunia MUTLAK berdasarkan
+        MAT.x. Mengalikan x tiap benda satu per satu akan merusak susunannya
+        di atas kain: yang di tepi kanan tikar akan bergeser lebih jauh
+        daripada yang di tepi kiri, dan piknik yang tadinya rapi jadi melar.
+
+        Menggeser kelompoknya sejauh MAT.x * (rapat - 1) memberi hasil yang
+        sama dengan mengalikan MAT.x, sementara jarak antar benda DI DALAM
+        tikar tidak berubah sama sekali.
+      */}
+      <group position={[MAT.x * (rapat - 1), 0, 0]}>
+      <TikarDiPasir rapat={rapat} />
       <Contact r={3.3} o={0.13} y={MAT_BASE_Y + 0.01} />
 
       <group position={[bx, sandAt(bx, bz) + MAT_LIFT, bz]} rotation={[0, 0.4, 0]}>
@@ -415,26 +471,28 @@ export default function Beach() {
         );
       })}
 
+      </group>
+
       {/* bintang laut — semuanya di z ≥ 31.4, jauh dari jalur kepiting */}
       {[
         { x: 4.6, z: 32.2, r: 0.62, rot: 0.5 },
         { x: -14.5, z: 32.4, r: 0.48, rot: -0.9 },
         { x: 16.8, z: 33.6, r: 0.42, rot: 1.5 },
       ].map((s, i) => (
-        <group key={i} position={[s.x, sandAt(s.x, s.z), s.z]} rotation={[0, s.rot, 0]} scale={s.r}>
+        <group key={i} position={[X(s.x), sandAt(X(s.x), s.z), s.z]} rotation={[0, s.rot, 0]} scale={s.r}>
           <BintangLaut />
           <Contact r={1.05} o={0.14} />
         </group>
       ))}
 
       {LITTER.map((o, i) => (
-        <group key={i} position={[o.x, sandAt(o.x, o.z), o.z]} rotation={[0, o.rot, 0]}>
+        <group key={i} position={[X(o.x), sandAt(X(o.x), o.z), o.z]} rotation={[0, o.rot, 0]}>
           <Kerang jenis={o.jenis} r={o.r} />
         </group>
       ))}
 
 
-      <KepitingBerjalan />
+      <KepitingBerjalan rapat={rapat} />
 
       {/* Flamingo di pojok kanan.
           Digeser sedikit lebih ke laut (z 31.3 → 30.6) dan diputar lebih
@@ -454,7 +512,7 @@ export default function Beach() {
         * menghadap kiri dan sedikit menyerong ke kamera, jadi siluet leher-S
         * dan paruhnya tetap terbaca.
         */}
-      <group position={[10.2, sandAt(10.2, 30.6), 30.6]} rotation={[0, Math.PI - 0.55, 0]} scale={0.9}>
+      <group position={[X(10.2), sandAt(X(10.2), 30.6), 30.6]} rotation={[0, Math.PI - 0.55, 0]} scale={0.9}>
         <Flamingo />
         <Contact r={0.46} o={0.2} />
       </group>
