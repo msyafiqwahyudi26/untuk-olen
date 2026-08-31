@@ -155,17 +155,54 @@ function Surya({ waktu, jam }: { waktu: Waktu; jam: number }) {
 /* ═══════════════════════ bintang ═══════════════════════
  * Hanya di malam hari. Titik-titik kecil pada bidang jauh di belakang laut,
  * tanpa pencahayaan supaya tetap terang sendiri. */
+/**
+ * ═══ BINTANG — merata, bukan acak ═══
+ *
+ * Sebarannya semula memakai hash `fract(sin(i · k) · besar)`, cara yang lazim
+ * dan tetap saja salah untuk keperluan ini. Dilaporkan "bintangnya nggak rata
+ * di langit", dan diukur di kisi 12 × 12 memang begitu:
+ *
+ *     hash sinus   33 dari 144 petak KOSONG · terpadat 5 · simpangan 1,21
+ *     deret R2      0 dari 144 petak kosong · terpadat 3 · simpangan 0,58
+ *
+ * Sebabnya bukan hash-nya jelek. Keacakan sungguhan MEMANG menggumpal:
+ * titik yang dipilih bebas satu sama lain akan meninggalkan lubang di satu
+ * tempat dan tumpukan di tempat lain, dan mata langsung menangkapnya sebagai
+ * "tidak rata". Yang dibutuhkan langit bukan acak, melainkan MERATA.
+ *
+ * Deret R2 (Roberts) menyelesaikannya: kelipatan bilangan plastik yang
+ * diambil pecahannya, sehingga tiap titik baru jatuh sejauh mungkin dari
+ * yang sudah ada. Ia bukan acak sama sekali — ia dirancang supaya tidak
+ * pernah menggumpal.
+ *
+ * Sedikit goyangan ditambahkan setelahnya, dan itu perlu: R2 murni terlalu
+ * teratur dan mulai terbaca sebagai kisi miring. Amplitudonya seperlima
+ * jarak antar bintang — cukup memecah keteraturannya, tidak cukup untuk
+ * mengembalikan gumpalan.
+ *
+ * Jumlahnya dinaikkan dari 220 ke 340 karena di layar tegak hanya sekitar
+ * 29 persen lebar medan bintang yang terlihat; dengan 220, yang benar-benar
+ * tampak cuma sekitar 64 butir.
+ */
+const PLASTIK = 1.32471795724474602596;
+
 function Bintang({ tampil }: { tampil: boolean }) {
   const geo = useMemo(() => {
-    const n = 220;
+    const n = 340;
+    const a1 = 1 / PLASTIK;
+    const a2 = 1 / (PLASTIK * PLASTIK);
     const pos = new Float32Array(n * 3);
-    for (let i = 0; i < n; i++) {
-      // tebaran tetap (bukan Math.random di render) supaya tidak berpindah
-      const a = Math.sin(i * 12.9898) * 43758.5453;
-      const b = Math.sin(i * 78.233) * 24634.6345;
-      pos[i * 3] = ((a - Math.floor(a)) - 0.5) * 620;
-      pos[i * 3 + 1] = 22 + (b - Math.floor(b)) * 96;
-      pos[i * 3 + 2] = -258;
+    for (let i = 1; i <= n; i++) {
+      const u = (0.5 + a1 * i) % 1;
+      const v = (0.5 + a2 * i) % 1;
+      /* goyangan tetap — bukan Math.random, supaya bintangnya tidak
+         berpindah tiap halaman dimuat */
+      const g1 = Math.sin(i * 7.13) * 0.5;
+      const g2 = Math.cos(i * 3.71) * 0.5;
+      const k = i - 1;
+      pos[k * 3] = (u - 0.5) * 620 + g1 * 7;
+      pos[k * 3 + 1] = 22 + v * 96 + g2 * 2.4;
+      pos[k * 3 + 2] = -258;
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
@@ -857,13 +894,13 @@ const FOV_MAKS = 64;
  *     z 44  → bendanya besar, tapi cuma 27% isinya muat
  * z 54 dengan rapat 0,45 memberi 0,69× dan tidak ada yang terpotong.
  */
-const Z_TEGAK = 54;
+const Z_TEGAK = 57;
 
 /**
  * Seberapa dirapatkan isi pantai di layar paling tegak. Mengalikan KOORDINAT
  * benda, bukan ukurannya — lihat catatan panjang di beach.tsx.
  */
-export const RAPAT_TEGAK = 0.45;
+export const RAPAT_TEGAK = 0.6;
 /** Nisbah tempat penyesuaiannya sudah mentok — kira-kira HP tegak. */
 const NISBAH_SEMPIT = 0.5;
 
