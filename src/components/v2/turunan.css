@@ -1,0 +1,303 @@
+/* ═══ TURUNAN ═══
+ *
+ * Berkas ini tidak memuat SATU PUN warna air. Semuanya datang dari
+ * `--air`, `--terang`, `--keruh`, `--pijar`, dan `--ada-*`, yang ditulis
+ * `Turunan.tsx` ke elemen akar berdasarkan `kedalaman.ts`.
+ *
+ * Itu batas yang sengaja dijaga: begitu ada satu warna air dipatok di sini,
+ * ia akan bertengkar dengan yang dihitung, dan yang menang adalah yang
+ * ditulis belakangan. Cara paling andal mencegahnya adalah tidak menulisnya
+ * sama sekali.
+ */
+
+.tr {
+  position: relative;
+  width: 100%;
+}
+
+/* Bingkai yang menempel: pemandangannya diam, yang bergerak angkanya. */
+.tr-tetap {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  color: #dceefc;
+}
+
+.tr-air {
+  position: absolute;
+  inset: 0;
+  background: var(--air, #2e7fa8);
+  /* Tanpa transisi. Warnanya sudah berubah menerus mengikuti gulir; menambah
+     transisi di atasnya membuat warna tertinggal di belakang jari, dan itu
+     terbaca sebagai lag, bukan sebagai kehalusan. */
+}
+
+/* Berkas cahaya dari permukaan. Kekuatannya terikat --terang, jadi ia padam
+   sendiri di kedalaman tanpa ada yang mengatur kapan. */
+.tr-sinar {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(var(--terang, 1) * 0.85);
+  background:
+    linear-gradient(172deg, rgba(255, 255, 255, 0.22) 0%, transparent 42%),
+    linear-gradient(188deg, rgba(255, 255, 255, 0.14) 0%, transparent 38%),
+    linear-gradient(178deg, rgba(255, 255, 255, 0.1) 0%, transparent 52%);
+  mix-blend-mode: screen;
+}
+
+/* ── serpihan yang naik ── */
+
+.tr-salju {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Makin keruh airnya, makin banyak yang terlihat melayang. Satu pengikat,
+     bukan dua angka yang harus dijaga tetap cocok. */
+  opacity: calc(0.25 + var(--keruh, 0.2) * 1.1);
+}
+
+.tr-salju span {
+  position: absolute;
+  bottom: -4%;
+  border-radius: 50%;
+  background: #eaf6ff;
+  animation: naikSalju linear infinite;
+}
+
+@keyframes naikSalju {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-108svh); }
+}
+
+/* ── penghuni ── */
+
+.tr-huni { position: absolute; inset: 0; pointer-events: none; }
+
+.mk {
+  position: absolute;
+  transform: translate(-50%, -50%) scale(var(--ukur, 1));
+  transform-origin: center;
+  /* Yang jauh lebih pucat. Diturunkan dari --jauh yang sama yang mengecilkan
+     ukurannya, jadi tidak mungkin besar tapi pucat atau sebaliknya.
+     Baris pertama cadangan untuk peramban tanpa color-mix (Safari di bawah
+     16.2): tanpa itu warnanya jatuh ke warna teks induk yang terang, dan
+     siluet gelap berubah jadi bercak pucat. */
+  color: #2b5d80;
+  color: color-mix(in srgb, #0a2438 calc((1 - var(--jauh, 0.5)) * 62%), #7fb8d8);
+  transition: opacity 240ms linear;
+}
+
+.mk svg { display: block; width: 100%; height: auto; }
+
+/* Lebar dasar tiap makhluk, sebelum --ukur.
+   Paus dikecilkan dari 62vmin ke 44vmin: di layar lebar ia menutupi hampir
+   separuh bingkai dan terpotong tepi kiri, dan benda yang terpotong tidak
+   terbaca sebagai jauh melainkan sebagai salah tempat. */
+.mk-terumbu, .mk-meja, .mk-rumput { transform: translate(-50%, 0) scale(var(--ukur, 1)); transform-origin: bottom center; }
+.mk-terumbu { width: 20vmin; }
+.mk-meja    { width: 24vmin; }
+.mk-rumput  { width: 15vmin; }
+.mk-paus    { width: 44vmin; }
+.mk-lumba   { width: 24vmin; }
+.mk-ubur    { width: 16vmin; }
+
+/* Kehadirannya datang dari kedalaman.ts, bukan dari media query atau tahap.
+   Karang meja dan rumput laut ikut --ada-terumbu: ketiganya penghuni
+   perairan dangkal yang sama, dan menambah entri baru di kedalaman.ts hanya
+   untuk membedakan hiasan akan mengaburkan apa yang berkas itu jaga. */
+.mk-terumbu, .mk-meja, .mk-rumput { opacity: var(--ada-terumbu, 0); }
+.mk-paus    { opacity: var(--ada-paus, 0); }
+.mk-lumba   { opacity: var(--ada-lumba, 0); }
+.mk-ubur    { opacity: var(--ada-ubur, 0); }
+
+/* Ubur-ubur membawa cahayanya sendiri, dan cahaya itu justru MENGUAT saat
+   yang lain padam — sesuai pijarDi(). */
+.mk-ubur {
+  color: #cfebfb;
+  filter: drop-shadow(0 0 calc(6px + var(--pijar, 0) * 26px) rgba(160, 220, 255, calc(0.25 + var(--pijar, 0) * 0.6)));
+}
+
+/* ── gerak ── */
+
+/*
+ * BERENANG MELINTAS, bukan bergeser sedikit.
+ *
+ * Versi pertama menggeser makhluknya ±8vw bolak-balik. Dinilai "terlalu
+ * basic", dan itu benar: benda yang bergerak maju lalu mundur di tempat yang
+ * sama tidak terbaca sebagai berenang, melainkan sebagai benda yang
+ * digantung. Lumba-lumba dan paus melintas: masuk dari satu tepi, keluar di
+ * tepi lain, lalu mulai lagi.
+ *
+ * `translate` dipakai terpisah dari `transform` dengan sengaja. `transform`
+ * sudah dipegang `.mk` untuk memusatkan dan menskalakan; kalau animasi ini
+ * ikut menulis `transform`, ia akan menimpanya dan makhluknya melompat ke
+ * pojok — persis cacat yang membuat tombol "keep going" meleset dari tengah.
+ */
+.renang { animation: renang 46s linear infinite; }
+.renang-lambat { animation-duration: 96s; }
+
+@keyframes renang {
+  from { translate: -70vw 0; }
+  to   { translate: 78vw -6vh; }
+}
+
+/* Yang berenang ke kiri dicerminkan lewat `scale(-1,1)` di dalam svg-nya,
+   bukan lewat rotasi: mencerminkan menjaga siluetnya utuh, memutar akan
+   membuatnya berenang terbalik. */
+.renang-balik { animation-direction: reverse; }
+.renang-balik svg { transform: scaleX(-1); }
+
+/* Mengatup cepat, mengembang pelan — kira-kira 3 : 7. Perbandingan itulah
+   yang membedakan "berenang" dari "bernapas". Diwujudkan lewat bezier yang
+   berat sebelah, bukan lewat keyframe yang diatur satu-satu. */
+.denyut { animation: denyut 4.6s cubic-bezier(0.9, 0.02, 0.25, 1) infinite; }
+@keyframes denyut {
+  0%   { transform: translate(-50%, -50%) scale(var(--ukur, 1)) scaleY(1); }
+  22%  { transform: translate(-50%, -50%) scale(var(--ukur, 1)) scaleY(0.86); }
+  100% { transform: translate(-50%, -50%) scale(var(--ukur, 1)) scaleY(1); }
+}
+
+.ubur-juntai { animation: juntai 5.2s ease-in-out infinite; transform-origin: top center; }
+@keyframes juntai {
+  0%, 100% { transform: translateX(0) scaleY(1); }
+  50%      { transform: translateX(2px) scaleY(1.06); }
+}
+
+/* Rumput laut terbawa arus. Satu titik tumpu di pangkal, jadi cukup satu
+   putaran kecil — helainya melenggok, bukan bergeser. */
+.rumput-helai { animation: lenggok 6.4s ease-in-out infinite; transform-origin: bottom center; }
+@keyframes lenggok {
+  0%, 100% { transform: rotate(-3.5deg); }
+  50%      { transform: rotate(4deg); }
+}
+
+/* ── bacaan kedalaman ── */
+
+.tr-baca {
+  position: absolute;
+  left: max(1.2rem, env(safe-area-inset-left));
+  bottom: max(1.4rem, env(safe-area-inset-bottom));
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 10px rgba(2, 14, 28, 0.55);
+}
+
+.tr-meter { margin: 0; font-size: clamp(1.6rem, 5vw, 2.3rem); letter-spacing: -0.02em; }
+.tr-suhu  { margin: 0.15rem 0 0; font-size: 0.78rem; opacity: 0.6; letter-spacing: 0.16em; }
+
+.tr-naik {
+  position: absolute;
+  right: max(1.2rem, env(safe-area-inset-right));
+  bottom: max(1.4rem, env(safe-area-inset-bottom));
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: inherit;
+  font: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: lowercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tr-naik:hover { background: rgba(255, 255, 255, 0.14); }
+.tr-naik:focus-visible { outline: 2px solid rgba(244, 228, 176, 0.9); outline-offset: 3px; }
+
+/* ── gerak berkurang ──
+ * Yang dimatikan geraknya, bukan tampilannya. Turunannya sendiri tetap
+ * bekerja: kedalaman digerakkan gulir, bukan animasi, jadi perjalanannya
+ * tetap utuh. Yang berhenti cuma yang bergoyang sendiri. */
+@media (prefers-reduced-motion: reduce) {
+  .tr-salju span, .renang, .denyut, .ubur-juntai, .rumput-helai { animation: none; }
+  .renang { translate: 0 0; }
+  .mk { transition: none; }
+  .denyut { transform: translate(-50%, -50%) scale(var(--ukur, 1)); }
+}
+
+/* ═══ KENANGAN ═══
+ *
+ * Ini teks sungguhan, bukan gambar bertulisan. Bisa diblok, kena Ctrl+F, dan
+ * dibacakan pembaca layar — dan justru itu alasan utama layar ini 2D.
+ *
+ * Kontrasnya dijamin oleh selubung gelap di belakangnya, bukan oleh warna
+ * teks yang disetel per kedalaman. Air di dekat permukaan terang (#2E7FA8,
+ * putih di atasnya cuma 3,9 : 1) sementara di bawah 200 m hampir hitam.
+ * Menyetel warna teks mengikuti kedalaman berarti menambah satu lagi hal
+ * yang bisa meleset; selubung menyelesaikannya sekali untuk semua kedalaman.
+ */
+
+.tr-kenangan { position: absolute; inset: 0; pointer-events: none; }
+
+.kn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(30rem, 78vw);
+  margin: 0;
+  /* Selubung: paling pekat di tengah, habis di tepi, jadi tidak ada kotak
+     yang terlihat — yang terlihat cuma airnya sedikit lebih dalam di situ. */
+  padding: clamp(1.4rem, 4vw, 2.4rem);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(2, 12, 26, 0.62) 0%,
+    rgba(2, 12, 26, 0.42) 45%,
+    rgba(2, 12, 26, 0) 78%
+  );
+  /* Teksnya boleh diblok meski induknya tidak menerima klik. */
+  pointer-events: auto;
+  transition: opacity 120ms linear;
+}
+
+.kn-kiri  { left: max(1.5rem, 6vw); }
+.kn-kanan { right: max(1.5rem, 6vw); }
+
+/* Di layar sempit tidak ada ruang untuk dua sisi; semuanya jadi satu kolom
+   di tengah. Kalau tidak, kutipan sisi kanan akan tergencet di 22% lebar. */
+@media (max-width: 720px) {
+  .kn, .kn-kiri, .kn-kanan {
+    left: 50%;
+    right: auto;
+    width: min(30rem, 88vw);
+    transform: translate(-50%, -50%);
+  }
+}
+
+.kn-kutip {
+  margin: 0;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: clamp(1.15rem, 3.2vw, 1.6rem);
+  line-height: 1.65;
+  color: #f2f9ff;
+  text-shadow: 0 1px 14px rgba(2, 12, 26, 0.8);
+}
+
+.kn-kaki {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.kn-tanggal {
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+/* Suara Yaya, bukan suara Olen — dan harus terlihat begitu tanpa perlu
+   dijelaskan. Garis di tepi kiri dan huruf yang lebih kecil sudah cukup. */
+.kn-catatan {
+  border-left: 1px solid rgba(255, 255, 255, 0.22);
+  padding-left: 0.8rem;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  opacity: 0.72;
+}

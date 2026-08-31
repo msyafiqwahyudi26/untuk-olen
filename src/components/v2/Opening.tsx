@@ -417,7 +417,14 @@ export default function Opening() {
       {started && (
         <button
           className="ui-pil z-bawah op-next"
-          onClick={() => window.dispatchEvent(new CustomEvent("olen:next"))}
+          /* Waktu ikut dibawa di dalam peristiwanya.
+             Layar berikutnya perlu tahu warna laut di permukaan supaya
+             turunannya berangkat dari air yang SEDANG terlihat, bukan dari
+             warna tetap. Menitipkannya di sini jauh lebih murah daripada
+             mengangkat seluruh state pengaturan keluar dari komponen ini. */
+          onClick={() =>
+            window.dispatchEvent(new CustomEvent("olen:next", { detail: { waktu: set.waktu } }))
+          }
         >
           <span>keep going</span>
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>

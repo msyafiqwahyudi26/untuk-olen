@@ -1,0 +1,93 @@
+/* ═══ SELAM — tirai air ═══
+ *
+ * Warnanya datang dari --air-atas, yang diisi Selam.tsx dari
+ * warnaAirDi(0, ...). Tidak ada warna air yang dipatok di sini, alasan sama
+ * seperti di turunan.css: dua sumber warna untuk benda yang sama selalu
+ * berakhir dengan salah satunya menang tanpa ada yang memutuskan.
+ */
+
+.sl {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sl-badan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--air-atas, #2e7fa8);
+  /* Ketinggian air. 0 = layar bersih, 118% = tertutup penuh berikut ombaknya
+     yang menjulang di atas tepi layar. */
+  height: 0;
+}
+
+.sl-badan { animation: airNaik 1500ms cubic-bezier(0.5, 0, 0.2, 1) forwards; }
+
+/*
+ * Dua babak dalam satu animasi, dan pembagiannya bukan selera.
+ *
+ * 0 → 62%   air naik menelan layar. Cepat di awal, melambat di akhir, seperti
+ *           benda yang punya massa.
+ * 62 → 100% air sudah menutup penuh dan DIAM sejenak, lalu memudar.
+ *
+ * Jeda diam itu yang menyembunyikan pergantian layarnya: pergantian terjadi
+ * di dalam jeda, waktu tidak ada apa pun yang bergerak. Tanpa jeda, layar
+ * baru muncul di tengah gerakan dan matanya menangkap sambungan.
+ */
+@keyframes airNaik {
+  0%   { height: 0;    opacity: 1; }
+  62%  { height: 118%; opacity: 1; }
+  78%  { height: 118%; opacity: 1; }
+  100% { height: 118%; opacity: 0; }
+}
+
+/* ── puncak berombak ──
+   Ditempel di bibir atas air dan bergeser menyamping. Gerakan menyamping itu
+   yang membedakan permukaan laut dari tirai: tepi lurus yang naik terbaca
+   sebagai penutup panggung, tepi bergelombang yang berjalan terbaca sebagai
+   air. */
+
+.sl-ombak {
+  position: absolute;
+  left: -50%;
+  bottom: 100%;
+  width: 200%;
+  height: clamp(18px, 4svh, 44px);
+  fill: var(--air-atas, #2e7fa8);
+}
+
+.sl-ombak { animation: geserOmbak 3.4s linear infinite; }
+.sl-ombak-2 {
+  bottom: calc(100% - 4px);
+  opacity: 0.55;
+  animation: geserOmbak 5.1s linear infinite reverse;
+}
+
+@keyframes geserOmbak {
+  from { transform: translateX(0); }
+  to   { transform: translateX(25%); }
+}
+
+/* ── buih di bibir air ── */
+
+.sl-buih {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% - 2px);
+  height: 2px;
+  background: rgba(255, 255, 255, 0.55);
+  filter: blur(1px);
+}
+
+/* Gerak dimatikan seluruhnya: Selam.tsx sendiri sudah memanggil onSelesai
+   seketika kalau sistemnya minta gerak berkurang, jadi tirai ini tidak akan
+   sempat tampil. Aturan di bawah cuma jaring pengaman kalau ia sempat
+   terpasang satu bingkai. */
+@media (prefers-reduced-motion: reduce) {
+  .sl { display: none; }
+}
