@@ -127,6 +127,40 @@ export default function Opening() {
     };
   }, []);
 
+  /**
+   * Petunjuk geser.
+   *
+   * Kemampuan yang tidak diketahui sama saja tidak ada. Pantai ini bisa
+   * diseret kiri-kanan di HP sejak hari ini, dan tanpa satu isyarat pun
+   * tidak akan ada yang mencobanya — orang tidak menyeret halaman web ke
+   * samping kecuali diberi tahu.
+   *
+   * Muncul HANYA di peranti sentuh dan HANYA kalau pandangannya memang
+   * sempit. Di layar lebar semuanya sudah terlihat, jadi mengajak menyeret di
+   * sana cuma menyuruh orang mencari yang tidak ada.
+   *
+   * Pergi begitu jari pertama menyentuh, dan pergi sendiri setelah delapan
+   * detik kalau tidak. Petunjuk yang menetap berubah jadi hiasan, dan hiasan
+   * yang menyuruh terasa mendesak.
+   */
+  const [ajakGeser, setAjakGeser] = useState(false);
+
+  useEffect(() => {
+    const sentuh = window.matchMedia("(pointer: coarse)").matches;
+    const sempit = window.innerWidth / Math.max(1, window.innerHeight) < 1.2;
+    if (!sentuh || !sempit) return;
+
+    const t = window.setTimeout(() => setAjakGeser(true), 2600);
+    const pergi = () => setAjakGeser(false);
+    window.addEventListener("olen:geser", pergi);
+    const habis = window.setTimeout(pergi, 10600);
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(habis);
+      window.removeEventListener("olen:geser", pergi);
+    };
+  }, []);
+
   useEffect(() => {
     const small = window.innerWidth < 820;
     const cores = navigator.hardwareConcurrency ?? 4;
@@ -413,6 +447,24 @@ export default function Opening() {
         <source src={aset("/audio/voice-of-olen.m4a")} type="audio/mp4" />
         <source src={aset("/audio/voice-of-olen.opus")} type="audio/ogg; codecs=opus" />
       </audio>
+
+      {ajakGeser && (
+        <div className="op-geser" role="status">
+          <span className="op-geser-tangan" aria-hidden>
+            <svg viewBox="0 0 34 24" width="34" height="24">
+              <path
+                d="M7 12h20M7 12l5-5M7 12l5 5M27 12l-5-5M27 12l-5 5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <span>swipe to look around</span>
+        </div>
+      )}
 
       {started && (
         <button

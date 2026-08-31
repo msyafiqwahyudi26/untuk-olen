@@ -797,6 +797,10 @@ function Drift() {
       aktif = true;
       mulaiX = e.clientX;
       mulaiSeret = seret.current;
+      /* Memberi tahu lapisan DOM bahwa jari sudah menyentuh, supaya petunjuk
+         gesernya bisa pergi. Lewat peristiwa, bukan prop: kanvas ini ada di
+         dalam Canvas three, sedangkan petunjuknya HTML biasa di luar sana. */
+      window.dispatchEvent(new CustomEvent("olen:geser"));
     };
     const gerak = (e: PointerEvent) => {
       if (!aktif) return;
@@ -894,7 +898,14 @@ const FOV_MAKS = 64;
  *     z 44  → bendanya besar, tapi cuma 27% isinya muat
  * z 54 dengan rapat 0,45 memberi 0,69× dan tidak ada yang terpotong.
  */
-const Z_TEGAK = 57;
+/*
+ * Didekatkan lagi dari 57 ke 52 atas permintaan pemilik, dan itu boleh
+ * sekarang karena ada geser jari: tidak semuanya harus muat sekaligus.
+ * Setengah-lebar tersedia jadi 5,20 lawan 6,66 yang dibutuhkan — sekitar
+ * 78 persen isi pantai terlihat langsung, sisanya dijangkau dengan menyeret.
+ * Ongkosnya terbayar: benda naik dari 0,61x jadi 0,78x ukuran desktop.
+ */
+const Z_TEGAK = 52;
 
 /**
  * Seberapa dirapatkan isi pantai di layar paling tegak. Mengalikan KOORDINAT

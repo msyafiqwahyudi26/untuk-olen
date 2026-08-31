@@ -45,7 +45,22 @@ function onMat(u: number, v: number): [number, number, number] {
 
 /* ═══════════════ tikar ═══════════════ */
 
-function TikarDiPasir({ rapat }: { rapat: number }) {
+/**
+ * Tikar TIDAK menerima `rapat`, dan itu disengaja.
+ *
+ * Ia berada di dalam kelompok yang sudah digeser sejauh MAT.x * (rapat - 1)
+ * bersama seluruh isi piknik. Kalau ia juga mengalikan MAT.x dengan rapat, ia
+ * kena DUA KALI: pada rapat 0,6 tikarnya berakhir di x = -1,12 sementara
+ * keranjang, piring, dan bunganya di x = -3,36 — selisih 2,24 satuan, dan
+ * dari layar terlihat sebagai barang piknik yang berserakan di pasir, bukan
+ * di atas kain.
+ *
+ * Ini persis kelas cacat yang sama dengan tombol "keep going" yang meleset
+ * dari tengah: DUA hal menulis posisi yang sama, dan yang belakangan menimpa
+ * tanpa ada yang menyadari. Obatnya juga sama — pastikan cuma SATU yang
+ * berhak menggeser.
+ */
+function TikarDiPasir() {
   const geo = useMemo(() => new THREE.PlaneGeometry(MAT.w, MAT.d, 16, 12), []);
 
   /**
@@ -74,7 +89,7 @@ function TikarDiPasir({ rapat }: { rapat: number }) {
   }, [geo]);
 
   return (
-    <group position={[MAT.x * rapat, MAT_BASE_Y, MAT.z]} rotation={[0, MAT.rot, 0]}>
+    <group position={[MAT.x, MAT_BASE_Y, MAT.z]} rotation={[0, MAT.rot, 0]}>
       <Tikar w={MAT.w} d={MAT.d} lekuk={lekuk} />
     </group>
   );
@@ -412,7 +427,7 @@ export default function Beach({ rapat = 1 }: { rapat?: number }) {
         tikar tidak berubah sama sekali.
       */}
       <group position={[MAT.x * (rapat - 1), 0, 0]}>
-      <TikarDiPasir rapat={rapat} />
+      <TikarDiPasir />
       <Contact r={3.3} o={0.13} y={MAT_BASE_Y + 0.01} />
 
       <group position={[bx, sandAt(bx, bz) + MAT_LIFT, bz]} rotation={[0, 0.4, 0]}>

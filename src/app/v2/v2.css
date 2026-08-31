@@ -276,3 +276,56 @@
   .op-aksi { margin-top: clamp(1rem, 2.5vh, 1.8rem); }
   .op-hint { margin-top: .7rem; }
 }
+
+/* ─────────────── petunjuk geser ───────────────
+   Hanya muncul di peranti sentuh berlayar sempit; syaratnya diperiksa di
+   Opening.tsx, bukan di sini, karena "punya jari" bukan hal yang bisa
+   ditanyakan CSS dengan andal. */
+
+.op-geser {
+  position: absolute;
+  inset-inline: 0;
+  margin-inline: auto;
+  width: fit-content;
+  bottom: max(clamp(4.5rem, 12svh, 7rem), calc(env(safe-area-inset-bottom) + 4.5rem));
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .5rem .95rem;
+  border-radius: var(--r-penuh);
+  border: 1px solid var(--ch-bawah-tepi, rgba(255, 255, 255, .16));
+  background: var(--ch-bawah-kaca, rgba(255, 255, 255, .08));
+  backdrop-filter: var(--kaca-blur);
+  -webkit-backdrop-filter: var(--kaca-blur);
+  color: #fff;
+  font-size: var(--t-kecil);
+  letter-spacing: .12em;
+  text-transform: lowercase;
+  text-shadow: var(--bayang-teks);
+  pointer-events: none;
+  animation: uiNaik .6s var(--ease) both, opGeserPergi .6s var(--ease) 7.4s both;
+}
+
+/* Panah bolak-balik. Inilah isyaratnya — kata-katanya cuma penegas.
+   Geraknya sengaja tidak simetris: berangkat tegas, kembali lebih pelan,
+   supaya terbaca sebagai "seret ke sana" dan bukan sebagai benda bergetar. */
+.op-geser-tangan {
+  display: inline-flex;
+  animation: opGeserTangan 2.4s cubic-bezier(.4, 0, .2, 1) infinite;
+}
+
+@keyframes opGeserTangan {
+  0%, 100% { transform: translateX(0); opacity: .55; }
+  25%      { transform: translateX(-5px); opacity: 1; }
+  60%      { transform: translateX(5px); opacity: 1; }
+}
+
+@keyframes opGeserPergi {
+  to { opacity: 0; transform: translateY(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .op-geser-tangan { animation: none; opacity: .9; }
+  .op-geser { animation: none; }
+}
