@@ -1,32 +1,33 @@
-import { getThings, getMoments, getShifts, getQuotes, getStars, getStarLinks, getNotes } from "@/lib/db";
-import { HERO, CLOSING } from "../../content/story";
-import Scene from "@/components/Scene";
-import { Hero, Things, Moments, Shifts, Quotes, Sky, Dawn } from "@/components/Chapters";
+import type { Metadata } from "next";
+import "./v2/v2.css";
+import Opening from "@/components/v2/Opening";
 
-/* dibaca dari SQLite tiap request, supaya catatan yang baru ditulis langsung muncul */
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Len",
+  robots: { index: false, follow: false },
+};
 
-export default function Page() {
-  const things = getThings();
-  const moments = getMoments();
-  const shifts = getShifts();
-  const quotes = getQuotes();
-  const stars = getStars();
-  const links = getStarLinks();
-  const notes = getNotes();
-
+/**
+ * ═══ PINTU DEPAN ═══
+ *
+ * Layar pembuka: pantai 3D, empat waktu, montase suara Olen.
+ *
+ * Sampai 31 Agustus alamat ini masih menyajikan versi pertama, sementara
+ * layar yang sudah dinilai 85% selesai bersembunyi di `/v2`. Akibatnya siapa
+ * pun yang membuka alamatnya — termasuk Olen nanti — mendarat di versi lama
+ * tanpa tahu ada yang lebih baru, sebab tidak ada satu pun tautan menuju ke
+ * sana. Yang tersaji di akar adalah satu-satunya yang benar-benar dilihat
+ * orang; layar terbaik yang harus diketik alamatnya sama saja belum ada.
+ *
+ * Isi layarnya sendiri tetap tinggal di `src/components/v2/`. Yang berpindah
+ * hanya alamatnya. `/v2` masih bekerja dan mengalihkan ke sini, supaya
+ * catatan di HANDOVER.md dan kebiasaan sesi sebelumnya tidak patah.
+ * Versi pertama pindah ke `/v1` dan tetap bisa dibuka.
+ */
+export default function Beranda() {
   return (
-    <>
-      <Scene />
-      <main style={{ position: "relative", zIndex: 1 }}>
-        <Hero name={HERO.name} lines={HERO.lines} cue={HERO.cue} />
-        <Things items={things} />
-        <Moments items={moments} />
-        <Shifts items={shifts} />
-        <Quotes items={quotes} />
-        <Sky stars={stars} links={links} />
-        <Dawn closing={CLOSING} notes={notes} />
-      </main>
-    </>
+    <main className="v2">
+      <Opening />
+    </main>
   );
 }

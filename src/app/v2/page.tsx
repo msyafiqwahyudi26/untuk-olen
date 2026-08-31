@@ -1,21 +1,14 @@
-import type { Metadata } from "next";
-import "./v2.css";
-import Opening from "@/components/v2/Opening";
-
-export const metadata: Metadata = {
-  title: "Memories of Olen",
-  robots: { index: false, follow: false },
-};
+import { redirect } from "next/navigation";
 
 /**
- * v2 — sedang dibangun satu layar demi satu layar.
- * Sekarang baru layar pembuka: pantai siang, biru muda, gaya ilustrasi.
- * Perjalanan berikutnya: pantai → langit biru → luar angkasa.
+ * Layar pembuka pindah ke akar (`/`). Alamat ini dipertahankan sebagai
+ * pengalihan, bukan dihapus: HANDOVER.md, AGENTS.md, dan catatan sesi-sesi
+ * sebelumnya menyebut `/v2` puluhan kali, dan tautan yang mati akan terbaca
+ * seolah layarnya yang hilang, bukan sekadar pindah.
+ *
+ * `redirect()` sudah memperhitungkan basePath, jadi tujuannya ditulis `/`
+ * bukan `/len`.
  */
 export default function V2() {
-  return (
-    <main className="v2">
-      <Opening />
-    </main>
-  );
+  redirect("/");
 }
