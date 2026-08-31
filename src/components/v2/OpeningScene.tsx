@@ -714,16 +714,35 @@ function Drift() {
  * Dua rem, dan keduanya perlu:
  *
  *   FOV_MAKS   — melebarkan fov saja akan menjulurkan benda di tepi layar.
- *                Di atas sekitar 62° distorsinya terbaca sebagai lensa lebar,
+ *                Di atas sekitar 64° distorsinya terbaca sebagai lensa lebar,
  *                bukan sebagai "lebih banyak yang terlihat".
- *   TARIK_MAKS — memundurkan kamera tidak menimbulkan distorsi, tapi
- *                mengecilkan segalanya dan menaikkan cakrawala. Tanpa batas,
- *                HP tegak menuntut kamera mundur hampir empat kali lipat dan
- *                pantainya jadi titik di kejauhan.
+ *   Z_MAKS     — batas mundurnya kamera, dan ini BUKAN angka selera.
  *
- * Hasilnya bukan lebar desktop yang utuh, melainkan sekitar dua sampai tiga
- * kali lipat dari sebelumnya, tanpa distorsi mencolok. Angkanya masih perlu
- * dilihat mata di HP sungguhan sebelum dianggap selesai.
+ *
+ * ── KENAPA Z_MAKS = 72, DAN KENAPA 91 SALAH ──
+ *
+ * Percobaan pertama memakai batas 1,9 × Z_DASAR = 91. Di HP hasilnya cacat
+ * yang langsung terlihat: pita biru polos di bawah pasir, warna #7A9AB4 —
+ * yaitu warna paling bawah gradien langit malam, tampak menembus kanvas yang
+ * transparan.
+ *
+ * Sebabnya bukan CSS. Pasir membentang z = 20 … 84 (`world.ts`, dan
+ * `PlaneGeometry(620, 64)` di `Shore`). Kamera di z = 91 berada DI BELAKANG
+ * tepi pasir: dunia sudah habis sebelum layar habis.
+ *
+ * Jadi batasnya diturunkan dari geometri, bukan ditebak. Di tepi itu pasir
+ * setinggi sandAt ≈ 2,8, kamera setinggi 6,5, jadi bedanya 3,7. Dengan sudut
+ * tunduk ± 7° dan setengah fov 32°, sinar bawah layar menyentuh tanah sekitar
+ * 4,7 satuan di depan kamera. Supaya titik sentuh itu tetap jauh di dalam
+ * pasir, bukan pas di bibirnya, kamera berhenti di 72 — menyisakan sekitar
+ * 17 satuan pasir di luar bawah layar.
+ *
+ * Konsekuensinya jujur: lebar yang didapat jadi sekitar 2,1× dari semula,
+ * bukan 2,7×. Itu harga yang benar. Melihat lebih banyak dunia tidak ada
+ * gunanya kalau yang ikut terlihat adalah ujung dunianya.
+ *
+ * Kalau kelak ingin lebih lebar lagi, yang harus dibesarkan bidang pasirnya
+ * di `Shore`, bukan batas ini.
  *
  * Aman berdampingan dengan `Drift`: Drift hanya menyentuh position.x dan .y,
  * tidak pernah .z maupun fov.
@@ -731,8 +750,9 @@ function Drift() {
 const FOV_DASAR = 46;
 const NISBAH_DASAR = 16 / 9;
 const Z_DASAR = 48;
-const FOV_MAKS = 62;
-const TARIK_MAKS = 1.9;
+const FOV_MAKS = 64;
+/** Tepi pasir ada di z = 84. Ini batas keras, bukan selera. Lihat catatan. */
+const Z_MAKS = 72;
 
 function Bingkai() {
   const { camera, size } = useThree();
@@ -758,7 +778,7 @@ function Bingkai() {
       const perlu = lebarTarget / (Math.tan(rad(fov / 2)) * nisbah);
 
       cam.fov = fov;
-      cam.position.z = Math.min(perlu, Z_DASAR * TARIK_MAKS);
+      cam.position.z = Math.min(perlu, Z_MAKS);
     }
     cam.updateProjectionMatrix();
   }, [camera, size.width, size.height]);

@@ -89,7 +89,43 @@ export default function Opening() {
    * tanpa suara, seperti dirancang semula.
    */
   const [adaSuara, setAdaSuara] = useState(true);
-  const suaraGagal = useCallback(() => setAdaSuara(false), []);
+
+  /**
+   * ── KENAPA onError DI <audio> TIDAK CUKUP ──
+   *
+   * Percobaan pertama memasang `onError` langsung di elemen <audio>. Itu
+   * tidak pernah berbunyi, dan tombolnya tetap mengaku "sound on" di HP
+   * meski berkasnya 404.
+   *
+   * Sebabnya ada di spesifikasi HTML: ketika sebuah <audio> memakai anak
+   * <source>, kegagalan dilaporkan sebagai peristiwa `error` pada elemen
+   * <source> yang gagal — BUKAN pada <audio>-nya. Dan `error` tidak
+   * menggelembung. Jadi pendengar di induknya tidak akan pernah kena.
+   *
+   * Dua jalan dipakai bersama, karena masing-masing bocor sendirian:
+   *
+   *   1. Pendengar fase TANGKAP di <audio>. Fase tangkap turun dari akar ke
+   *      sasaran, jadi ia melewati <audio> sebelum sampai ke <source> —
+   *      bekerja walau peristiwanya tidak menggelembung.
+   *   2. Pemeriksaan `networkState` sesudah dua detik. Kalau semua sumber
+   *      habis, nilainya jadi NETWORK_NO_SOURCE. Ini jaring untuk hal yang
+   *      gagal tanpa memancarkan error sama sekali, misalnya jenis berkas
+   *      yang tidak didukung peramban.
+   */
+  useEffect(() => {
+    const el = seaRef.current;
+    if (!el) return;
+    const periksa = () => {
+      if (el.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) setAdaSuara(false);
+    };
+    const gagal = () => setAdaSuara(false);
+    el.addEventListener("error", gagal, true);
+    const t = window.setTimeout(periksa, 2000);
+    return () => {
+      el.removeEventListener("error", gagal, true);
+      window.clearTimeout(t);
+    };
+  }, []);
 
   useEffect(() => {
     const small = window.innerWidth < 820;
@@ -358,12 +394,11 @@ export default function Opening() {
         )}
       </div>
 
-      {/* onError dipasang di sini saja, bukan di ketiga pemutar.
-          Ombak adalah satu-satunya yang dimuat sejak halaman dibuka, jadi ia
-          yang paling awal tahu apakah folder audionya terisi. Elemen <audio>
-          memancarkan error sesudah SEMUA <source> gagal, jadi satu pendengar
-          sudah cukup untuk menyimpulkan "tidak ada berkasnya". */}
-      <audio ref={seaRef} loop preload="auto" onError={suaraGagal}>
+      {/* Pemantauannya ada di useEffect di atas, bukan di prop onError di
+          sini — lihat catatan panjangnya. Ombak dipilih karena ia satu-satunya
+          yang dimuat sejak halaman dibuka, jadi paling awal tahu apakah folder
+          audionya terisi. */}
+      <audio ref={seaRef} loop preload="auto">
         <source src={aset("/audio/beach.m4a")} type="audio/mp4" />
         <source src={aset("/audio/beach.opus")} type="audio/ogg; codecs=opus" />
       </audio>
