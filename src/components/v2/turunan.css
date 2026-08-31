@@ -220,3 +220,84 @@
   .mk { transition: none; }
   .denyut { transform: translate(-50%, -50%) scale(var(--ukur, 1)); }
 }
+
+/* ═══ KENANGAN ═══
+ *
+ * Ini teks sungguhan, bukan gambar bertulisan. Bisa diblok, kena Ctrl+F, dan
+ * dibacakan pembaca layar — dan justru itu alasan utama layar ini 2D.
+ *
+ * Kontrasnya dijamin oleh selubung gelap di belakangnya, bukan oleh warna
+ * teks yang disetel per kedalaman. Air di dekat permukaan terang (#2E7FA8,
+ * putih di atasnya cuma 3,9 : 1) sementara di bawah 200 m hampir hitam.
+ * Menyetel warna teks mengikuti kedalaman berarti menambah satu lagi hal
+ * yang bisa meleset; selubung menyelesaikannya sekali untuk semua kedalaman.
+ */
+
+.tr-kenangan { position: absolute; inset: 0; pointer-events: none; }
+
+.kn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(30rem, 78vw);
+  margin: 0;
+  /* Selubung: paling pekat di tengah, habis di tepi, jadi tidak ada kotak
+     yang terlihat — yang terlihat cuma airnya sedikit lebih dalam di situ. */
+  padding: clamp(1.4rem, 4vw, 2.4rem);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(2, 12, 26, 0.62) 0%,
+    rgba(2, 12, 26, 0.42) 45%,
+    rgba(2, 12, 26, 0) 78%
+  );
+  /* Teksnya boleh diblok meski induknya tidak menerima klik. */
+  pointer-events: auto;
+  transition: opacity 120ms linear;
+}
+
+.kn-kiri  { left: max(1.5rem, 6vw); }
+.kn-kanan { right: max(1.5rem, 6vw); }
+
+/* Di layar sempit tidak ada ruang untuk dua sisi; semuanya jadi satu kolom
+   di tengah. Kalau tidak, kutipan sisi kanan akan tergencet di 22% lebar. */
+@media (max-width: 720px) {
+  .kn, .kn-kiri, .kn-kanan {
+    left: 50%;
+    right: auto;
+    width: min(30rem, 88vw);
+    transform: translate(-50%, -50%);
+  }
+}
+
+.kn-kutip {
+  margin: 0;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: clamp(1.15rem, 3.2vw, 1.6rem);
+  line-height: 1.65;
+  color: #f2f9ff;
+  text-shadow: 0 1px 14px rgba(2, 12, 26, 0.8);
+}
+
+.kn-kaki {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.kn-tanggal {
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+/* Suara Yaya, bukan suara Olen — dan harus terlihat begitu tanpa perlu
+   dijelaskan. Garis di tepi kiri dan huruf yang lebih kecil sudah cukup. */
+.kn-catatan {
+  border-left: 1px solid rgba(255, 255, 255, 0.22);
+  padding-left: 0.8rem;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  opacity: 0.72;
+}

@@ -13,6 +13,7 @@ import {
   warnaAirDi,
 } from "./kedalaman";
 import { KarangMeja, LumbaLumba, Paus, Rumput, Terumbu, UburUbur } from "./laut/makhluk";
+import { KENANGAN, jendelaDi } from "./laut/kenangan";
 import "./turunan.css";
 
 /**
@@ -117,6 +118,11 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
   const akar = useRef<HTMLDivElement>(null);
   const bacaan = useRef<HTMLParagraphElement>(null);
   const suhuEl = useRef<HTMLSpanElement>(null);
+  /* Satu rujukan per kenangan. Opasitasnya ditulis langsung ke elemennya di
+     dalam gelung gulir — bukan lewat state, dan bukan lewat custom property
+     baru per kenangan, karena jumlahnya akan tumbuh dan satu variabel CSS per
+     kalimat akan membengkakkan gaya elemen akar tanpa guna. */
+  const kenanganEl = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
     const el = akar.current;
@@ -148,6 +154,23 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
          dengan seluruh berkas ini: satu angka berubah, bukan satu layar. */
       if (bacaan.current) bacaan.current.textContent = `${Math.round(d)} m`;
       if (suhuEl.current) suhuEl.current.textContent = `${suhuDi(d).toFixed(1)}°`;
+
+      /* Kenangan muncul saat kedalamannya didekati dan pergi setelah
+         dilewati. Bentuk lengkungnya smoothstep, sama seperti kehadiran
+         penghuni — datang dan perginya berlaju nol, jadi tidak ada yang
+         terasa disisipkan. */
+      for (let i = 0; i < KENANGAN.length; i++) {
+        const el = kenanganEl.current[i];
+        if (!el) continue;
+        const k = KENANGAN[i];
+        const j = jendelaDi(k.di);
+        const jarak = Math.abs(d - k.di) / j;
+        const a = jarak >= 1 ? 0 : 1 - jarak * jarak * (3 - 2 * jarak);
+        el.style.opacity = String(a);
+        /* Yang tidak terlihat juga tidak boleh bisa disorot papan tik atau
+           dibacakan pembaca layar. Opasitas nol saja tidak cukup. */
+        el.style.visibility = a < 0.01 ? "hidden" : "visible";
+      }
     };
 
     const onGulir = () => {
@@ -232,6 +255,31 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
             >
               <UburUbur />
             </div>
+          ))}
+        </div>
+
+        {/*
+          KENANGAN
+          Sengaja DI LUAR .tr-huni yang ber-aria-hidden: ini teks sungguhan,
+          harus bisa diblok, dicari dengan Ctrl+F, dan dibacakan pembaca
+          layar. Itu justru alasan utama layar ini 2D dan bukan WebGL.
+        */}
+        <div className="tr-kenangan">
+          {KENANGAN.map((k, i) => (
+            <figure
+              key={i}
+              ref={(el) => {
+                kenanganEl.current[i] = el;
+              }}
+              className={`kn kn-${k.sisi ?? (i % 2 ? "kanan" : "kiri")}`}
+              style={{ opacity: 0, visibility: "hidden" }}
+            >
+              <blockquote className="kn-kutip">{k.kutipan}</blockquote>
+              <figcaption className="kn-kaki">
+                {k.tanggal && <span className="kn-tanggal">{k.tanggal}</span>}
+                {k.catatan && <span className="kn-catatan">{k.catatan}</span>}
+              </figcaption>
+            </figure>
           ))}
         </div>
 
