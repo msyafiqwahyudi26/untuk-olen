@@ -71,6 +71,26 @@ export default function Opening() {
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const voiceRef = useRef<HTMLAudioElement | null>(null);
 
+  /**
+   * Salah kalau berkas ombaknya tidak bisa dimuat sama sekali.
+   *
+   * Berkas audio TIDAK ikut git — sengaja: tiga lagunya berhak cipta dan
+   * montasenya suara Olen. Akibatnya di server yang baru disiapkan,
+   * `public/audio` cuma berisi keterangan dan halaman ini berjalan tanpa
+   * satu pun bunyi.
+   *
+   * Sebelum ini tombol suara tetap menulis "sound on" dalam keadaan itu. Ia
+   * berbohong, dan bohongnya mahal: yang membuka halaman menyangka
+   * pemutarnya rusak lalu mencari sebabnya di tempat yang salah. Persis itu
+   * yang terjadi 31 Agustus, dua kali — di HP lalu di laptop — sebelum
+   * ketahuan bahwa berkasnya memang tidak pernah ada di sana.
+   *
+   * Yang berubah hanya keterangan tombolnya. Halamannya tetap berjalan penuh
+   * tanpa suara, seperti dirancang semula.
+   */
+  const [adaSuara, setAdaSuara] = useState(true);
+  const suaraGagal = useCallback(() => setAdaSuara(false), []);
+
   useEffect(() => {
     const small = window.innerWidth < 820;
     const cores = navigator.hardwareConcurrency ?? 4;
@@ -275,10 +295,13 @@ export default function Opening() {
           halaman dibuka, jadi harus selalu ada cara mematikannya. */}
       {
         <button
-          className={`ui-pil z-atas op-sound ui-masuk tunda-6${muted ? "" : " on"}`}
+          className={`ui-pil z-atas op-sound ui-masuk tunda-6${muted || !adaSuara ? "" : " on"}`}
           onClick={toggleMute}
-          aria-pressed={!muted}
-          aria-label={muted ? "Turn sound on" : "Turn sound off"}
+          disabled={!adaSuara}
+          aria-pressed={adaSuara ? !muted : undefined}
+          aria-label={
+            !adaSuara ? "No audio files on this server" : muted ? "Turn sound on" : "Turn sound off"
+          }
         >
           <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden>
             <path
@@ -288,7 +311,7 @@ export default function Opening() {
               strokeWidth="1.2"
               strokeLinejoin="round"
             />
-            {muted ? (
+            {muted || !adaSuara ? (
               <path d="M16 9.5l5 5m0-5l-5 5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
             ) : (
               <>
@@ -297,7 +320,7 @@ export default function Opening() {
               </>
             )}
           </svg>
-          <span>{muted ? "muted" : "sound on"}</span>
+          <span>{!adaSuara ? "no audio" : muted ? "muted" : "sound on"}</span>
         </button>
       }
 
@@ -335,7 +358,12 @@ export default function Opening() {
         )}
       </div>
 
-      <audio ref={seaRef} loop preload="auto">
+      {/* onError dipasang di sini saja, bukan di ketiga pemutar.
+          Ombak adalah satu-satunya yang dimuat sejak halaman dibuka, jadi ia
+          yang paling awal tahu apakah folder audionya terisi. Elemen <audio>
+          memancarkan error sesudah SEMUA <source> gagal, jadi satu pendengar
+          sudah cukup untuk menyimpulkan "tidak ada berkasnya". */}
+      <audio ref={seaRef} loop preload="auto" onError={suaraGagal}>
         <source src={aset("/audio/beach.m4a")} type="audio/mp4" />
         <source src={aset("/audio/beach.opus")} type="audio/ogg; codecs=opus" />
       </audio>

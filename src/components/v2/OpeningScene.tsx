@@ -694,6 +694,78 @@ function Drift() {
   return null;
 }
 
+/* ═══ BINGKAI — lebar pemandangan tidak boleh ikut bentuk layar ═══
+ *
+ * `fov` di three.js adalah bidang pandang TEGAK. Bidang mendatarnya diturunkan
+ * dari nisbah layar, jadi ia menyusut sendiri di layar tegak:
+ *
+ *     desktop 16:9   → sekitar 74° melintang
+ *     HP 390 × 844   → sekitar 22° melintang
+ *
+ * Dengan angka tetap `fov: 46, z: 48`, HP hanya melihat sekitar seperempat
+ * lebar yang dilihat desktop. Tikar, keranjang, kepiting, dan flamingo berada
+ * di luar layar — pemandangannya "terpotong", persis yang dilaporkan saat
+ * dibuka dari HP.
+ *
+ * Yang dipertahankan di sini adalah LEBAR MELINTANG, bukan angka fov-nya.
+ * Sesuai aturan proyek: kalau sebuah angka bisa diturunkan dari angka lain,
+ * turunkan.
+ *
+ * Dua rem, dan keduanya perlu:
+ *
+ *   FOV_MAKS   — melebarkan fov saja akan menjulurkan benda di tepi layar.
+ *                Di atas sekitar 62° distorsinya terbaca sebagai lensa lebar,
+ *                bukan sebagai "lebih banyak yang terlihat".
+ *   TARIK_MAKS — memundurkan kamera tidak menimbulkan distorsi, tapi
+ *                mengecilkan segalanya dan menaikkan cakrawala. Tanpa batas,
+ *                HP tegak menuntut kamera mundur hampir empat kali lipat dan
+ *                pantainya jadi titik di kejauhan.
+ *
+ * Hasilnya bukan lebar desktop yang utuh, melainkan sekitar dua sampai tiga
+ * kali lipat dari sebelumnya, tanpa distorsi mencolok. Angkanya masih perlu
+ * dilihat mata di HP sungguhan sebelum dianggap selesai.
+ *
+ * Aman berdampingan dengan `Drift`: Drift hanya menyentuh position.x dan .y,
+ * tidak pernah .z maupun fov.
+ */
+const FOV_DASAR = 46;
+const NISBAH_DASAR = 16 / 9;
+const Z_DASAR = 48;
+const FOV_MAKS = 62;
+const TARIK_MAKS = 1.9;
+
+function Bingkai() {
+  const { camera, size } = useThree();
+
+  useEffect(() => {
+    const cam = camera as THREE.PerspectiveCamera;
+    const nisbah = size.width / Math.max(1, size.height);
+    const rad = (d: number) => (d * Math.PI) / 180;
+
+    if (nisbah >= NISBAH_DASAR) {
+      cam.fov = FOV_DASAR;
+      cam.position.z = Z_DASAR;
+    } else {
+      /* Lebar melintang yang ingin dipertahankan, diukur di jarak dasar. */
+      const lebarTarget = Z_DASAR * Math.tan(rad(FOV_DASAR / 2)) * NISBAH_DASAR;
+
+      /* fov melebar sebanding AKAR dari kesempitan layar, bukan lurus, supaya
+         layar yang cuma sedikit lebih sempit tidak langsung melompat ke fov
+         maksimum. */
+      const fov = Math.min(FOV_MAKS, FOV_DASAR * Math.sqrt(NISBAH_DASAR / nisbah));
+
+      /* Sisa lebar yang belum tertutup, ditutup dengan memundurkan kamera. */
+      const perlu = lebarTarget / (Math.tan(rad(fov / 2)) * nisbah);
+
+      cam.fov = fov;
+      cam.position.z = Math.min(perlu, Z_DASAR * TARIK_MAKS);
+    }
+    cam.updateProjectionMatrix();
+  }, [camera, size.width, size.height]);
+
+  return null;
+}
+
 /* ═══════════════════════ ekspor ═══════════════════════ */
 
 function Cahaya({ waktu, jam }: { waktu: Waktu; jam: number }) {
@@ -757,6 +829,7 @@ export default function OpeningScene({
     >
       <Cahaya waktu={waktu} jam={jam} />
       <ShaderCheck />
+      <Bingkai />
       <Drift />
       <Bintang tampil={PALET[waktu].bintang > 0} />
       <Surya waktu={waktu} jam={jam} />

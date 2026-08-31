@@ -65,16 +65,44 @@ git push -u origin main
 
 ## Memindahkan isinya ke server
 
+> **RALAT 31 Agustus 2026.** Bagian ini sebelumnya menyebut
+> `/var/www/untuk-olen`, folder yang **tidak ada** di server. Jalur yang benar
+> adalah `/srv/untuk-olen`. Kekeliruannya baru ketahuan saat halamannya
+> benar-benar dibuka: tidak ada suara sama sekali, di HP maupun di laptop,
+> karena keenam berkas audio memang tidak pernah sampai ke sana.
+
 Lewat `scp`, di luar git. Jalankan dari komputer Yaya:
 
 ```powershell
 # kode: lewat git di server
-ssh root@76.13.196.172 "cd /var/www/untuk-olen && git pull"
+ssh root@76.13.196.172 "cd /srv/untuk-olen && sudo -u spd git pull"
 
 # isi: langsung, tidak lewat git
-scp -r public\memori root@76.13.196.172:/var/www/untuk-olen/public/
-scp public\audio\*.m4a public\audio\*.opus root@76.13.196.172:/var/www/untuk-olen/public/audio/
+scp -r public\memori root@76.13.196.172:/srv/untuk-olen/public/
+scp public\audio\*.m4a public\audio\*.opus root@76.13.196.172:/srv/untuk-olen/public/audio/
 ```
+
+Sesudah `scp` sebagai root, kepemilikannya HARUS dikembalikan. Aplikasinya
+berjalan sebagai `spd` lewat PM2, dan berkas milik root di dalamnya akan
+menyandung build maupun git berikutnya:
+
+```bash
+ssh root@76.13.196.172 "chown -R spd:spd /srv/untuk-olen/public && sudo -u spd pm2 restart untuk-olen"
+```
+
+Enam berkas yang dicari halaman pembuka. Tanpa ketiga pasang ini, halamannya
+tetap berjalan penuh tetapi **tanpa satu pun bunyi**, dan tombol suaranya
+akan menulis `no audio`:
+
+```
+public/audio/beach.m4a          public/audio/beach.opus
+public/audio/track-1.m4a        public/audio/track-1.opus
+public/audio/voice-of-olen.m4a  public/audio/voice-of-olen.opus
+```
+
+`voice-of-olen` TIDAK bisa dibangun ulang di server: `scripts/build-voice.py`
+membutuhkan ekspor WhatsApp lengkap, yang tidak ada di sana dan memang tidak
+boleh ada di sana.
 
 `data/olen.db` **jangan pernah ditimpa** — di dalamnya ada tabel `notes`,
 tulisan pribadi Olen. Kalau server belum punya database, buat baru di sana
@@ -90,35 +118,66 @@ spd-backend, prototype-toko-ban, jubir-warga, arcc-hivee.
 **Jangan mengubah Node sistem di sana.** Pernah dilakukan dan mengganggu
 keempatnya. Pakai nvm per-user:
 
-```bash
-# di VPS, sebagai user biasa — BUKAN apt install nodejs
-nvm install 22
-nvm use 22
+> **RALAT 31 Agustus 2026.** Bagian ini menggambarkan pemasangan yang belum
+> terjadi. Sekarang sudah terpasang, dan bentuknya berbeda dari yang ditulis
+> di sini. Keadaan sebenarnya:
 
-cd /var/www/untuk-olen
+| | |
+|---|---|
+| Jalur | `/srv/untuk-olen` |
+| Port | 3002 |
+| Node | v22.23.2, sudah jadi node sistem — nvm tidak dipakai |
+| PM2 | proses `untuk-olen`, milik `spd`, sudah `pm2 save` |
+| Alamat | `https://arcc-hivee.cloud/len` (basePath `/len`) |
+| Gerbang | PIN empat angka di dalam aplikasi, BUKAN basic auth nginx |
+
+```bash
+# memasang ulang dari nol, sebagai spd — jangan sebagai root
+cd /srv/untuk-olen
 npm ci
-npm run build
-pm2 start npm --name untuk-olen -- start -- -p 3010
+npx next build
+pm2 start node_modules/next/dist/bin/next --name untuk-olen --cwd /srv/untuk-olen -- start -p 3002
 pm2 save
 ```
 
-Lalu di depannya pasang basic auth. Contoh nginx:
+### Gerbangnya bukan basic auth
+
+Rencana semula memakai `auth_basic` nginx. Yang terpasang berbeda, atas
+permintaan pemilik: **PIN empat angka di dalam aplikasi**, supaya Olen bisa
+menggantinya sendiri dan supaya pintunya terasa seperti gembok buku harian,
+bukan kotak dialog peramban.
+
+Nginx hanya meneruskan, tanpa memotong awalan `/len` (aplikasinya sendiri
+yang mengharapkan awalan itu lewat `basePath`):
 
 ```nginx
-location / {
-    auth_basic           "untuk Olen";
-    auth_basic_user_file /etc/nginx/.htpasswd-olen;
-    proxy_pass           http://127.0.0.1:3010;
-    proxy_set_header     Host $host;
-}
+location /len { proxy_pass http://127.0.0.1:3002; }
+location /Len { rewrite ^/Len(/.*)?$ /len$1 permanent; }
 ```
+
+Yang menjaga isinya adalah `src/proxy.ts`, dan ia duduk di depan SEMUA
+permintaan — bukan cuma halaman. Itu wajib: foto dan rekaman suara tinggal di
+`public/`, yang disajikan Next sebagai berkas statis tanpa melewati React.
+Layar PIN yang hanya menyembunyikan halaman tidak menghalangi siapa pun
+mengambil `/len/memori/senyum-2024.jpg` langsung.
+
+Memasang PIN pertama kali, sebelum alamatnya dibuka ke siapa pun:
 
 ```bash
-htpasswd -c /etc/nginx/.htpasswd-olen olen
+cd /srv/untuk-olen && sudo -u spd node scripts/set-kunci.mjs <empat angka>
 ```
 
-Pakai subdomain yang tidak bisa ditebak, bukan `/untuk-olen` di domain
-utama.
+Rahasia penanda tangan tiket ada di `.env.local` (tidak ikut git). Kalau
+nilainya diganti, semua sesi yang sedang terbuka langsung batal — itu juga
+cara mencabut akses dari perangkat yang hilang.
+
+> **Catatan yang belum selesai.** Berkas ini menulis "Repo-nya **harus
+> private**". Per 31 Agustus repo di GitHub **publik** — bisa di-clone tanpa
+> kredensial apa pun. Isi milik Olen tidak ikut bocor, karena `.gitignore`
+> menahan foto, suara, dan basis datanya, dan itu sudah diperiksa. Yang bocor
+> hanya kodenya. Tetap perlu diputuskan pemilik: repo dijadikan private, atau
+> kalimat di atas yang diperbarui. Yang berbahaya adalah membiarkan keduanya
+> berbeda, karena orang berikutnya akan percaya kalimatnya, bukan kenyataannya.
 
 ---
 
