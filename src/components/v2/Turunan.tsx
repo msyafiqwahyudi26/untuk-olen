@@ -143,8 +143,24 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
          gerakan jari tidak mengubah apa pun. */
       const d = kedalamanDi(maju);
 
+      const air = warnaAirDi(d, permukaan);
+
+      /*
+       * Warna air ikut ditulis ke <html>, dan ini khusus soal HP.
+       *
+       * Di iOS dan Android, menggulir melewati ujung membuat halaman
+       * memantul dan yang terlihat di balik pantulan itu latar akar — yaitu
+       * #6FC6EC, biru langit milik layar pembuka. Di tengah laut dalam yang
+       * hampir hitam, kilatan biru langit di tepi layar adalah hal pertama
+       * yang terlihat salah.
+       *
+       * Dengan warna akar mengikuti kedalaman, pantulannya justru memperkuat
+       * kesannya: yang muncul di tepi adalah air yang sama.
+       */
+      document.documentElement.style.backgroundColor = air;
+
       const g = el.style;
-      g.setProperty("--air", warnaAirDi(d, permukaan));
+      g.setProperty("--air", air);
       g.setProperty("--terang", String(cahayaDi(d) / cahayaAtas));
       g.setProperty("--keruh", String(keruhDi(d)));
       g.setProperty("--pijar", String(pijarDi(d)));
@@ -186,6 +202,9 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
       window.removeEventListener("scroll", onGulir);
       window.removeEventListener("resize", onGulir);
       cancelAnimationFrame(rafId);
+      /* Dikembalikan saat layar ini dilepas, kalau tidak layar pembuka akan
+         mewarisi warna laut dalam di latar akarnya. */
+      document.documentElement.style.backgroundColor = "";
     };
   }, [waktu]);
 

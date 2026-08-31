@@ -19,7 +19,24 @@
 .tr-tetap {
   position: sticky;
   top: 0;
+  /*
+   * dvh, bukan svh — dan ini khusus soal HP.
+   *
+   * Di Safari iOS bilah alamat menciut waktu digulir, dan tinggi layar
+   * bertambah. `svh` adalah tinggi layar saat bilahnya MASIH ADA, jadi
+   * begitu bilahnya menciut akan tersisa jalur kosong di bawah pemandangan
+   * — dan yang terlihat di jalur itu latar halaman, bukan air.
+   *
+   * `dvh` ikut berubah bersama bilahnya, jadi pemandangannya selalu penuh.
+   * Ongkosnya: elemen ini berubah ukuran saat bilahnya bergerak. Itu
+   * dibolehkan di sini karena isinya latar penuh, bukan teks yang akan
+   * melompat barisnya.
+   *
+   * Baris svh ditulis lebih dulu sebagai cadangan untuk peramban yang belum
+   * mengenal dvh.
+   */
   height: 100svh;
+  height: 100dvh;
   overflow: hidden;
   color: #dceefc;
 }
@@ -300,4 +317,49 @@
   font-size: 0.82rem;
   line-height: 1.7;
   opacity: 0.72;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * DI HP
+ *
+ * Layar tegak adalah layar utama kapsul ini, bukan kasus tepi. Yang berbeda
+ * di sana bukan cuma sempit — jarinya menutupi sebagian layar, dayanya lebih
+ * kecil, dan penyaringnya jauh lebih mahal.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 720px) {
+  /* Dasar laut diperbesar. Ukuran dalam vmin berarti di layar tegak ia
+     mengikuti LEBAR, jadi karang 20vmin di layar 390px cuma 78px — terbaca
+     sebagai kerikil, bukan sebagai dasar laut. */
+  .mk-terumbu { width: 34vmin; }
+  .mk-meja    { width: 40vmin; }
+  .mk-rumput  { width: 26vmin; }
+  .mk-paus    { width: 92vmin; }
+  .mk-lumba   { width: 46vmin; }
+  .mk-ubur    { width: 30vmin; }
+
+  /* Serpihan melayang dikurangi hampir separuh. Tiap butir satu lapisan yang
+     digambar ulang tiap bingkai, dan di HP kelas menengah itu terasa. Yang
+     hilang tidak akan disadari; yang tersisa tetap memberi kesan kedalaman. */
+  .tr-salju span:nth-child(2n) { display: none; }
+
+  /* Bayangan pendar ubur-ubur ditipiskan. drop-shadow adalah penyaring per
+     piksel, dan lima ubur-ubur sekaligus di layar kecil adalah pekerjaan
+     yang tidak sebanding hasilnya. */
+  .mk-ubur {
+    filter: drop-shadow(0 0 calc(4px + var(--pijar, 0) * 14px) rgba(160, 220, 255, calc(0.25 + var(--pijar, 0) * 0.5)));
+  }
+
+  /* Bacaan meter dinaikkan supaya tidak berdesakan dengan tombol kembali,
+     dan tombolnya diberi ruang jari penuh. */
+  .tr-meter { font-size: clamp(1.5rem, 7vw, 2rem); }
+  .tr-naik  { padding: 0.7rem 1.05rem; font-size: 0.68rem; letter-spacing: 0.16em; }
+}
+
+/* Layar pendek — HP tegak dengan bilah peramban, atau HP dimiringkan. */
+@media (max-height: 680px) {
+  .kn { padding: clamp(1rem, 3vw, 1.6rem); }
+  .kn-kutip { font-size: clamp(1rem, 4.4vw, 1.3rem); line-height: 1.5; }
+  .kn-kaki { margin-top: 0.7rem; }
 }
