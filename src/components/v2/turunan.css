@@ -292,8 +292,13 @@
 .kn-kutip {
   margin: 0;
   font-family: var(--huruf-judul, Georgia, serif);
-  font-size: clamp(1.15rem, 3.2vw, 1.6rem);
-  line-height: 1.65;
+  /* Lebih besar dan lebih lega. Kutipan ini yang dibaca lama, kadang waktu
+     Olen sedang tidak baik-baik saja, dan huruf yang rapat membuat orang
+     berhenti membaca sebelum kalimatnya selesai. */
+  font-size: clamp(1.32rem, 3.4vw, 1.95rem);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
   color: #f2f9ff;
   text-shadow: 0 1px 14px rgba(2, 12, 26, 0.8);
 }
@@ -497,7 +502,9 @@
 .kn-video {
   position: relative;
   display: block;
-  width: clamp(9rem, 26vw, 12.5rem);
+  /* Jauh lebih besar dari sebelumnya (9rem). Video note itu WAJAH Olen;
+     seukuran ikon ia jadi lampiran, bukan orang. */
+  width: clamp(14rem, 42vw, 20rem);
   aspect-ratio: 1;
   margin: 0 0 1.4rem;
   padding: 0;
@@ -546,3 +553,58 @@
   pointer-events: none;
 }
 .kn-video:hover::after { opacity: 0.5; }
+
+
+/* ═══════════════ TIPOGRAFI ═══════════════
+   Dua peran, dan bedanya harus JELAS. Kutipan itu suara Olen; catatan itu
+   suara Yaya. Sebelumnya keduanya cuma beda ukuran sedikit, jadi terbaca
+   seperti satu paragraf yang mengecil di tengah jalan.
+
+   Sekarang bedanya jenis huruf: Olen serif, Yaya sans. Perbedaan bentuk
+   huruf terbaca lebih cepat daripada perbedaan ukuran, dan tidak perlu
+   dijelaskan. */
+.kn-kutip {
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-weight: 400;
+  color: #f4faff;
+}
+.kn-kaki {
+  gap: 0.75rem;
+  margin-top: 1.35rem;
+}
+.kn-tanggal {
+  font-family: var(--huruf-badan, system-ui, sans-serif);
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  opacity: 0.45;
+}
+.kn-catatan {
+  font-family: var(--huruf-badan, system-ui, sans-serif);
+  /* Naik dari 0,82rem. Ini kalimat Yaya ke Olen, bukan keterangan gambar. */
+  font-size: clamp(0.9rem, 2.2vw, 1.02rem);
+  line-height: 1.75;
+  max-width: 34ch;
+  opacity: 0.8;
+  border-left-color: rgba(255, 255, 255, 0.16);
+  padding-left: 1rem;
+}
+
+/* Kalimat Yaya yang berdiri sendiri (pembuka, pola, dua di dasar) memakai
+   huruf badan juga, bukan serif: begitu ia dibedakan dari kutipan Olen,
+   pembaca tahu siapa yang sedang bicara tanpa satu kata penjelasan pun. */
+.kn-yaya .kn-kutip {
+  font-family: var(--huruf-badan, system-ui, sans-serif);
+  font-size: clamp(1.06rem, 2.7vw, 1.34rem);
+  line-height: 1.72;
+  letter-spacing: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  padding-left: 1.15rem;
+  max-width: 40ch;
+}
+
+@media (max-width: 720px) {
+  .kn-kutip { font-size: clamp(1.18rem, 5vw, 1.5rem); line-height: 1.5; }
+  .kn-yaya .kn-kutip { font-size: clamp(1rem, 4.3vw, 1.2rem); }
+  .kn-catatan { font-size: 0.9rem; max-width: none; }
+  .kn-video { width: min(15rem, 62vw); }
+}

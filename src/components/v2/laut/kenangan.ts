@@ -147,157 +147,179 @@ export function jendelaDi(d: number): number {
  * riwayat git lewat komentar.
  */
 export const KENANGAN: Kenangan[] = [
-  /* ───────────── 4–55 m · terang ───────────── */
+  /* ───────────── 0 m · pembuka ─────────────
+     Yang pertama terbaca BUKAN kalimat Olen, tapi kalimat Yaya. Alasannya:
+     tanpa premis, dua puluh kutipan cuma jadi kumpulan potongan bagus. Dengan
+     premis, semuanya jadi bukti dari satu hal yang sudah disebut di depan. */
   {
-    di: 5,
+    di: 2,
+    dari: "yaya",
+    kutipan:
+      "Aku dengerin ulang semua VN kamu, Len. Yang ketawa, yang nangis, yang marah, yang capek banget. Terus aku sadar satu hal. Kamu selalu nyampe ke seberang. Belum pernah sekali pun enggak.",
+  },
+
+  /* ───────────── 6–55 m · terang ───────────── */
+  {
+    di: 6,
     kutipan: "PAS MPLS ITU SERU BANGET, TAPI GA KERASA UDAH MAU NAIK KELAS",
     tanggal: "02/01/24",
-    catatan: "Kelas tujuh, dan kamu udah heran sama waktu yang jalan sendiri. Sekarang kamu SMA dan mungkin masih heran. Kakak juga, Len. Nggak ada yang pernah benar-benar terbiasa.",
+    catatan:
+      "Kamu kelas tujuh waktu nulis ini. Aku juga masih suka kaget sama waktu, jadi kita sama. Kayaknya emang nggak ada yang pernah bener-bener siap.",
   },
   {
-    di: 13,
+    di: 14,
     kutipan: "AKU DULU SUKA BGT MAIN ICE SKATING DISITU",
     tanggal: "18/11/24",
-    sisi: "kanan",
+    catatan: "Kamu nyimpen hal kecil kayak gini rapi banget di kepala. Aku suka cara kamu inget sesuatu.",
   },
   {
-    di: 21,
+    di: 22,
     kutipan: "MIMPI DIKEJAR TUYUL KALI DIA MAU LARI TP MASI GENGGAM HANDPHONE",
     suara: "ketawa-nular",
     tanggal: "29/12/23",
-    catatan: "Kamu selalu punya penjelasan buat hal yang sebenernya nggak perlu dijelasin. Itu bukan aneh — itu kepala yang nggak pernah bener-bener berhenti kerja, bahkan buat hal receh.",
+    catatan:
+      "Kepala kamu nggak pernah bener-bener off ya. Mimpi orang lain aja kamu bikinin teorinya. Lucu sih, tapi itu juga yang bikin kamu nangkep hal yang orang lain lewatin.",
   },
   {
-    di: 26,
+    di: 30,
     kutipan: "daun telingaku tbtb layu dikit",
     video: "telinga-layu",
     tanggal: "11/11/24",
     catatan:
-      "Kamu ngomongin daun telinga kamu kayak lagi ngomongin tanaman. Cara kamu nyebut sesuatu emang selalu beda satu langkah dari orang lain.",
+      "Kamu ngomongin telinga kamu kayak lagi ngomongin tanaman. Cara kamu nyebut sesuatu selalu beda satu langkah dari orang lain. Jangan diilangin ya.",
   },
   {
-    di: 36,
+    di: 38,
+    kutipan: "ABISTU SUMPAH PALAKU SAKIT BGTT INI KEJEDOT UJUNG LANTAI KAYANYA",
+    tanggal: "02/12/24",
+    catatan: "Kamu cerita sakit sambil ketawa. Itu kamu banget.",
+  },
+  {
+    di: 46,
     kutipan: "UDAH DI LEMARI",
     video: "udah-di-lemari",
     tanggal: "30/11/24",
-    catatan: "Nggak ada yang bisa niru timing kamu, Len.",
-  },
-  {
-    di: 31,
-    kutipan: "ABISTU SUMPAH PALAKU SAKIT BGTT INI KEJEDOT UJUNG LANTAI KAYANYA",
-    tanggal: "02/12/24",
-    sisi: "kanan",
-  },
-  {
-    di: 42,
-    kutipan: "KAYAK ROTI",
-    suara: "nahan-ketawa",
-    tanggal: "09/11/24",
-    catatan: "Ditanya kenapa suaramu serak, dan itu jawabanmu. Nggak ada orang lain yang bakal ngejawab begitu. Simpan cara kamu ngeliat sesuatu — itu punya kamu.",
+    catatan: "Timing kamu nggak bisa ditiru, serius. Aku ketawa lama banget waktu itu, dan sampai sekarang masih.",
   },
   {
     di: 55,
-    kutipan: "ktnya pemikiran aku detail trs ak jawab soalnya jg detail sama kyk yg dibuku",
-    tanggal: "19/08/26",
-    sisi: "kanan",
-    catatan: "Kamu nyampeinnya kayak lagi ngutip orang. Padahal itu emang kamu. Kamu boleh ngakuin hal baik tentang diri sendiri tanpa nunggu ada yang ngomongin duluan.",
+    kutipan: "KAYAK ROTI",
+    suara: "nahan-ketawa",
+    tanggal: "09/11/24",
+    catatan: "Ditanya kenapa suara kamu serak, dan itu jawabannya. Nggak ada yang bakal jawab gitu selain kamu.",
   },
 
-  /* ───────────── 75–195 m · mulai jujur ───────────── */
+  /* ───────────── 72–195 m · mulai jujur ───────────── */
   {
-    di: 76,
-    kutipan: "kalo aku ngomong cape itu karna malas",
-    tanggal: "30/11/24",
-    catatan: "Banyak orang seumur hidup nggak bisa bedain dua itu di diri sendiri. Kamu udah bisa umur segini. Yang jujur sama diri sendiri biasanya juga jujur sama orang lain — dan itu kenapa orang gampang percaya sama kamu.",
+    di: 72,
+    kutipan: "ktnya pemikiran aku detail trs ak jawab soalnya jg detail sama kyk yg dibuku",
+    tanggal: "19/08/26",
+    catatan:
+      "Kamu nyampeinnya kayak lagi ngutip orang lain. Padahal itu emang kamu, Len. Kamu boleh ngaku hal bagus tentang diri sendiri tanpa nunggu ada yang bilang duluan.",
   },
   {
-    di: 96,
+    di: 92,
+    kutipan: "kalo aku ngomong cape itu karna malas",
+    tanggal: "30/11/24",
+    catatan:
+      "Kamu bisa bedain dua itu di diri sendiri. Banyak orang nggak bisa, seumur hidup. Yang jujur sama diri sendiri biasanya jujur juga sama orang lain, dan itu kenapa orang gampang percaya kamu.",
+  },
+  {
+    di: 118,
     kutipan: "kek gw suka aja seneng liat tmn gw happy",
     suara: "ketawa-2026",
     tanggal: "29/08/26",
-    sisi: "kanan",
+    catatan: "Kamu ikut seneng tanpa mikir apa untungnya buat kamu. That is rare, Len. Jangan sampe ada yang bikin kamu ngerasa itu bodoh.",
   },
   {
-    di: 122,
+    di: 148,
     kutipan:
       "KADANG WALAU GW BAWA DUIT PAS PASAN YA TRS TMN GW MAU INI ITU TP DIA GAMAU BELI, GW BELIIN JIR",
     tanggal: "29/08/26",
-    catatan: "Ini bukan kebetulan. Ini kamu milih, berkali-kali, waktu nggak ada yang liat dan nggak ada yang bakal muji. Yang kayak gitu namanya watak, bukan sikap.",
+    catatan: "Duit kamu pas-pasan dan kamu tetep beliin. Nggak ada yang liat, nggak ada yang muji. Itu bukan sikap, itu watak.",
   },
   {
-    di: 156,
+    di: 178,
     kutipan:
       "sebenernya aku mau cerita kalo aku udh tras bgt ke orgnya trs kalo orgnya cerita duluan baru aku mau cerita",
     tanggal: "07/12/24",
-    sisi: "kanan",
+    catatan: "Kamu nunggu orang buka duluan sebelum kamu buka. Aku ngerti kenapa. Nggak apa-apa pelan-pelan, Len.",
   },
   {
-    di: 195,
+    di: 208,
     kutipan:
       "aku lebih pengen terbuka ke orang2, aku pengen bisa lancar kalo cerita tentang masalah aku ke orang yg udah aku percaya",
     tanggal: "13/11/24",
-    catatan: "Kamu nggak bilang kamu tertutup. Kamu bilang kamu pengen bisa. Itu beda jauh — yang satu vonis, yang satu arah. Kamu selalu milih yang kedua, bahkan waktu lagi susah.",
+    catatan:
+      "Kamu nggak bilang kamu tertutup. Kamu bilang kamu pengen bisa. Beda jauh itu. Yang satu vonis, yang satu arah.",
   },
 
-  /* ───────────── 265–340 m · paling berat ─────────────
-     Dua saja, berjarak jauh. Di kedalaman ini gulir bergerak cepat; kalau
-     didekatkan, keduanya lewat hampir bersamaan dan tidak sempat mengendap. */
+  /* ───────────── 245 m · yang berubah ─────────────
+     Ini satu-satunya kenangan yang isinya POLA, bukan momen. Angkanya dihitung
+     dari ekspornya, bukan dikira-kira: sebaran kata ganti Olen per kuartal.
+     Perubahan tiga tahun tidak pernah muncul di satu pesan mana pun, jadi ia
+     tidak akan pernah ketemu kalau yang dicari cuma kalimat bagus. */
   {
-    di: 265,
+    di: 245,
+    dari: "yaya",
+    kutipan:
+      "Tahun pertama kamu manggil aku kak hampir tiap kalimat. Sekarang kamu bilang gw terus langsung nyerocos. Aku ngecek beneran: dulu kamu nulis aku 1500 kali dan gw 353. Tahun ini kebalik. Kamu berhenti jaga jarak, dan itu salah satu hal paling bagus yang pernah kejadian.",
+  },
+
+  /* ───────────── 300–380 m · paling berat ───────────── */
+  {
+    di: 300,
     kutipan:
       "sekarang aku jadi lebih susah buat ngejalanin masalah2 yg aku hadapin, aku skrg jadi sering bgt gelisah aku gatau karena apa",
     tanggal: "12/11/24",
-    catatan: "Kamu nulis ini tanpa minta apa-apa. Nggak minta dikasihani, nggak minta dibenerin, nggak minta siapa-siapa panik. Cuma bilang apa adanya — dan buat ngaku lagi nggak baik-baik aja itu sendiri udah butuh berani.",
+    catatan:
+      "Kamu nulis ini nggak minta apa-apa. Nggak minta dikasihani, nggak minta dibenerin. Aku ngerti ini berat dan chaos banget rasanya. Kamu nggak sendiri ya, Len.",
   },
   {
-    di: 340,
+    di: 380,
     kutipan: "kalo bisa aku mau kayak diri aku yang dulu",
     tanggal: "26/11/24",
-    sisi: "kanan",
     catatan:
-      "Kamu yang dulu nggak hilang, Len. Dia cuma jadi bagian dari kamu yang sekarang — yang tahu lebih banyak, dan justru karena itu lebih capek. Capeknya bukan tanda kamu mundur. Itu ongkos dari tumbuh, dan semua orang bayar.",
+      "Kamu yang dulu nggak ilang. Dia cuma jadi bagian dari kamu yang sekarang, yang tau lebih banyak. Capek itu ongkosnya, bukan tanda kamu mundur. It will pass.",
   },
 
   /* ───────────── 480–640 m · yang ia pegang ─────────────
      Di sini ubur-ubur mulai menyala. Yang menerangi datang dari makhluknya
-     sendiri, bukan dari matahari — dan yang dibaca di sini juga begitu. */
+     sendiri, bukan dari matahari, dan yang dibaca di sini juga begitu. */
   {
     di: 480,
     kutipan:
       "MENDING SAMA YG BENER2 SAYANG SAMA KT DAN BENER2 MAU JADI TEMEN KITA TANPA MANDANG EKONOMI",
     tanggal: "08/12/24",
-    catatan: "Umur tiga belas dan kamu udah tahu ini. Banyak orang yang jauh lebih tua masih belum. Pegang terus — ini yang bakal nentuin siapa yang ada di sekitar kamu sepuluh tahun lagi.",
+    catatan: "Umur tiga belas dan kamu udah tau ini. Banyak orang jauh lebih tua masih belum. Pegang terus ya.",
   },
   {
     di: 560,
     kutipan:
       "iya aku seneng banget rasanya kalo aku bisa deket sama orang2 baik jadinya aku gaperlu haus kasih sayang sama mereka",
     tanggal: "13/11/24",
-    sisi: "kanan",
+    catatan: "Kamu ngomong ini pelan, kayak lagi mikir sambil ngomong. Itu bukan kalimat hafalan. Itu kesimpulan kamu sendiri.",
   },
   {
     di: 640,
     kutipan: "prioritasin diri sendiri dulu kata gw mah yak",
     tanggal: "10/12/24",
-    catatan: "Kamu bilang ini ke orang lain waktu dia lagi berantakan. Sekarang giliran kamu yang dengerin sendiri. Nasihat kamu bagus, Len — sayang kalau cuma buat orang lain.",
+    catatan:
+      "Kamu bilang ini ke orang lain waktu dia lagi hancur. Sekarang giliran kamu yang dengerin. Nasihat kamu bagus, sayang kalau cuma buat orang lain.",
   },
 
-  /* ───────────── 735–775 m · dasar ─────────────
-     Dua-duanya suara Yaya, dan ditandai begitu. Ini satu-satunya tempat di
-     seluruh turunan yang bukan kalimat Olen — dan letaknya paling bawah,
-     sesudah semua yang dia katakan sendiri. */
+  /* ───────────── 730–780 m · dasar ───────────── */
   {
-    di: 735,
+    di: 730,
     dari: "yaya",
     kutipan:
-      "Kakak nggak pernah ngajarin satu pun dari ini ke kamu. Kamu bisa nahan nangis di depan orang bukan karena tertutup — kamu milih kapan mau nunjukinnya. Kamu beliin temenmu jajan waktu duitmu sendiri pas-pasan. Kamu nanya orang baik-baik aja duluan, bahkan waktu kamu sendiri lagi enggak. Semua itu kamu yang bawa sendiri, dari dalam.",
-    catatan: "Kamu nulisnya kepisah-pisah, di hari yang beda-beda, tanpa sadar lagi ngejelasin siapa kamu. Kakak cuma ngumpulin.",
+      "Aku nggak pernah ngajarin satu pun dari ini ke kamu. Kamu bisa nahan nangis bukan karena tertutup, tapi karena kamu milih kapan mau nunjukin. Kamu beliin temen jajan waktu duit kamu pas-pasan. Kamu nanya orang baik-baik aja duluan padahal kamu sendiri lagi enggak. Semua itu kamu bawa sendiri, Len.",
+    catatan: "Kamu nulisnya kepisah-pisah, di hari yang beda-beda. Aku cuma ngumpulin.",
   },
   {
-    di: 775,
+    di: 780,
     dari: "yaya",
-    sisi: "kanan",
     kutipan:
-      "Jaga itu, Len. Nanti bakal ada yang bilang kamu kebanyakan mikirin orang, atau kamu kegampangan kasihan. Jangan langsung percaya. Dan kalau kamu ragu sama sesuatu, dengerin dulu yang di dalem — kadang kita takut dan tetep tahu mana yang bener buat diri sendiri. Takut itu tandanya kamu peduli sama hasilnya, bukan tandanya kamu salah jalan.",
+      "Nanti bakal ada yang bilang kamu kebanyakan mikirin orang. Jangan langsung percaya. Kalau kamu ragu, dengerin dulu yang di dalem, karena kadang kita takut dan tetep tau mana yang bener. It will pass, Oleeen. Kamu udah buktiin itu ke diri kamu sendiri berkali-kali, tinggal kamu percaya aja.",
   },
 ];
