@@ -141,13 +141,33 @@ function dorsalShape() {
   return s;
 }
 
+/**
+ * Kendali dari scene, DIBACA TIAP FRAME.
+ *
+ * Sengaja objek yang dimutasi, bukan prop biasa — alasannya persis sama
+ * dengan `KepitingKendali` di Kepiting.tsx, dan pola itu memang sudah ada di
+ * proyek ini sejak kepitingnya diperbaiki.
+ *
+ * Paus tertinggal. Sampai 31 Agustus scene-nya masih memanggil
+ * `setSpout(...)` di dalam `useFrame`: setState 60 kali per detik hanya untuk
+ * satu angka. Tiap panggilan me-render ulang SELURUH paus — belasan mesh
+ * berikut propnya diperiksa React satu per satu — padahal yang berubah cuma
+ * skala satu gumpalan semburan. Di HP itu terbaca sebagai gerak tersendat,
+ * dan sendatannya menular ke seluruh pemandangan karena render React menyela
+ * gelung animasi.
+ *
+ * Dengan objek yang dimutasi, scene menulis angkanya dan aset membacanya di
+ * useFrame-nya sendiri. React tidak me-render apa pun.
+ */
+export type PausKendali = { spout: number };
+
 export default function Paus({
   animate = true,
-  spout = 0,
+  kendali,
 }: {
   animate?: boolean;
-  /** 0 = tidak menyembur, 1 = penuh. Discene ini dikendalikan perjalanan. */
-  spout?: number;
+  /** 0 = tidak menyembur, 1 = penuh. Di scene ini dikendalikan perjalanan. */
+  kendali?: PausKendali;
 }) {
   const ramp = toonRamp();
   const mats = useMemo(
@@ -255,7 +275,7 @@ export default function Paus({
     // di scene nilainya datang dari prop.
     const s = animate
       ? Math.max(0.001, Math.sin(((performance.now() * 0.001) % 6) / 6 * Math.PI) ** 1.4)
-      : Math.max(0.001, spout);
+      : Math.max(0.001, kendali?.spout ?? 0);
     puff.current.scale.setScalar(s);
   });
 
