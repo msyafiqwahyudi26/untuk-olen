@@ -132,8 +132,12 @@
   align-items: flex-end;
   gap: .55rem;
 }
-.st-buka svg { transition: transform .5s var(--ease); }
-.st-buka.on svg { transform: rotate(60deg); }
+/* TIDAK ada rotasi di sini lagi.
+   Aturan lamanya memutar ikon 60 derajat saat panel terbuka — masuk akal
+   untuk roda gigi, dan langsung salah begitu ikonnya jadi tiga garis: yang
+   terlihat cuma tiga coret miring, bukan tombol. Ikonnya sekarang BERGANTI
+   jadi silang saat terbuka, diurus Settings.tsx. */
+.st-buka svg { transition: opacity .25s var(--ease); }
 
 .st-panel { width: 238px; animation: uiNaik .5s var(--ease) both; }
 .st-pisah { margin-top: 1rem; }

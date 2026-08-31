@@ -96,12 +96,12 @@
  * jatuh sungguhan padam pelan sesudah puncaknya.
  */
 @keyframes jrJatuh {
-  0%   { opacity: 0; translate: -25vmax 0; }
-  1.5% { opacity: 0.9; }
-  3%   { opacity: 1; }
-  5.5% { opacity: 0.5; }
-  7%   { opacity: 0; translate: 130vmax 0; }
-  100% { opacity: 0; translate: 130vmax 0; }
+  0%   { opacity: 0; translate: 0 0; }
+  1.5% { opacity: 0.85; }
+  4%   { opacity: 1; }
+  8%   { opacity: 0.45; }
+  10%  { opacity: 0; translate: 105vmax 0; }
+  100% { opacity: 0; translate: 105vmax 0; }
 }
 
 /* ── lembar ── */
@@ -829,4 +829,14 @@
   letter-spacing: 0.08em;
   opacity: 0.8;
   cursor: pointer;
+}
+
+
+/* Panel setelan di jurnal.
+   Latarnya dipekatkan: di layar pembuka ia mengambang di atas pemandangan,
+   di sini ia menutupi TULISAN. Kaca setipis itu membuat judul dan pertanyaan
+   mood tembus dari baliknya, dan keduanya jadi sama-sama sulit dibaca. */
+.jr-setelan .ui-panel {
+  background: rgba(6, 16, 34, 0.94);
+  border-color: rgba(255, 255, 255, 0.18);
 }

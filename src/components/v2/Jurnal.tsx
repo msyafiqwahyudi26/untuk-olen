@@ -9,6 +9,7 @@ import { MOOD, baca as bacaMood, tulis as tulisMood } from "@/lib/mood";
 import { PALET, type Waktu } from "./waktu";
 import { warnaLangitDi } from "./ketinggian";
 import Settings, { type Pengaturan } from "./Settings";
+import { variabelTema } from "@/design/tema";
 import { aset } from "@/lib/basis";
 import "./jurnal.css";
 
@@ -309,19 +310,42 @@ export default function Jurnal({
   const namaBulan = `${BULAN[bulan.b]} ${bulan.y}`;
 
   return (
-    <div className={`jr${gelap ? " jr-gelap" : ""}`} style={{ ["--langit" as string]: langit }}>
+    /*
+     * variabelTema() dipasang di sini juga, bukan cuma di layar pembuka.
+     *
+     * Tombol dan panel Settings memakai var(--ch-atas-kaca) dan
+     * saudara-saudaranya untuk warna kacanya. Variabel itu ditulis
+     * variabelTema() ke elemen .op — yang cuma ada di layar pembuka. Di
+     * jurnal semuanya kosong, jadi tombolnya tampil tanpa latar sama sekali
+     * dan panelnya nyaris tembus pandang.
+     *
+     * Memberi warna sendiri di jurnal akan berarti dua tempat menentukan
+     * warna benda yang sama. Memakai fungsi yang sama menjaga keduanya ikut
+     * waktu, dan ikut aturan kontras yang sudah lolos 16 dari 16 uji.
+     */
+    <div
+      className={`jr${gelap ? " jr-gelap" : ""}`}
+      style={{ ...(variabelTema(waktu) as React.CSSProperties), ["--langit" as string]: langit }}
+    >
       <div className="jr-latar" aria-hidden>
         <div className="jr-bintang" />
         <div className="jr-jatuh">
           {[
-            /* Sudutnya kecil — 6 sampai 14 derajat — jadi lintasannya
-               MENYAMPING, bukan menukik ke bawah. Dinilai "harusnya ke
-               samping", dan itu memang lebih benar: bintang jatuh yang
-               terlihat dari bawah melintas hampir mendatar di kubah langit,
-               bukan jatuh tegak lurus seperti benda yang dilepas. */
-            { x: 4, y: 14, p: 34, s: 8, t: 15, m: 3 },
-            { x: 4, y: 30, p: 28, s: 12, t: 23, m: 11 },
-            { x: 4, y: 8, p: 40, s: 6, t: 29, m: 20 },
+            /*
+             * Sudutnya 40 sampai 56 derajat: MENYERONG TURUN.
+             *
+             * Sempat saya buat 6 sampai 14 derajat — hampir mendatar — dan
+             * hasilnya dinilai "bergeser ke samping dengan kecepatan tinggi,
+             * bukan jatuh". Itu benar: garis yang meluncur mendatar terbaca
+             * sebagai benda yang dilempar, bukan yang jatuh. Yang membuat
+             * mata menyebutnya "jatuh" adalah komponen ke BAWAH-nya.
+             *
+             * Sudut positif memutar searah jarum jam di koordinat layar, jadi
+             * perjalanan ke +x jadi turun ke kanan-bawah.
+             */
+            { x: -8, y: 2, p: 30, s: 44, t: 16, m: 3 },
+            { x: 24, y: -6, p: 24, s: 52, t: 24, m: 12 },
+            { x: 58, y: -4, p: 34, s: 40, t: 31, m: 21 },
           ].map((j, i) => (
             <span
               key={i}
