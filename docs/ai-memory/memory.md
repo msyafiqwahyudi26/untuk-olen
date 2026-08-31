@@ -831,3 +831,70 @@ untuk lapisan latar.
 
 **Belum selesai:** belum pernah dibuka di HP sungguhan; `git push` masih
 harus dijalankan Yaya dari PowerShell (sandbox tidak punya kredensial).
+
+---
+
+## 31 Agustus 2026 — penggabungan cabang laptop, dan satuan tinggi yang terlepas
+
+Kerja turunan laut dari laptop (12 commit) digabung ke `main` di VPS. Cabang
+`cowork-laptop` dipakai sebagai jembatan supaya penggabungannya dikerjakan di
+tempat yang bisa membangun dan menjalankan pemeriksaan, bukan di PowerShell
+tanpa alat.
+
+**Konflik yang dilaporkan git cuma satu berkas — dan bukan itu yang berbahaya.**
+
+`turunan.css` bentrok di dua tempat, keduanya bisa diselesaikan dengan membaca.
+Yang hampir lolos justru baris yang git gabungkan TANPA konflik: `.tr-kenangan`
+punya `margin-top` negatif setinggi `.tr-tetap` untuk membatalkan kotak alirnya.
+Cabang laptop mengubah tinggi dan margin sama-sama ke `lvh` secara konsisten.
+Penggabungan mengambil `dvh` untuk tingginya dan meninggalkan margin di `lvh`.
+Keduanya masuk akal dibaca sendiri-sendiri, dan di desktop ketiga satuan itu
+bernilai sama, jadi tidak ada yang akan menyadarinya sampai ada yang membuka
+di HP. Ditemukan karena ada pemeriksaan yang bertanya "apakah `lvh` sudah
+hilang?" dan jawabannya `False`.
+
+Ini kelas kesalahan nomor 1 di `PELAJARAN.md` dalam bentuk barunya: **dua
+pemilik satu nilai yang tidak bentrok di git justru karena masing-masing
+cabang sudah konsisten di dalam dirinya sendiri.** Konflik git menandai baris
+yang sama-sama disunting; ia tidak tahu apa-apa soal dua baris berjauhan yang
+wajib sepadan.
+
+**`dvh`, bukan `lvh`, dan alasannya bukan selera.** Kedua cabang memperbaiki
+cacat yang sama: `svh` meninggalkan jalur kosong di bawah pemandangan waktu
+bilah alamat iOS menciut. `lvh` menutup jalur itu, tapi tombol "kembali ke
+permukaan" dan bacaan kedalaman ada DI DALAM `.tr-tetap`, ditempel ke tepi
+bawahnya. Dengan `lvh`, begitu bilah alamat muncul, tepi bawah itu jatuh di
+luar layar dan satu-satunya jalan keluar dari layar ini tidak bisa disentuh —
+pada keadaan yang paling sering terjadi. `dvh` menutup penuh tanpa membuang
+tombolnya; ongkosnya elemen ini berubah ukuran saat bilahnya bergerak, dan itu
+diterima karena isinya lapisan latar, bukan paragraf yang akan melompat
+barisnya. Teksnya ada di `.tr-kenangan`, di luar sana.
+
+Catatan lama di AGENTS.md yang berbunyi "`lvh` untuk lapisan latar" sekarang
+punya pengecualian: **selama tidak ada elemen yang ditempel ke tepi bawahnya.**
+
+**Blok HP dipindah ke paling akhir berkas.** Cabang laptop menambah empat
+`@media (max-width: 720px)` sendiri yang menyentuh selektor yang sama
+(`.kn`, `.kn-kutip`, `.kn-kaki`, `.tr-naik`). Di CSS yang belakangan menang,
+jadi blok yang ditaruh di atasnya akan diam — terbaca benar, lolos build,
+tanpa pengaruh apa pun. Alasan urutannya ditulis di berkas itu supaya tidak
+ada yang merapikannya kembali ke atas.
+
+**Dua alat periksa saya sendiri berbohong sebelum kodenya diperiksa.** Pertama
+mencari penanda di salinan yang komentarnya sudah dibuang, padahal penandanya
+di dalam komentar. Kedua menembak port 3000 padahal aplikasinya di 3002, lalu
+mengunduh HTML pengalihan dan menghitungnya sebagai CSS — hasilnya "0 kecocokan"
+untuk SEMUA pola, termasuk yang seharusnya nol. Itu tandanya: kalau kontrol
+negatif ikut menjawab sama dengan yang positif, yang rusak alat ukurnya. Sejak
+itu tiap pemeriksaan pola menyertakan satu pola yang harus nol dan satu yang
+harus ada.
+
+**Terpasang dan terverifikasi di bundel tersaji:** `100dvh` 3×, `-100dvh` 1×,
+`34vmin` 1×, `680px` 2×, `96vh` 1× (blok laptop ikut hidup), `100lvh` 0×.
+`tsc` bersih, `next build` lolos, `npm run periksa:kedalaman` lolos 9/9.
+Repo ini tidak punya konfigurasi eslint sama sekali, jadi lint tidak
+dijalankan — aturan lint di CLAUDE.md itu milik repo SPD, bukan yang ini.
+
+**BELUM DILIHAT MATA.** Yang harus dibuka di HP: tombol "kembali ke permukaan"
+harus tetap terlihat saat bilah alamat muncul, dan tidak boleh ada celah antara
+pemandangan dan kenangan pertama.
