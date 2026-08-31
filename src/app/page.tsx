@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./v2/v2.css";
 import Perjalanan from "@/components/v2/Perjalanan";
+import { getNotes } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Len",
@@ -24,10 +25,14 @@ export const metadata: Metadata = {
  * catatan di HANDOVER.md dan kebiasaan sesi sebelumnya tidak patah.
  * Versi pertama pindah ke `/v1` dan tetap bisa dibuka.
  */
+/* Dibaca dari SQLite tiap permintaan, supaya catatan yang baru ditulis Olen
+   langsung ada begitu ia kembali ke langitnya. */
+export const dynamic = "force-dynamic";
+
 export default function Beranda() {
   return (
     <main className="v2">
-      <Perjalanan />
+      <Perjalanan catatan={getNotes()} />
     </main>
   );
 }

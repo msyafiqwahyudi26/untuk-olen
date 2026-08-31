@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { NoteRow } from "@/lib/db";
+import { aset } from "@/lib/basis";
 
 /** "2026-08-30 19:38:36" -> "30 Agustus 2026" */
 function tanggal(s: string) {
@@ -23,7 +24,21 @@ export default function NoteSpace({ initial }: { initial: NoteRow[] }) {
     setBusy(true);
     setErr(null);
     try {
-      const r = await fetch("/api/notes", {
+      /*
+       * aset(), BUKAN "/api/notes" telanjang.
+       *
+       * Sejak aplikasi dipasang di arcc-hivee.cloud/len, alamat mutlak yang
+       * ditulis sebagai teks tidak lagi menunjuk ke mana pun: "/api/notes"
+       * menjawab 404 sementara "/len/api/notes" menjawab 200. Diperiksa,
+       * bukan diduga.
+       *
+       * Gagalnya senyap dan mahal: tulisan Olen tidak tersimpan, dan yang
+       * muncul cuma "Belum kesimpan. Coba lagi sebentar." — kalimat yang
+       * menyalahkan jaringan untuk kesalahan yang sebenarnya ada di alamat.
+       * Tidak ketahuan sampai hari ini karena halaman jurnalnya memang belum
+       * pernah dibuka sejak basePath dipasang.
+       */
+      const r = await fetch(aset("/api/notes"), {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ body }),

@@ -448,6 +448,23 @@ export default function Opening() {
         <source src={aset("/audio/voice-of-olen.opus")} type="audio/ogg; codecs=opus" />
       </audio>
 
+      {/* Arah kedua: naik ke langit tempat jurnal Olen. Ditaruh di ATAS layar,
+          berseberangan dengan "keep going" yang di bawah — arahnya sendiri
+          yang memberi tahu ke mana ia menuju, tanpa perlu dijelaskan. */}
+      {started && (
+        <button
+          className="ui-pil z-atas op-up"
+          onClick={() =>
+            window.dispatchEvent(new CustomEvent("olen:up", { detail: { waktu: set.waktu } }))
+          }
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
+            <path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span>your sky</span>
+        </button>
+      )}
+
       {ajakGeser && (
         <div className="op-geser" role="status">
           <span className="op-geser-tangan" aria-hidden>

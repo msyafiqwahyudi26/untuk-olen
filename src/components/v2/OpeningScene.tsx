@@ -180,15 +180,29 @@ function Surya({ waktu, jam }: { waktu: Waktu; jam: number }) {
  * jarak antar bintang — cukup memecah keteraturannya, tidak cukup untuk
  * mengembalikan gumpalan.
  *
- * Jumlahnya dinaikkan dari 220 ke 340 karena di layar tegak hanya sekitar
- * 29 persen lebar medan bintang yang terlihat; dengan 220, yang benar-benar
- * tampak cuma sekitar 64 butir.
+ * ── PITA BINTANGNYA JUGA TERLALU SEMPIT ──
+ *
+ * Sesudah sebarannya merata, langitnya masih "belum full". Diukur, sebabnya
+ * bukan sebaran lagi melainkan JANGKAUAN — pita bintang cuma menempati y 22
+ * sampai 118, sedangkan langit yang terlihat jauh lebih tinggi:
+ *
+ *     HP tegak   langit terlihat y −226 … 162 → lubang 44 satuan DI ATAS
+ *     keduanya   cakrawala di y ≈ 0          → lubang 22 satuan DI BAWAH
+ *
+ * Jadi ada jalur kosong di puncak layar dan jalur kosong tepat di atas laut,
+ * dan keduanya justru tempat mata paling sering singgah. Pitanya dilebarkan
+ * jadi y 6 … 152.
+ *
+ * Jumlahnya 680. Angka itu diturunkan, bukan dikira-kira: di layar tegak
+ * hanya 29 persen lebar medan yang terlihat, jadi 680 memberi sekitar 200
+ * bintang yang benar-benar tampak — kerapatan yang sama dengan yang terlihat
+ * enak di layar lebar. Satu draw call, jadi jumlahnya tidak jadi soal.
  */
 const PLASTIK = 1.32471795724474602596;
 
 function Bintang({ tampil }: { tampil: boolean }) {
   const geo = useMemo(() => {
-    const n = 340;
+    const n = 680;
     const a1 = 1 / PLASTIK;
     const a2 = 1 / (PLASTIK * PLASTIK);
     const pos = new Float32Array(n * 3);
@@ -201,7 +215,7 @@ function Bintang({ tampil }: { tampil: boolean }) {
       const g2 = Math.cos(i * 3.71) * 0.5;
       const k = i - 1;
       pos[k * 3] = (u - 0.5) * 620 + g1 * 7;
-      pos[k * 3 + 1] = 22 + v * 96 + g2 * 2.4;
+      pos[k * 3 + 1] = 6 + v * 146 + g2 * 3.2;
       pos[k * 3 + 2] = -258;
     }
     const g = new THREE.BufferGeometry();

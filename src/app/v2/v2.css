@@ -329,3 +329,39 @@
   .op-geser-tangan { animation: none; opacity: .9; }
   .op-geser { animation: none; }
 }
+
+/* ─────────────── tombol ke langit ───────────────
+   Di ATAS layar, berseberangan dengan "keep going" yang di bawah. Arahnya
+   sendiri yang memberi tahu ke mana ia menuju; tidak perlu dijelaskan.
+
+   Sengaja tidak memakai transform untuk memusatkan — kelasnya .ui-pil, yang
+   menjalankan animasi uiNaik berakhir di `transform: none` dengan fill-mode
+   both, dan itu akan menimpa pemusatannya. Cacat yang sama pernah membuat
+   "keep going" meleset dari tengah. */
+
+.op-up {
+  position: absolute;
+  inset-inline: 0;
+  margin-inline: auto;
+  width: fit-content;
+  top: max(calc(var(--tepi-y) + 52px), calc(env(safe-area-inset-top) + 52px));
+  z-index: 4;
+  flex-direction: column;
+  gap: .3rem;
+  padding: .4rem 1rem .5rem;
+  font-size: var(--t-kecil);
+  letter-spacing: .3em;
+  text-transform: lowercase;
+  animation: uiNaik var(--d-masuk) var(--ease) .55s both;
+}
+.op-up:hover { transform: translateY(1px); }
+.op-up svg { animation: opTarik 2.4s ease-in-out infinite; }
+.op-up:hover svg { animation-duration: 1.2s; }
+@keyframes opTarik {
+  0%, 100% { transform: translateY(0); opacity: .55; }
+  50%      { transform: translateY(-6px); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .op-up svg { animation: none; }
+}

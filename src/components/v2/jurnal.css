@@ -1,0 +1,173 @@
+/* ═══ JURNAL ═══
+ *
+ * Seperti turunan.css: TIDAK ADA satu pun warna langit di berkas ini.
+ * Semuanya dari --langit, --bintang, dan --udara yang ditulis Jurnal.tsx
+ * berdasarkan ketinggian.ts.
+ */
+
+.jr {
+  position: relative;
+  width: 100%;
+}
+
+.jr-tetap {
+  position: sticky;
+  top: 0;
+  /* dvh supaya bilah alamat Safari yang menciut tidak meninggalkan jalur
+     kosong. Alasan lengkapnya di turunan.css. */
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
+  color: #eaf3ff;
+}
+
+.jr-langit {
+  position: absolute;
+  inset: 0;
+  background: var(--langit, #4b739c);
+}
+
+/* ── bintang ── */
+
+.jr-bintang {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Bintang tidak bertambah saat naik; langitnya yang berhenti bersinar.
+     Itu sebabnya yang diubah opasitas lapisan ini, bukan jumlah bintangnya. */
+  opacity: var(--bintang, 0.1);
+}
+
+.jr-bintang span {
+  position: absolute;
+  border-radius: 50%;
+  background: #f2f8ff;
+  animation: jrKelip ease-in-out infinite;
+}
+
+@keyframes jrKelip {
+  0%, 100% { opacity: 0.9; }
+  50%      { opacity: 0.35; }
+}
+
+/* ── awan yang tertinggal di bawah ── */
+
+.jr-awan {
+  position: absolute;
+  inset-inline: -10%;
+  bottom: -6%;
+  height: 34%;
+  pointer-events: none;
+  opacity: calc(var(--udara, 1) * 0.55);
+  background:
+    radial-gradient(60% 100% at 18% 100%, rgba(255, 255, 255, 0.5), transparent 70%),
+    radial-gradient(50% 100% at 52% 100%, rgba(255, 255, 255, 0.42), transparent 72%),
+    radial-gradient(65% 100% at 86% 100%, rgba(255, 255, 255, 0.46), transparent 70%);
+  filter: blur(6px);
+}
+
+/* ── isi yang digulir ── */
+
+.jr-isi {
+  position: relative;
+  z-index: 2;
+  width: min(38rem, 88vw);
+  margin: 0 auto;
+  padding-bottom: 40vh;
+}
+
+.jr-sambut {
+  min-height: 92svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.jr-judul {
+  margin: 0;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: clamp(2.6rem, 12vw, 4.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+  text-shadow: 0 1px 18px rgba(4, 14, 30, 0.55);
+}
+
+.jr-lede {
+  margin: 1.1rem auto 0;
+  max-width: 26ch;
+  font-size: clamp(0.9rem, 3.4vw, 1rem);
+  line-height: 1.8;
+  opacity: 0.72;
+  text-shadow: 0 1px 12px rgba(4, 14, 30, 0.6);
+}
+
+/* Ruang tulis muncul di sekitar sepertiga perjalanan, bukan di puncak.
+   Yang paling sering dilakukan seharusnya yang paling dekat dijangkau. */
+.jr-tulis {
+  padding-bottom: 12vh;
+}
+
+/* ── bacaan ketinggian ── */
+
+.jr-baca {
+  position: absolute;
+  left: max(1.2rem, env(safe-area-inset-left));
+  bottom: max(1.4rem, env(safe-area-inset-bottom));
+  z-index: 3;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 12px rgba(4, 14, 30, 0.6);
+}
+
+.jr-km   { margin: 0; font-size: clamp(1.5rem, 5vw, 2.1rem); letter-spacing: -0.02em; }
+.jr-suhu { margin: 0.15rem 0 0; font-size: 0.76rem; opacity: 0.6; letter-spacing: 0.16em; }
+
+.jr-turun {
+  position: absolute;
+  right: max(1.2rem, env(safe-area-inset-right));
+  bottom: max(1.4rem, env(safe-area-inset-bottom));
+  z-index: 3;
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: inherit;
+  font: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: lowercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.jr-turun:hover { background: rgba(255, 255, 255, 0.14); }
+.jr-turun:focus-visible { outline: 2px solid rgba(244, 228, 176, 0.9); outline-offset: 3px; }
+
+/* Ruang tulis milik v1 memakai kelas .gc dan .note-ta dari design system.
+   Yang perlu ditambah di sini cuma jarak baca yang nyaman di langit. */
+.jr-tulis .note-ta {
+  background: transparent;
+  border: none;
+  resize: none;
+  width: 100%;
+  color: #eff8ff;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: 1.02rem;
+  line-height: 1.9;
+  outline: none;
+}
+.jr-tulis .note-ta::placeholder { color: rgba(200, 225, 245, 0.38); font-style: italic; }
+
+@media (max-width: 720px) {
+  .jr-isi { width: 90vw; }
+  .jr-km  { font-size: clamp(1.4rem, 6.5vw, 1.9rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jr-bintang span { animation: none; }
+}

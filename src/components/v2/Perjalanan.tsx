@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Opening from "./Opening";
 import Turunan from "./Turunan";
 import Selam from "./Selam";
+import Jurnal from "./Jurnal";
+import type { NoteRow } from "@/lib/db";
 import { waktuSekarang, type Waktu } from "./waktu";
 
 /**
@@ -38,13 +40,13 @@ import { waktuSekarang, type Waktu } from "./waktu";
  * bukan pekerjaan tiap frame.
  */
 
-type Layar = "pembuka" | "turun";
+type Layar = "pembuka" | "turun" | "naik";
 
-export default function Perjalanan() {
+export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
   const [layar, setLayar] = useState<Layar>("pembuka");
   /* null = tidak sedang berpindah. Selama bukan null, tirai air terpasang di
      atas segalanya dan pergantian layarnya terjadi DI BALIKNYA. */
-  const [selam, setSelam] = useState<"turun" | "naik" | null>(null);
+  const [selam, setSelam] = useState<"turun" | "naik" | "naik-langit" | null>(null);
   /* Nilai awal tetap, jamnya dibaca sesudah terpasang — server tidak tahu jam
      Olen, dan membacanya saat render adalah hydration mismatch. Jebakan yang
      sudah tercatat di HANDOVER. */
@@ -58,8 +60,20 @@ export default function Perjalanan() {
       if (w) setWaktu(w);
       setSelam("turun");
     };
+    /* Arah kedua. Peristiwanya terpisah dari olen:next supaya tombol yang
+       memancarkannya tidak perlu tahu apa pun soal layar tujuan. */
+    const keLangit = (e: Event) => {
+      const w = (e as CustomEvent<{ waktu?: Waktu }>).detail?.waktu;
+      if (w) setWaktu(w);
+      setSelam("naik-langit");
+    };
+
     window.addEventListener("olen:next", turun);
-    return () => window.removeEventListener("olen:next", turun);
+    window.addEventListener("olen:up", keLangit);
+    return () => {
+      window.removeEventListener("olen:next", turun);
+      window.removeEventListener("olen:up", keLangit);
+    };
   }, []);
 
   /**
@@ -84,10 +98,15 @@ export default function Perjalanan() {
         <Opening />
       </div>
       {layar === "turun" && <Turunan waktu={waktu} onNaik={naik} />}
+      {layar === "naik" && (
+        <Jurnal waktu={waktu} catatan={catatan} onTurun={() => setSelam("naik")} />
+      )}
       {selam && (
         <Selam
           waktu={waktu}
-          onTutup={() => tukar(selam === "turun" ? "turun" : "pembuka")}
+          onTutup={() =>
+            tukar(selam === "turun" ? "turun" : selam === "naik-langit" ? "naik" : "pembuka")
+          }
           onSelesai={() => setSelam(null)}
         />
       )}
