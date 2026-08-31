@@ -19,6 +19,27 @@ import { KENANGAN } from "./laut/kenangan";
 import "./turunan.css";
 
 /**
+ * ═══ SISI TIAP KENANGAN DI LAYAR LEBAR ═══
+ *
+ * `true` berarti ke kanan, `false` ke kiri. Kenangan dari Yaya tidak memakai
+ * ini sama sekali; ia selalu di tengah, dan nilainya di sini diabaikan.
+ *
+ * Dihitung SEKALI saat modul dimuat, bukan di dalam render. Isinya tidak
+ * pernah berubah selama halaman hidup, jadi menghitungnya ulang tiap render
+ * cuma pekerjaan yang dibuang.
+ *
+ * Penghitungnya (`n`) hanya naik untuk kutipan Olen. Kalau memakai indeks
+ * mentah, satu kalimat Yaya yang disisipkan di tengah akan MEMBALIK seluruh
+ * zigzag di bawahnya, dan penataan yang tadinya sudah pas berubah tanpa ada
+ * yang menyentuhnya.
+ */
+const SISI_KANAN: readonly boolean[] = (() => {
+  let n = 0;
+  return KENANGAN.map((k) => (k.dari === "yaya" ? false : n++ % 2 === 1));
+})();
+const sisiOlen = (i: number) => SISI_KANAN[i];
+
+/**
  * ═══ TURUNAN — dari permukaan ke laut dalam ═══
  *
  * Layar kedua. Dua keputusan besar, keduanya sudah dibahas dan disepakati:
@@ -541,13 +562,42 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
             dicari dengan Ctrl+F, dan dibacakan pembaca layar. Itu alasan utama
             layar ini 2D dan bukan WebGL.
           */}
+          {/* Peta indeks -> sisi, dihitung SEKALI di luar render tiap baris.
+              Menghitungnya di dalam `map` berarti menghitung ulang seluruh
+              larik untuk tiap kenangan. */}
           {KENANGAN.map((k, i) => (
             <figure
               key={i}
               ref={(el) => {
                 kenanganEl.current[i] = el;
               }}
-              className={`kn${k.dari === "yaya" ? " kn-yaya" : ""}`}
+              /*
+                SISI DI LAYAR LEBAR — dan kenapa bukan acak.
+
+                Yaya: "penataannya di laptop tuh lurus banget sih dan nggak
+                ada variasi."
+
+                Variasinya diturunkan dari isi, bukan dari `Math.random()`
+                (yang akan bikin hydration mismatch) maupun dari nomor urut
+                mentah:
+
+                  dari === "yaya"  ke tengah. Ini momen Kakak yang menahan
+                                   halaman sebentar, jadi ia berdiri di poros
+                                   dan blok di sekitarnya bergoyang terhadap
+                                   dia.
+                  selain itu       berganti kiri dan kanan, dihitung dari
+                                   urutan SESAMA kutipan Olen saja.
+
+                Yang terakhir itu penting. Kalau dihitung dari `i` mentah,
+                satu kalimat Yaya yang disisipkan di tengah akan membalik
+                seluruh zigzag di bawahnya. Dengan penghitung sendiri, blok
+                Yaya cuma numpang lewat dan tidak mengacaukan iramanya.
+
+                Di HP semua ini diabaikan: lihat blok 900px di turunan.css.
+              */
+              className={`kn${k.dari === "yaya" ? " kn-yaya" : ""}${
+                k.foto?.length ? " kn-berfoto" : ""
+              } kn-sisi-${k.dari === "yaya" ? "tengah" : sisiOlen(i) ? "kanan" : "kiri"}`}
               /* Tanpa `top`. Letaknya ditentukan alir dokumen dan jarak antar
                  blok di CSS; yang membaca letak itu justru meter kedalamannya,
                  bukan sebaliknya. */
@@ -607,6 +657,39 @@ export default function Turunan({ waktu, onNaik }: { waktu: Waktu; onNaik: () =>
                   <span className="kn-video-main" aria-hidden />
                 </button>
               )}
+              {/*
+                FOTO.
+
+                `loading="lazy"` + `decoding="async"`: dua puluh kenangan yang
+                semuanya memuat gambarnya di depan membuat halaman ini berat
+                persis di tempat yang diminta ringan. Foto di bawah 400 m
+                tidak akan pernah dilihat kalau Olen berhenti di tengah.
+
+                `width`/`height` WAJIB ada walau ukurannya diatur CSS. Tanpa
+                keduanya peramban tidak tahu berapa tinggi yang harus
+                disisakan, jadi begitu gambarnya datang, seluruh teks di
+                bawahnya melompat. Di halaman yang meter kedalamannya dihitung
+                dari posisi gulir, lompatan itu bukan cuma jelek: ia menggeser
+                angka yang sedang dibaca. Angkanya perkiraan 3:4 dan itu tidak
+                apa-apa, yang penting nisbahnya dipesan lebih dulu.
+              */}
+              {k.foto?.length ? (
+                <div className={`kn-foto kn-foto-${Math.min(k.foto.length, 3)}`}>
+                  {k.foto.map((f, n) => (
+                    <figure key={n} className="kn-foto-satu">
+                      <img
+                        src={aset(`/memori/${f.berkas}`)}
+                        alt={f.alt}
+                        width={900}
+                        height={1200}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      {f.ket && <figcaption>{f.ket}</figcaption>}
+                    </figure>
+                  ))}
+                </div>
+              ) : null}
               {k.pembuka && <p className="kn-pembuka">{k.pembuka}</p>}
               {/* Tanda petik ditulis di sini, bukan di dalam datanya: yang
                   disimpan harus kata Olen apa adanya, supaya bisa dicocokkan

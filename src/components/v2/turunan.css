@@ -742,3 +742,152 @@
   .kn-kutip { font-size: clamp(1rem, 4.4vw, 1.3rem); line-height: 1.5; }
   .kn-kaki { margin-top: 0.7rem; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * PENATAAN DI LAYAR LEBAR
+ *
+ * Yaya: "penataannya di laptop tuh lurus banget sih dan nggak ada variasi."
+ *
+ * Benar. Semua blok punya lebar yang sama dan semuanya di tengah, jadi
+ * turunan 800 meter terbaca seperti satu kolom dokumen yang panjang.
+ *
+ * Yang diubah tiga hal, dan semuanya diturunkan dari ISI, bukan dari selera
+ * per blok:
+ *
+ *   1. SISI. Kutipan Olen berganti kiri dan kanan; kalimat Yaya selalu di
+ *      tengah. Jadi Olen terasa melayang turun sambil bergoyang, dan tiap
+ *      kali Kakak bicara halamannya berhenti bergoyang sebentar.
+ *   2. LEBAR. Yang berfoto paling lebar, kalimat Yaya sedang, kutipan
+ *      biasa paling sempit. Kutipan Olen kebanyakan pendek; kolom lebar
+ *      untuk teks pendek justru bikin barisnya menggantung.
+ *   3. JARAK. Blok Yaya diberi ruang napas lebih besar sebelum dan
+ *      sesudahnya, karena dia yang menandai pergantian babak.
+ *
+ * Semuanya HANYA di atas 900px. Di bawah itu satu kolom di tengah, tanpa
+ * kecuali, dan `align-self` dikembalikan ke center secara eksplisit supaya
+ * tidak ada yang menetes turun dari layar besar.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 900px) {
+  /* Ruang di kiri-kanan tempat blok boleh bergeser. Dipasang sebagai padding
+     induk, BUKAN sebagai `left` pada bloknya: padding menjaga blok tetap di
+     dalam alir dan tidak bisa keluar layar, sementara `left` bisa. Berkas ini
+     sudah pernah punya bug persis dari `left` yang tertinggal; lihat catatan
+     panjang di atas. */
+  .tr-kenangan {
+    padding-inline: clamp(2rem, 9vw, 10rem);
+  }
+
+  .kn-sisi-kiri   { align-self: flex-start; }
+  .kn-sisi-kanan  { align-self: flex-end; }
+  .kn-sisi-tengah { align-self: center; }
+
+  .kn            { width: min(34rem, 100%); }
+  .kn-yaya       { width: min(41rem, 100%); }
+  .kn-berfoto    { width: min(44rem, 100%); }
+
+  /* Kalimat Yaya menandai pergantian babak, jadi ia diberi napas lebih. */
+  .kn-yaya       { margin-block: 6vh; }
+
+  /* Teks rata kanan waktu bloknya di kanan. Tanpa ini blok kanan terlihat
+     seperti blok kiri yang kebetulan terdorong, bukan seperti pilihan. Garis
+     kutipan ikut pindah ke sisi kanan supaya tidak menggantung sendirian. */
+  .kn-sisi-kanan .kn-pembuka,
+  .kn-sisi-kanan .kn-cerita { text-align: right; margin-inline-start: auto; }
+  .kn-sisi-kanan .kn-kutip {
+    text-align: right;
+    border-left: none;
+    border-right: 3px solid rgba(244, 228, 176, 0.5);
+    padding-left: 0;
+    padding-right: clamp(0.95rem, 2.5vw, 1.4rem);
+  }
+  .kn-sisi-kanan .kn-kaki  { align-items: flex-end; }
+  .kn-sisi-kanan .kn-foto  { justify-content: flex-end; }
+  .kn-sisi-kanan .kn-video { margin-inline-start: auto; }
+}
+
+/* Di bawah 900px semuanya kembali satu kolom. Ditulis EKSPLISIT, tidak
+   mengandalkan "kan aturannya cuma ada di dalam media query": kalau kelak ada
+   yang memindahkan salah satu aturan di atas keluar dari media query, baris
+   ini yang menahannya. */
+@media (max-width: 899px) {
+  .kn-sisi-kiri,
+  .kn-sisi-kanan,
+  .kn-sisi-tengah { align-self: center; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * FOTO
+ *
+ * Bukan gambar hiasan. Ini bukti: foto buku tulis Olen di sebelah kalimat
+ * Olen soal caranya menulis, foto senyumnya di sebelah kalimat yang bikin
+ * Kakak ketawa. Jadi ia diperlakukan seperti kutipan, bukan seperti latar.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.kn-foto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+}
+
+.kn-foto-satu {
+  margin: 0;
+  flex: 0 1 auto;
+  max-width: 100%;
+}
+
+.kn-foto-satu img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.7rem;
+  /* Bingkai tipis dan bayangan yang dalam. Air di sekelilingnya gelap dan
+     tidak rata; tanpa bingkai, tepi foto yang gelap larut ke dalam air dan
+     gambarnya kelihatan bocor. */
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 18px 44px rgba(1, 8, 20, 0.55);
+  background: rgba(4, 16, 32, 0.5);
+}
+
+.kn-foto-satu figcaption {
+  margin-top: 0.5rem;
+  font-family: var(--huruf-badan, system-ui, sans-serif);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+  text-shadow: 0 1px 8px rgba(2, 11, 24, 0.9);
+}
+
+/* Satu foto: besar, tapi tidak selebar teksnya. Foto yang selebar kolom
+   berhenti terasa seperti foto dan mulai terasa seperti banner. */
+.kn-foto-1 .kn-foto-satu { width: min(21rem, 78%); }
+
+/* Dua foto: yang kedua lebih kecil dan sedikit miring, seperti foto yang
+   diselipkan di belakang yang pertama. Kemiringannya TETAP, bukan acak:
+   nilai acak berarti server dan peramban menggambar sudut yang berbeda, dan
+   React melaporkannya sebagai hydration mismatch. */
+.kn-foto-2 .kn-foto-satu:first-child { width: min(17rem, 55%); }
+.kn-foto-2 .kn-foto-satu:last-child  { width: min(12rem, 38%); align-self: flex-end; }
+.kn-foto-2 .kn-foto-satu:last-child img { rotate: 3deg; }
+
+.kn-foto-3 .kn-foto-satu { width: min(11rem, 30%); }
+.kn-foto-3 .kn-foto-satu:nth-child(2) img { rotate: -2.5deg; }
+
+@media (max-width: 720px) {
+  .kn-foto-1 .kn-foto-satu { width: min(18rem, 88%); }
+  .kn-foto-2 .kn-foto-satu:first-child { width: 62%; }
+  .kn-foto-2 .kn-foto-satu:last-child  { width: 34%; }
+  .kn-foto-3 .kn-foto-satu { width: 30%; }
+}
+
+/* Kalau ada yang mematikan animasi, matikan juga kemiringannya. Miring itu
+   dekorasi, dan dekorasi adalah hal pertama yang dibuang waktu diminta
+   tenang. */
+@media (prefers-reduced-motion: reduce) {
+  .kn-foto-satu img { rotate: none; }
+}
