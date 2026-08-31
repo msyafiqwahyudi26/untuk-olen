@@ -1,6 +1,9 @@
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import fs from "node:fs";
+/* Daftar perasaannya tinggal di berkas sendiri karena layar jurnal — yang
+   berjalan di peramban — juga memerlukannya. Lihat catatan di lib/mood.ts. */
+import { sahMood } from "./mood";
 
 const DB_PATH = process.env.OLEN_DB ?? path.join(process.cwd(), "data", "olen.db");
 
@@ -39,7 +42,8 @@ export function db(): DatabaseSync {
     CREATE TABLE IF NOT EXISTS notes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       body TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      mood TEXT
     );
 
     /* PIN empat angka. Satu baris saja, selamanya — CHECK (id = 1) membuat
@@ -54,6 +58,26 @@ export function db(): DatabaseSync {
       tunggu_sampai INTEGER NOT NULL DEFAULT 0
     );
   `);
+  /*
+   * Basis data yang SUDAH ADA tidak ikut berubah oleh CREATE TABLE IF NOT
+   * EXISTS di atas — perintah itu hanya berlaku kalau tabelnya belum ada.
+   * Jadi kolom `mood` harus ditambahkan terpisah.
+   *
+   * ALTER TABLE ADD COLUMN adalah satu-satunya perubahan skema yang aman di
+   * sini: ia menambah, tidak pernah menghapus atau menyusun ulang. Tulisan
+   * Olen di kolom `body` tidak tersentuh sama sekali.
+   *
+   * Dibungkus try/catch dan bukan diperiksa lebih dulu karena SQLite tidak
+   * punya "ADD COLUMN IF NOT EXISTS". Menjalankannya dua kali melempar galat
+   * "duplicate column name", dan itu justru pertanda kolomnya sudah ada —
+   * bukan kegagalan.
+   */
+  try {
+    d.exec("ALTER TABLE notes ADD COLUMN mood TEXT");
+  } catch {
+    /* sudah ada */
+  }
+
   _db = d;
   return d;
 }
@@ -72,7 +96,7 @@ export type StarRow = {
   photo: string | null; audio: string | null;
   ra: number; dec: number; mag: number; grp: string | null;
 };
-export type NoteRow = { id: number; body: string; created_at: string };
+export type NoteRow = { id: number; body: string; created_at: string; mood: string | null };
 
 /**
  * node:sqlite mengembalikan baris dengan prototype null — React Server Components
@@ -87,12 +111,13 @@ export const getShifts  = () => all<ShiftRow>("SELECT then_text,now_text FROM sh
 export const getQuotes  = () => all<QuoteRow>("SELECT text,date,weight FROM quotes ORDER BY ord");
 export const getStars   = () => all<StarRow>("SELECT key,title,date,body,photo,audio,ra,dec,mag,grp FROM stars ORDER BY ord");
 export const getStarLinks = () => all<{ a: string; b: string }>("SELECT a,b FROM star_links");
-export const getNotes   = () => all<NoteRow>("SELECT id,body,created_at FROM notes ORDER BY id DESC LIMIT 50");
+export const getNotes   = () => all<NoteRow>("SELECT id,body,created_at,mood FROM notes ORDER BY id DESC LIMIT 200");
 
-export function addNote(body: string) {
+export function addNote(body: string, mood?: string | null) {
   const trimmed = body.trim().slice(0, 4000);
   if (!trimmed) return null;
-  db().prepare("INSERT INTO notes (body) VALUES (?)").run(trimmed);
+  const m = sahMood(mood) ? mood : null;
+  db().prepare("INSERT INTO notes (body, mood) VALUES (?, ?)").run(trimmed, m);
   return getNotes()[0] ?? null;
 }
 

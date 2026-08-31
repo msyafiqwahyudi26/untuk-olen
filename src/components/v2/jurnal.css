@@ -1,257 +1,70 @@
 /* ═══ JURNAL ═══
  *
- * Seperti turunan.css: TIDAK ADA satu pun warna langit di berkas ini.
- * Semuanya dari --langit, --bintang, dan --udara yang ditulis Jurnal.tsx
- * berdasarkan ketinggian.ts.
+ * Tidak ada satu pun warna langit di berkas ini. Semuanya dari --langit yang
+ * ditulis Jurnal.tsx berdasarkan ketinggian.ts, jadi ia berganti sendiri
+ * antara pagi, siang, sore, dan malam.
  */
 
 .jr {
   position: relative;
-  width: 100%;
-}
-
-.jr-tetap {
-  position: sticky;
-  top: 0;
-  /* dvh supaya bilah alamat Safari yang menciut tidak meninggalkan jalur
-     kosong. Alasan lengkapnya di turunan.css. */
-  height: 100svh;
-  height: 100dvh;
-  overflow: hidden;
-  color: #eaf3ff;
-}
-
-.jr-langit {
-  position: absolute;
-  inset: 0;
+  min-height: 100svh;
+  min-height: 100dvh;
   background: var(--langit, #4b739c);
+  color: #eef6ff;
+  padding:
+    max(1.4rem, env(safe-area-inset-top))
+    max(1.2rem, env(safe-area-inset-right))
+    max(2.5rem, env(safe-area-inset-bottom))
+    max(1.2rem, env(safe-area-inset-left));
 }
 
-/* ── bintang ── */
+/* ── latar ── */
 
+.jr-latar { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+/*
+ * Bintang digambar sebagai POLA CSS, bukan 240 elemen.
+ *
+ * Layar ini punya kotak tulis, tombol, dan daftar arsip yang semuanya perlu
+ * menanggapi sentuhan; menaruh ratusan elemen mutlak di belakangnya membuat
+ * peramban memeriksa semuanya tiap kali jari menyentuh layar. Pola
+ * radial-gradient digambar sekali oleh mesin gambar dan tidak pernah muncul
+ * di pohon DOM.
+ *
+ * Hanya terlihat saat sore dan malam — di langit siang bintangnya memang
+ * tidak akan terlihat, dan menampilkannya justru merusak.
+ */
 .jr-bintang {
   position: absolute;
   inset: 0;
-  pointer-events: none;
-  /* Bintang tidak bertambah saat naik; langitnya yang berhenti bersinar.
-     Itu sebabnya yang diubah opasitas lapisan ini, bukan jumlah bintangnya. */
-  opacity: var(--bintang, 0.1);
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  background-image:
+    radial-gradient(1.4px 1.4px at 12% 18%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 34% 8%, #eaf3ff, transparent),
+    radial-gradient(1.6px 1.6px at 58% 22%, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 78% 12%, #dbe9ff, transparent),
+    radial-gradient(1.3px 1.3px at 92% 28%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 22% 42%, #eaf3ff, transparent),
+    radial-gradient(1.5px 1.5px at 46% 36%, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 68% 48%, #dbe9ff, transparent),
+    radial-gradient(1.3px 1.3px at 6% 62%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 84% 58%, #eaf3ff, transparent);
+  background-size: 42vmin 42vmin;
+  animation: jrKelip 5.5s ease-in-out infinite;
 }
 
-.jr-bintang span {
-  position: absolute;
-  border-radius: 50%;
-  background: #f2f8ff;
-  animation: jrKelip ease-in-out infinite;
-}
+.jr-gelap .jr-bintang { opacity: 0.85; }
 
 @keyframes jrKelip {
-  0%, 100% { opacity: 0.9; }
-  50%      { opacity: 0.35; }
+  0%, 100% { opacity: 0.85; }
+  50%      { opacity: 0.55; }
 }
 
-/* ── awan yang tertinggal di bawah ── */
+/* ── bintang jatuh ── */
 
-.jr-awan {
-  position: absolute;
-  inset-inline: -10%;
-  bottom: -6%;
-  height: 34%;
-  pointer-events: none;
-  opacity: calc(var(--udara, 1) * 0.55);
-  background:
-    radial-gradient(60% 100% at 18% 100%, rgba(255, 255, 255, 0.5), transparent 70%),
-    radial-gradient(50% 100% at 52% 100%, rgba(255, 255, 255, 0.42), transparent 72%),
-    radial-gradient(65% 100% at 86% 100%, rgba(255, 255, 255, 0.46), transparent 70%);
-  filter: blur(6px);
-}
-
-/* ── isi yang digulir ── */
-
-.jr-isi {
-  position: relative;
-  z-index: 2;
-  width: min(38rem, 88vw);
-  margin: 0 auto;
-  padding-bottom: 40vh;
-}
-
-/* Urutan DOM-nya terbalik mengikuti arah gulirnya: paling atas di halaman =
-   paling tinggi di langit. Sambutan ada di PALING BAWAH karena di situlah
-   Olen berangkat. */
-.jr-sambut {
-  min-height: 92svh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-}
-
-/* Ajakan menggulir ke atas. Panahnya bergerak naik — arahnya sendiri yang
-   memberi tahu, kata-katanya cuma penegas. */
-.jr-ajak {
-  margin: 2.2rem 0 0;
-  font-size: 0.66rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  opacity: 0.5;
-}
-.jr-ajak::after {
-  content: "";
-  display: block;
-  width: 1px;
-  height: 38px;
-  margin: 12px auto 0;
-  background: linear-gradient(to top, rgba(244, 228, 176, 0.6), transparent);
-  animation: jrTarik 3s ease-in-out infinite;
-}
-@keyframes jrTarik {
-  0%, 100% { transform: translateY(0); opacity: 0.4; }
-  50%      { transform: translateY(-8px); opacity: 1; }
-}
-
-/* ── buku catatan ──
-   Bertanggal, satu halaman satu entri. Daftar mengundang membaca sekilas dari
-   atas ke bawah; buku mengundang berhenti di satu halaman. Yang ditulis di
-   sini bukan tugas yang perlu ditinjau, melainkan hari-hari yang perlu dibaca
-   satu per satu. */
-
-.jr-buku {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(3rem, 12vh, 6rem);
-  padding: 18vh 0 12vh;
-}
-
-.jr-halaman {
-  padding: clamp(1.6rem, 5vw, 2.6rem);
-  border-radius: var(--r-lg, 22px);
-  background: rgba(6, 18, 38, 0.42);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-.jr-tanggal {
-  font-size: 0.66rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  opacity: 0.55;
-  padding-bottom: 0.9rem;
-  margin-bottom: 1.2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.jr-badan {
-  margin: 0;
-  font-family: var(--huruf-judul, Georgia, serif);
-  font-size: clamp(1rem, 3.6vw, 1.12rem);
-  line-height: 2;
-  white-space: pre-wrap;
-  color: rgba(236, 246, 255, 0.88);
-}
-
-.jr-tulis .jr-judul {
-  font-size: clamp(1.6rem, 6vw, 2.2rem);
-  margin-bottom: 1.4rem;
-  text-align: center;
-}
-
-.jr-judul {
-  margin: 0;
-  font-family: var(--huruf-judul, Georgia, serif);
-  font-size: clamp(2.6rem, 12vw, 4.6rem);
-  line-height: 0.95;
-  letter-spacing: -0.03em;
-  font-weight: 400;
-  text-shadow: 0 1px 18px rgba(4, 14, 30, 0.55);
-}
-
-.jr-lede {
-  margin: 1.1rem auto 0;
-  max-width: 26ch;
-  font-size: clamp(0.9rem, 3.4vw, 1rem);
-  line-height: 1.8;
-  opacity: 0.72;
-  text-shadow: 0 1px 12px rgba(4, 14, 30, 0.6);
-}
-
-/* Ruang tulis muncul di sekitar sepertiga perjalanan, bukan di puncak.
-   Yang paling sering dilakukan seharusnya yang paling dekat dijangkau. */
-.jr-tulis {
-  padding-bottom: 12vh;
-}
-
-/* ── bacaan ketinggian ── */
-
-.jr-baca {
-  position: absolute;
-  left: max(1.2rem, env(safe-area-inset-left));
-  bottom: max(1.4rem, env(safe-area-inset-bottom));
-  z-index: 3;
-  pointer-events: none;
-  font-variant-numeric: tabular-nums;
-  text-shadow: 0 1px 12px rgba(4, 14, 30, 0.6);
-}
-
-.jr-km   { margin: 0; font-size: clamp(1.5rem, 5vw, 2.1rem); letter-spacing: -0.02em; }
-.jr-suhu { margin: 0.15rem 0 0; font-size: 0.76rem; opacity: 0.6; letter-spacing: 0.16em; }
-
-.jr-turun {
-  position: absolute;
-  right: max(1.2rem, env(safe-area-inset-right));
-  bottom: max(1.4rem, env(safe-area-inset-bottom));
-  z-index: 3;
-  min-height: 44px;
-  padding: 0.55rem 1rem;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  color: inherit;
-  font: inherit;
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  text-transform: lowercase;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.jr-turun:hover { background: rgba(255, 255, 255, 0.14); }
-.jr-turun:focus-visible { outline: 2px solid rgba(244, 228, 176, 0.9); outline-offset: 3px; }
-
-/* Ruang tulis milik v1 memakai kelas .gc dan .note-ta dari design system.
-   Yang perlu ditambah di sini cuma jarak baca yang nyaman di langit. */
-.jr-tulis .note-ta {
-  background: transparent;
-  border: none;
-  resize: none;
-  width: 100%;
-  color: #eff8ff;
-  font-family: var(--huruf-judul, Georgia, serif);
-  font-size: 1.02rem;
-  line-height: 1.9;
-  outline: none;
-}
-.jr-tulis .note-ta::placeholder { color: rgba(200, 225, 245, 0.38); font-style: italic; }
-
-@media (max-width: 720px) {
-  .jr-isi { width: 90vw; }
-  .jr-km  { font-size: clamp(1.4rem, 6.5vw, 1.9rem); }
-}
-
-/* ── bintang jatuh ──
-   Kepekatannya ikut --bintang, jadi ia tidak pernah melintas di langit siang
-   yang masih terang: di sana ia memang tidak akan terlihat, dan
-   menampilkannya justru merusak. */
-
-.jr-jatuh {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: var(--bintang, 0);
-}
+.jr-jatuh { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; }
+.jr-gelap .jr-jatuh { opacity: 1; }
 
 .jr-jatuh span {
   position: absolute;
@@ -265,8 +78,7 @@
   animation-iteration-count: infinite;
 }
 
-/* Terlihat hanya di 8 persen pertama putaran; sisanya sunyi. Satu putaran 15
-   detik memberi lintasan sekitar 1,2 detik lalu 13,8 detik tanpa apa-apa. */
+/* Terlihat hanya di 8 persen pertama putaran; sisanya sunyi. */
 @keyframes jrJatuh {
   0%   { opacity: 0; scale: 0 1; }
   1%   { opacity: 1; }
@@ -275,7 +87,258 @@
   100% { opacity: 0; scale: 1 1; }
 }
 
+/* ── lembar ── */
+
+.jr-lembar {
+  position: relative;
+  z-index: 1;
+  width: min(38rem, 100%);
+  margin: 0 auto;
+}
+
+.jr-kepala {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.jr-kop {
+  margin: 0;
+  font-size: 0.64rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.jr-tgl {
+  margin: 0.4rem 0 0;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: clamp(1.5rem, 6.5vw, 2.1rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.jr-hari {
+  margin: 0.25rem 0 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  opacity: 0.6;
+}
+
+/* ── perasaan hari ini ── */
+
+.jr-rasa { padding: 1.6rem 0 0; }
+
+.jr-tanya {
+  margin: 0 0 0.9rem;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: clamp(1.05rem, 4.4vw, 1.25rem);
+  opacity: 0.9;
+}
+
+.jr-rasa-baris {
+  display: flex;
+  gap: 0.5rem;
+  /* Di layar sempit lima tombol tidak muat berjajar; digulir menyamping jauh
+     lebih baik daripada dipaksa turun jadi dua baris yang timpang. */
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+  scrollbar-width: none;
+}
+.jr-rasa-baris::-webkit-scrollbar { display: none; }
+
+.jr-rasa-tombol {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 4.2rem;
+  min-height: 44px;
+  padding: 0.55rem 0.5rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.07);
+  color: inherit;
+  font: inherit;
+  font-size: 1.15rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 200ms ease, border-color 200ms ease, transform 140ms ease;
+}
+
+.jr-rasa-tombol:active { transform: scale(0.95); }
+.jr-rasa-tombol.on {
+  background: rgba(244, 228, 176, 0.16);
+  border-color: rgba(244, 228, 176, 0.5);
+}
+
+.jr-rasa-nama {
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  opacity: 0.75;
+}
+
+/* ── menulis di garis, bukan di kotak ──
+ *
+ * Jarak garis WAJIB sama dengan line-height tulisannya. Kalau berbeda sedikit
+ * saja, hurufnya merayap naik-turun terhadap garisnya seiring paragraf makin
+ * panjang, dan itu terbaca sebagai cacat — bukan sebagai buku.
+ *
+ * Keduanya diikat ke satu angka `--baris` supaya tidak bisa berbeda.
+ */
+.jr-garis {
+  --baris: 2.1rem;
+
+  display: block;
+  width: 100%;
+  margin-top: 1.6rem;
+  padding: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  background-color: transparent;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--baris) - 1px),
+    rgba(255, 255, 255, 0.16) calc(var(--baris) - 1px),
+    rgba(255, 255, 255, 0.16) var(--baris)
+  );
+  /* Tulisannya duduk DI ATAS garis, bukan menembusnya. */
+  background-position: 0 0.25rem;
+  color: #f4faff;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: 1.02rem;
+  line-height: var(--baris);
+  caret-color: #f4e4b0;
+}
+
+.jr-garis::placeholder { color: rgba(230, 242, 255, 0.38); font-style: italic; }
+
+.jr-kaki {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.jr-hitung { font-size: 0.68rem; letter-spacing: 0.12em; opacity: 0.6; }
+
+/* ── tombol ── */
+
+.jr-tombol {
+  min-height: 44px;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.09);
+  color: inherit;
+  font: inherit;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 200ms ease, opacity 200ms ease;
+}
+
+.jr-tombol:hover:not(:disabled) { background: rgba(255, 255, 255, 0.16); }
+.jr-tombol:disabled { opacity: 0.36; cursor: default; }
+.jr-tombol:focus-visible { outline: 2px solid rgba(244, 228, 176, 0.9); outline-offset: 3px; }
+
+.jr-pulang { flex: 0 0 auto; font-size: 0.64rem; padding: 0.5rem 0.85rem; }
+
+.jr-simpan {
+  border-color: rgba(244, 228, 176, 0.4);
+  background: rgba(244, 228, 176, 0.14);
+  color: #f8eec9;
+}
+
+/* ── membaca yang lama ── */
+
+.jr-baca { padding: 1.8rem 0 0; }
+
+.jr-rasa-lama {
+  margin: 0 0 1rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  opacity: 0.72;
+}
+
+.jr-tulisan-lama {
+  margin: 0 0 1.8rem;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: 1.02rem;
+  line-height: 2.1;
+  white-space: pre-wrap;
+  color: rgba(240, 248, 255, 0.9);
+}
+
+/* ── arsip ── */
+
+.jr-arsip {
+  margin-top: 2.8rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.jr-arsip-judul {
+  margin: 0 0 0.8rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.jr-arsip-daftar { list-style: none; margin: 0; padding: 0; }
+
+.jr-arsip-tombol {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.7rem 0.2rem;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.jr-arsip-tombol:hover,
+.jr-arsip-tombol.on { background: rgba(255, 255, 255, 0.06); }
+
+.jr-arsip-tgl {
+  flex: 0 0 auto;
+  min-width: 4.2rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  opacity: 0.62;
+}
+
+.jr-arsip-cuplik {
+  flex: 1 1 auto;
+  font-family: var(--huruf-judul, Georgia, serif);
+  font-size: 0.86rem;
+  opacity: 0.78;
+  /* Satu baris saja; yang ingin dibaca utuh tinggal ditekan. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .jr-bintang span, .jr-jatuh span, .jr-ajak::after { animation: none; }
+  .jr-bintang, .jr-jatuh span { animation: none; }
   .jr-jatuh { display: none; }
+  .jr-rasa-tombol { transition: none; }
 }

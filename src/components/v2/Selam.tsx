@@ -114,20 +114,18 @@ export default function Selam({
       <div className="sl-badan">
         {/* Puncak berombak. Dua salinan bersebelahan supaya gesernya bisa
             berulang tanpa sambungan yang terlihat. */}
-        {jenis === "awan" ? (
-          <>
-            {/* Tepi awan: gumpalan bulat, bukan gelombang sinus. Awan tidak
-                punya puncak dan lembah yang berulang teratur; ia punya bongkah
-                yang saling menumpuk, dan itulah yang membuat mata langsung
-                membacanya sebagai awan alih-alih sebagai air terbalik. */}
-            <svg className="sl-awan" viewBox="0 0 240 40" preserveAspectRatio="none">
-              <path d="M0 0h240v18c-10 0-14 9-24 9s-14-11-25-11-15 12-26 12-15-10-26-10-14 11-25 11-15-12-26-12-14 10-24 10-15-9-24-9z" />
-            </svg>
-            <svg className="sl-awan sl-awan-2" viewBox="0 0 240 40" preserveAspectRatio="none">
-              <path d="M0 0h240v14c-12 0-16 11-28 11s-16-13-29-13-17 12-29 12-17-10-29-10-16 12-28 12-17-13-29-13-16 11-28 11z" />
-            </svg>
-          </>
-        ) : null}
+        {/*
+          Tepi awan TIDAK digambar dengan SVG.
+          Percobaan pertama memakai <svg preserveAspectRatio="none">, dan di
+          HP hasilnya gepeng — dilaporkan begitu, dan memang begitu: lebar
+          200% dipaksa masuk tinggi 26 piksel, jadi gumpalan bulatnya
+          terpipihkan jadi riak. Yang tergambar bukan awan melainkan air yang
+          dibalik.
+
+          Sekarang tepinya lingkaran CSS yang diulang (lihat selam.css).
+          Lingkaran berjari-jari vmin tetap bulat berapa pun bentuk layarnya,
+          karena ukurannya tidak pernah diregangkan mengikuti wadahnya.
+        */}
         <svg className="sl-ombak" viewBox="0 0 240 24" preserveAspectRatio="none">
           <path d="M0 24V10c10-6 20-6 30 0s20 6 30 0 20-6 30 0 20 6 30 0 20-6 30 0 20 6 30 0 20-6 30 0v14z" />
         </svg>
