@@ -266,6 +266,13 @@ tapi **jangan menampilkan ulang kalimat lukanya** — tampilkan bantahannya.
 
 ## Jebakan teknis yang sudah pernah menggigit
 
+> **Daftar yang jauh lebih panjang, berikut kelas-kelas kesalahan yang
+> berulang, ada di [`PELAJARAN.md`](PELAJARAN.md).** Bacalah itu dulu.
+> Yang di bawah ini jebakan khusus 3D dan shader; yang di sana mencakup
+> kepemilikan nilai, cara memverifikasi yang berbohong, hydration, basePath,
+> gerbang, dan cara kerja antar-agen.
+
+
 | Gejala | Sebab | Penanganan |
 |---|---|---|
 | Halaman kosong, DOM lengkap, tanpa error | `prefers-reduced-motion: reduce` menyala di Windows Yaya, dan konten digantungkan pada JS | Jangan pernah menggantungkan keterbacaan pada JS. Animasi pembuka pakai CSS `both`, plus `<noscript>` fallback |

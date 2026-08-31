@@ -1,9 +1,14 @@
 # HANDOVER — untuk sesi berikutnya
 
 Kalau kamu Claude (atau siapa pun) yang baru masuk ke proyek ini: **baca
-berkas ini sampai habis dulu**, lalu `AGENTS.md`, lalu
-`docs/ai-memory/memory.md`. Tiga berkas itu berisi hampir semua hal yang
-sudah gagal dicoba — membacanya menghemat berjam-jam.
+`PELAJARAN.md` dulu**, lalu berkas ini sampai habis, lalu `AGENTS.md`, lalu
+`docs/ai-memory/memory.md`. Keempatnya berisi hampir semua hal yang sudah
+gagal dicoba — membacanya menghemat berjam-jam.
+
+`PELAJARAN.md` ditaruh paling depan sejak 1 September 2026 karena isinya
+kelas-kelas kesalahan yang TERUS BERULANG, bukan daftar cacat satu per satu.
+Beberapa di antaranya terjadi dua kali dalam satu hari, oleh orang yang sudah
+menuliskan sendiri cara menghindarinya beberapa jam sebelumnya.
 
 ---
 
