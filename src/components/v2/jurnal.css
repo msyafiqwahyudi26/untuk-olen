@@ -118,7 +118,7 @@
    menambah tujuan baru nanti tidak menuntut menata ulang kepalanya. */
 .jr-kepala {
   position: relative;
-  padding-bottom: 1.4rem;
+  padding-bottom: var(--jarak-6);
   border-bottom: 1px solid var(--jr-garis);
   text-align: center;
 }
@@ -182,7 +182,7 @@
 }
 
 .jr-tgl {
-  margin: 0.4rem 0 0;
+  margin: var(--jarak-2) 0 0;
   font-family: var(--huruf-judul, Georgia, serif);
   font-size: clamp(1.5rem, 6.5vw, 2.1rem);
   font-weight: 400;
@@ -199,10 +199,10 @@
 
 /* ── perasaan hari ini ── */
 
-.jr-rasa { padding: 1.6rem 0 0; }
+.jr-rasa { padding: var(--jarak-6) 0 0; }
 
 .jr-tanya {
-  margin: 0 0 0.9rem;
+  margin: 0 0 var(--jarak-4);
   font-family: var(--huruf-judul, Georgia, serif);
   font-size: clamp(1.05rem, 4.4vw, 1.25rem);
   opacity: 0.9;
@@ -216,10 +216,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
+  gap: var(--jarak-1);
   min-width: 4.2rem;
   min-height: 44px;
-  padding: 0.55rem 0.5rem;
+  padding: var(--jarak-2) 0.5rem;
   border-radius: 14px;
   border: 1px solid var(--jr-garis);
   background: var(--jr-kaca-2);
@@ -256,7 +256,7 @@
 
   display: block;
   width: 100%;
-  margin-top: 1.6rem;
+  margin-top: var(--jarak-6);
   padding: 0;
   border: none;
   outline: none;
@@ -289,7 +289,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-top: 1.2rem;
+  margin-top: var(--jarak-5);
 }
 
 .jr-hitung { font-size: 0.68rem; letter-spacing: 0.12em; opacity: 0.6; }
@@ -298,7 +298,7 @@
 
 .jr-tombol {
   min-height: 44px;
-  padding: 0.55rem 1.1rem;
+  padding: var(--jarak-2) var(--jarak-4);
   border-radius: 999px;
   border: 1px solid var(--jr-kaca-4);
   background: var(--jr-kaca-2);
@@ -316,7 +316,7 @@
 .jr-tombol:disabled { opacity: 0.36; cursor: default; }
 .jr-tombol:focus-visible { outline: 2px solid var(--jr-sorot); outline-offset: 3px; }
 
-.jr-pulang { flex: 0 0 auto; font-size: 0.64rem; padding: 0.5rem 0.85rem; }
+.jr-pulang { flex: 0 0 auto; font-size: 0.64rem; padding: 0.5rem var(--jarak-3); }
 
 .jr-simpan {
   border-color: var(--jr-sorot-tepi);
@@ -326,7 +326,7 @@
 
 /* ── membaca yang lama ── */
 
-.jr-baca { padding: 1.8rem 0 0; }
+.jr-baca { padding: 28px 0 0; }
 
 .jr-rasa-lama {
   margin: 0 0 1rem;
@@ -336,7 +336,7 @@
 }
 
 .jr-tulisan-lama {
-  margin: 0 0 1.8rem;
+  margin: 0 0 28px;
   font-family: var(--huruf-judul, Georgia, serif);
   font-size: 1.02rem;
   line-height: 2.1;
@@ -347,13 +347,13 @@
 /* ── arsip ── */
 
 .jr-arsip {
-  margin-top: 2.8rem;
-  padding-top: 1.4rem;
+  margin-top: 44px;
+  padding-top: var(--jarak-6);
   border-top: 1px solid var(--jr-garis);
 }
 
 .jr-arsip-judul {
-  margin: 0 0 0.8rem;
+  margin: 0 0 var(--jarak-3);
   font-size: 0.62rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -365,10 +365,10 @@
 .jr-arsip-tombol {
   display: flex;
   align-items: baseline;
-  gap: 0.7rem;
+  gap: var(--jarak-3);
   width: 100%;
   min-height: 44px;
-  padding: 0.7rem 0.2rem;
+  padding: var(--jarak-3) var(--jarak-1);
   border: none;
   border-bottom: 1px solid var(--jr-kaca-2);
   background: transparent;
@@ -434,7 +434,7 @@
 .jr-bintang-tombol:focus-visible { outline: 2px solid var(--jr-sorot); outline-offset: 2px; }
 
 .jr-diubah {
-  margin: 0.6rem 0 0;
+  margin: var(--jarak-2) 0 0;
   font-size: 0.64rem;
   letter-spacing: 0.14em;
   opacity: 0.45;
@@ -444,7 +444,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 1.6rem;
+  margin-top: var(--jarak-6);
 }
 
 .jr-hapus { border-color: rgba(255, 190, 180, 0.28); }
@@ -466,8 +466,8 @@
  * mana yang ditandai penting. Itu hal yang tidak bisa dilihat dari daftar. */
 
 .jr-kalender {
-  margin-top: 2.4rem;
-  padding-top: 1.4rem;
+  margin-top: var(--jarak-10);
+  padding-top: var(--jarak-6);
   border-top: 1px solid var(--jr-garis);
 }
 
@@ -476,7 +476,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-bottom: 0.9rem;
+  margin-bottom: var(--jarak-4);
 }
 
 .jr-kal-bulan {
@@ -504,7 +504,7 @@
 .jr-kal-kisi {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
+  gap: var(--jarak-1);
 }
 
 .jr-kal-hari {
@@ -513,7 +513,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   opacity: 0.4;
-  padding-bottom: 0.3rem;
+  padding-bottom: var(--jarak-1);
 }
 
 .jr-kal-tgl {
@@ -558,7 +558,7 @@
 
 .jr-laci {
   margin-top: 2rem;
-  padding-top: 1.2rem;
+  padding-top: var(--jarak-5);
   border-top: 1px solid var(--jr-garis);
 }
 
@@ -578,18 +578,18 @@
 }
 .jr-laci-tombol:hover { opacity: 0.85; }
 
-.jr-laci-kosong { margin: 0.4rem 0 0; font-size: 0.74rem; opacity: 0.5; }
+.jr-laci-kosong { margin: var(--jarak-2) 0 0; font-size: 0.74rem; opacity: 0.5; }
 
 .jr-laci-baris {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 0;
+  gap: var(--jarak-2);
+  padding: var(--jarak-2) 0;
   border-bottom: 1px solid var(--jr-kaca-2);
   opacity: 0.72;
 }
 
-.jr-pulih { flex: 0 0 auto; font-size: 0.62rem; padding: 0.4rem 0.7rem; min-height: 36px; }
+.jr-pulih { flex: 0 0 auto; font-size: 0.62rem; padding: var(--jarak-2) var(--jarak-3); min-height: 36px; }
 
 /* ═══ DI LAYAR LEBAR ═══
  *
@@ -632,9 +632,9 @@
      karena itulah yang dulu menyisakan celah kosong di puncak kolom. */
   .jr-kolom-tulis > :first-child,
   .jr-kolom-tulis .jr-judul-isian { margin-top: 0; }
-  .jr-kolom-tulis { padding-top: 1.6rem; }
+  .jr-kolom-tulis { padding-top: var(--jarak-6); }
 
-  .jr-kolom-samping { padding-top: 1.6rem; }
+  .jr-kolom-samping { padding-top: var(--jarak-6); }
   .jr-kolom-samping .jr-kalender {
     margin-top: 0;
     padding-top: 0;
@@ -669,7 +669,7 @@
 }
 
 .jr-judul-isian {
-  margin-top: 1.6rem;
+  margin-top: var(--jarak-6);
   font-size: clamp(1.5rem, 6vw, 2.1rem);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -679,7 +679,7 @@
 
 .jr-subjudul-isian {
   margin-top: 0.5rem;
-  padding-bottom: 0.9rem;
+  padding-bottom: var(--jarak-4);
   border-bottom: 1px solid var(--jr-kaca-3);
   font-size: 0.95rem;
   font-style: italic;
@@ -688,14 +688,14 @@
 .jr-subjudul-isian::placeholder { color: var(--jr-hantu); font-style: italic; }
 
 .jr-judul-baca {
-  margin: 0 0 0.4rem;
+  margin: 0 0 var(--jarak-2);
   font-family: var(--huruf-judul, Georgia, serif);
   font-size: clamp(1.4rem, 5.5vw, 1.9rem);
   font-weight: 700;
   line-height: 1.25;
 }
 .jr-subjudul-baca {
-  margin: 0 0 1.4rem;
+  margin: 0 0 var(--jarak-6);
   font-family: var(--huruf-judul, Georgia, serif);
   font-size: 0.95rem;
   font-style: italic;
@@ -721,15 +721,15 @@
 }
 
 .jr-kal-panel {
-  margin-top: 0.9rem;
-  padding: 0.9rem;
+  margin-top: var(--jarak-4);
+  padding: var(--jarak-4);
   border-radius: 14px;
   border: 1px solid var(--jr-kaca-3);
   background: var(--jr-kaca-1);
 }
 
 .jr-kal-panel-tgl {
-  margin: 0 0 0.7rem;
+  margin: 0 0 var(--jarak-3);
   font-family: var(--huruf-judul, Georgia, serif);
   font-size: 0.92rem;
 }
@@ -741,7 +741,7 @@
   gap: 0.5rem;
   width: 100%;
   min-height: 40px;
-  padding: 0.35rem 0;
+  padding: var(--jarak-1) 0;
   font-size: 0.82rem;
   text-align: left;
 }
@@ -776,8 +776,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.8rem;
-  padding-top: 0.8rem;
+  margin-top: var(--jarak-3);
+  padding-top: var(--jarak-3);
   border-top: 1px solid var(--jr-garis);
 }
 
@@ -785,7 +785,7 @@
 .jr-kal-tambah input:not([type]) {
   flex: 1 1 9rem;
   min-height: 40px;
-  padding: 0.4rem 0.6rem;
+  padding: var(--jarak-2) var(--jarak-2);
   border-radius: 10px;
   border: 1px solid var(--jr-garis);
   background: var(--jr-kaca-1);
@@ -798,7 +798,7 @@
 .jr-kal-ultah {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: var(--jarak-1);
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   opacity: 0.8;
@@ -906,9 +906,9 @@
   /* Tebal, bukan tipis. Dengan sembilan pilihan, tepi yang samar membuat
      barisnya terbaca sebagai satu blok abu-abu panjang. */
   border-width: 1.5px;
-  padding: 0.6rem 0.5rem 0.5rem;
+  padding: var(--jarak-2) 0.5rem 0.5rem;
   min-width: 4.6rem;
-  gap: 0.3rem;
+  gap: var(--jarak-1);
 }
 
 .jr-rasa-tombol svg { display: block; margin-inline: auto; }
@@ -931,7 +931,7 @@
 
 /* Perasaan yang ditampilkan di catatan lama dan di sel kalender: sejajar
    dengan tulisannya, bukan mengambang. */
-.jr-rasa-cap { display: inline-flex; align-items: center; gap: 0.28rem; }
+.jr-rasa-cap { display: inline-flex; align-items: center; gap: var(--jarak-1); }
 .jr-rasa-cap svg { flex: none; }
 
 
@@ -1108,7 +1108,7 @@
   /* Panel kaca: lapisan tipis dari tinta + blur. Diturunkan dari tinta
      seperti yang lain, jadi ia gelap tipis di langit terang dan terang tipis
      di langit malam. Satu rumus, dua hasil. */
-  margin-top: 1.4rem;
+  margin-top: var(--jarak-6);
   padding: 1.1rem clamp(0.7rem, 2vw, 1.15rem) 1.3rem;
   border: 1px solid var(--jr-garis);
   border-radius: calc(var(--lengkung) + 6px);
@@ -1212,8 +1212,8 @@
 .jr-momen {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
-  margin: 1rem 0 0.2rem;
+  gap: var(--jarak-2);
+  margin: 1rem 0 var(--jarak-1);
   padding: 0;
 }
 
@@ -1301,7 +1301,7 @@
   align-items: flex-start;
   gap: 0.75rem;
   width: 100%;
-  padding: 0.7rem 0.8rem;
+  padding: var(--jarak-3) var(--jarak-3);
   text-align: left;
   border: 1px solid transparent;
   border-bottom: 1px solid transparent;
@@ -1326,7 +1326,7 @@
 .jr-arsip-isi {
   display: flex;
   flex-direction: column;
-  gap: 0.18rem;
+  gap: var(--jarak-1);
   min-width: 0;
   flex: 1 1 auto;
 }
@@ -1334,7 +1334,7 @@
 .jr-arsip-atas {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--jarak-2);
   font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -1420,8 +1420,8 @@
 .jr-rasa-tombol {
   flex: 1 1 0;
   min-width: 0;
-  padding: 0.5rem 0.2rem 0.42rem;
-  gap: 0.18rem;
+  padding: 0.5rem var(--jarak-1) var(--jarak-2);
+  gap: var(--jarak-1);
 }
 .jr-rasa-emoji { font-size: 1.35rem; line-height: 1; }
 .jr-rasa-nama {
@@ -1487,8 +1487,8 @@
  * ═══════════════════════════════════════════════════════════════════════ */
 
 .jr-dinding {
-  margin-top: 1.6rem;
-  padding-top: 1.4rem;
+  margin-top: var(--jarak-6);
+  padding-top: var(--jarak-6);
   border-top: 1px solid var(--jr-garis);
 }
 
@@ -1496,12 +1496,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.8rem;
-  margin-bottom: 0.8rem;
+  gap: var(--jarak-3);
+  margin-bottom: var(--jarak-3);
 }
 
 .jr-kocok {
-  padding: 0.35rem 0.8rem;
+  padding: var(--jarak-1) var(--jarak-3);
   font-size: 0.66rem;
   letter-spacing: 0.12em;
 }
@@ -1512,7 +1512,7 @@
      auto-fit meregangkan keduanya sampai selebar kolom, dan dua foto raksasa
      bukan dinding. auto-fill menyisakan kolom kosong dan ukurannya tetap. */
   grid-template-columns: repeat(auto-fill, minmax(3.6rem, 1fr));
-  gap: 0.35rem;
+  gap: var(--jarak-1);
 }
 
 .jr-dinding-kisi img {
@@ -1628,7 +1628,7 @@
 }
 
 .jr-kal-acara { align-items: flex-start; gap: var(--jarak-2); }
-.jr-kal-acara-judul { display: flex; flex-direction: column; gap: 2px; }
+.jr-kal-acara-judul { display: flex; flex-direction: column; gap: var(--jarak-1); }
 .jr-kal-acara-rinci {
   font-size: 0.72rem;
   font-weight: 600;
@@ -1643,9 +1643,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1px;
+  gap: 0;
   min-height: var(--sentuh);
-  padding: var(--jarak-1) 2px;
+  padding: var(--jarak-1) var(--jarak-1);
 }
 .jr-kal-angka { line-height: 1.1; }
 .jr-kal-label {
@@ -1711,7 +1711,7 @@
 
   /* Kalender di HP: sel persegi yang tingginya ikut lebarnya, jadi kisinya
      tetap kisi berapa pun lebar layarnya. */
-  .jr-kal-kisi { gap: 2px; }
+  .jr-kal-kisi { gap: var(--jarak-1); }
   .jr-kal-tgl { aspect-ratio: 1; min-height: 0; }
   .jr-kal-label { font-size: 0.46rem; }
 
@@ -1871,4 +1871,198 @@
   .jr-tulisan-lama,
   .jr-kaki,
   .jr-momen { max-width: var(--lebar-baca); }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * SISTEM JARAK, DIPAKAI SUNGGUHAN
+ *
+ * Yaya: "design sistem dan juga matematika penghitungan UI/UX seperti nggak
+ * digunakan gitu."
+ *
+ * Benar. Tokennya memang sudah ada sejak kemarin, tapi cuma dipakai di
+ * beberapa tempat baru sementara yang lama tetap memakai angkanya sendiri.
+ * Diperiksa, nilai jarak yang sedang berlaku ini:
+ *
+ *     1,4rem  1,1rem  1,3rem  0,9rem  1rem  1,6rem  1,2rem  0,5rem  2px
+ *
+ * Sembilan angka, tidak satu pun di tangga yang sama. Punya tangga tapi
+ * tidak memakainya sama saja dengan tidak punya, dan itu yang bikin
+ * jaraknya terasa acak walau tiap satunya "kelihatan pas".
+ *
+ * Blok ini menuliskan ulang SEMUA jarak wadah ke tangga 4 px. Ia sengaja
+ * paling akhir supaya ia yang menang, dan sengaja satu blok supaya bisa
+ * dibaca sebagai satu keputusan.
+ *
+ *
+ * ── TANGGANYA ──
+ *
+ *   4    jarak di dalam satu benda (ikon ke tulisannya)
+ *   8    jarak antar benda sejenis (tombol ke tombol)
+ *   12   jarak antar benda berbeda dalam satu kelompok
+ *   16   tepi dalam sebuah panel di layar sempit
+ *   24   tepi dalam sebuah panel di layar lebar
+ *   32   jarak antar kelompok
+ *   48   jarak antar BAGIAN besar
+ *
+ * Aturannya satu: makin jauh hubungan dua benda, makin besar jaraknya. Itu
+ * yang membuat kelompok terbaca sebagai kelompok tanpa perlu garis.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr {
+  --jarak-5: 20px;
+  --jarak-10: 40px;
+  --jarak-12: 48px;
+
+  /* Tepi halaman. Yaya: "kalau emang perlu ruang kiri kanannya biar lebih
+     padat gpp dikasih ruang aja sedikit bagian kiri dan kanan."
+     24 px di layar sempit, tumbuh sampai 64 px di layar lebar. */
+  padding-block: var(--jarak-6) var(--jarak-10);
+  padding-inline: max(clamp(var(--jarak-6), 4vw, 64px), env(safe-area-inset-left));
+}
+
+.jr-kepala { padding-bottom: var(--jarak-6); }
+
+/* ── kalender ──
+ *
+ * Ini yang paling parah di tangkapan layar: panah kiri dan kanan menempel ke
+ * tepi panel, dan nama bulan berdempetan dengan keduanya.
+ *
+ * Sebabnya bisa dihitung. Panah berukuran 48 px (sasaran sentuh), sementara
+ * tepi dalam panelnya cuma clamp(0.7rem, 2vw, 1.15rem), yaitu 11 sampai
+ * 18 px. Tombol 48 px di dalam kotak bertepi 11 px terlihat seperti
+ * menembus dindingnya, karena memang hampir.
+ *
+ * Sekarang tepi panelnya 24 px, lebih besar daripada setengah tombolnya,
+ * jadi tombolnya duduk DI DALAM, bukan menempel.
+ */
+.jr-kalender {
+  margin-top: var(--jarak-12);
+  padding: var(--jarak-6);
+  padding-top: var(--jarak-5);
+}
+
+/* Kepala kalender jadi kisi tiga kolom, bukan `space-between`.
+ *
+ * `space-between` membagi sisa ruang, jadi jarak antara panah dan nama bulan
+ * berubah-ubah mengikuti panjang namanya: "Mei 2026" menyisakan jauh lebih
+ * banyak ruang daripada "September 2026", dan keduanya terlihat seperti tata
+ * letak yang berbeda. Kisi dengan kolom tetap membuat panahnya diam di
+ * tempat sepanjang tahun. */
+.jr-kal-kepala {
+  display: grid;
+  grid-template-columns: var(--sentuh) minmax(0, 1fr) var(--sentuh);
+  align-items: center;
+  gap: var(--jarak-4);
+  margin-bottom: var(--jarak-5);
+}
+.jr-kal-bulan { text-align: center; }
+
+/* Kisi tanggal: 4 px, satu tingkat di tangga.
+ *
+ * Hitungannya di kolom kanan 34rem (544 px):
+ *   dalam panel   544 - 2 x 24 = 496 px
+ *   tiap sel      (496 - 6 x 4) / 7 = 67,4 px
+ * Jauh di atas sasaran sentuh 48 px.
+ *
+ * Di HP 390 px:
+ *   dalam panel   390 - 2 x 24 (tepi halaman) - 2 x 16 (tepi panel) = 294 px
+ *   tiap sel      (294 - 6 x 2) / 7 = 40,3 px
+ * Itu DI BAWAH 44 px, jadi tepi panelnya dikecilkan lagi di HP, lihat blok
+ * di bawah. Angkanya tidak bisa dipaksa: tujuh kolom 48 px butuh 360 px
+ * ruang dalam, dan layar 390 px tidak punya itu setelah tepinya diambil. */
+.jr-kal-kisi { gap: var(--jarak-1); }
+
+.jr-kal-panel {
+  margin-top: var(--jarak-5);
+  padding: var(--jarak-4);
+}
+.jr-kal-tambah {
+  margin-top: var(--jarak-4);
+  padding-top: var(--jarak-4);
+}
+
+/* ── kelompok lain ── */
+.jr-rasa { padding: 0; margin-bottom: var(--jarak-6); }
+.jr-kaki { margin-top: var(--jarak-6); }
+.jr-momen { gap: var(--jarak-3); margin-top: var(--jarak-4); }
+.jr-arsip,
+.jr-dinding,
+.jr-laci { margin-top: var(--jarak-12); padding-top: var(--jarak-6); }
+.jr-arsip-judul { margin-bottom: var(--jarak-3); }
+
+
+/* ── di HP: satu tingkat lebih rapat, tapi tetap di tangga ── */
+@media (max-width: 1079px) {
+  .jr {
+    padding-block: var(--jarak-5) var(--jarak-8);
+    padding-inline: max(var(--jarak-6), env(safe-area-inset-left));
+  }
+
+  /* Tepi panel turun 24 -> 16, dan kisinya 2 px.
+     Hitungan ulang di 390 px:
+       dalam panel  390 - 2 x 24 - 2 x 16 = 294 px
+       tiap sel     (294 - 6 x 2) / 7 = 40,3 px
+     Masih di bawah 44. Jadi tepi HALAMAN yang turun ke 16 px di sini:
+       dalam panel  390 - 2 x 16 - 2 x 16 = 326 px
+       tiap sel     (326 - 6 x 2) / 7 = 44,9 px
+     Lolos batas Apple 44 px, di bawah batas Material 48 px. Itu diterima
+     sadar: tujuh kolom sungguhan tidak muat 48 px di layar 390 px, dan
+     memaksa 48 px berarti membuang salah satu hari dari kisinya. */
+  .jr { padding-inline: max(var(--jarak-4), env(safe-area-inset-left)); }
+  .jr-kalender { padding: var(--jarak-4); margin-top: var(--jarak-8); }
+
+  /* SATU-SATUNYA nilai di berkas ini yang di luar tangga, dan itu disengaja.
+     Diberi nama supaya ia terbaca sebagai pengecualian yang diputuskan, bukan
+     angka yang lolos. Alasannya ada di hitungan sel di bawah: tiap 2 px yang
+     ditambahkan ke jarak ini mengambil hampir 2 px dari tiap sel, dan selnya
+     yang sedang diperjuangkan supaya mencapai 44 px. */
+  .jr-kal-kisi { --kisi-rapat: 2px; gap: var(--kisi-rapat); }
+  .jr-kal-panel { padding: var(--jarak-3); }
+  .jr-arsip,
+  .jr-dinding,
+  .jr-laci { margin-top: var(--jarak-8); padding-top: var(--jarak-5); }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * HP KECIL: KALENDER MENYENTUH TEPI LAYAR
+ *
+ * Hitungan di layar 360 px (iPhone SE, banyak Android murah) dengan tepi
+ * halaman 16 dan tepi panel 16:
+ *
+ *     ruang dalam  360 - 32 - 32 = 296 px
+ *     tiap sel     (296 - 6 x 2) / 7 = 40,6 px
+ *
+ * Di bawah 44 px, yaitu di bawah batas terendah yang diakui siapa pun. Dan
+ * ini tidak bisa diperbaiki dengan menggeser satu tingkat di tangga: tujuh
+ * kolom 44 px butuh 320 px ruang dalam, sementara yang tersisa sesudah kedua
+ * tepi cuma 296.
+ *
+ * Jadi tepinya yang dilepas. Panel kalender ditarik keluar sejauh tepi
+ * halaman, sehingga ia membentang penuh dari sisi ke sisi, lalu tepi
+ * dalamnya dikecilkan ke 8 px:
+ *
+ *     ruang dalam  360 - 2 x 8 = 344 px
+ *     tiap sel     (344 - 12) / 7 = 47,4 px
+ *
+ * Nyaris menyentuh 48. Pola ini lazim di aplikasi ponsel justru karena
+ * alasan yang sama: kisi tujuh kolom memang tidak muat di dalam kartu
+ * bertepi, dan yang harus mengalah tepinya, bukan ukuran sasaran sentuhnya.
+ *
+ * Batasnya 420 px, bukan 360: di 390 px pun hasilnya cuma 44,9 px, yaitu
+ * lolos tipis. Lebih baik seluruh kelas layar ini memakai satu perlakuan
+ * daripada ada yang lolos tipis dan ada yang gagal.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 420px) {
+  .jr-kalender {
+    margin-inline: calc(-1 * var(--jarak-4));
+    padding-inline: var(--jarak-2);
+    /* Sudut kanan-kiri diluruskan: kartu yang membentang penuh tapi masih
+       melengkung di tepi layar terlihat seperti salah potong. */
+    border-radius: var(--lengkung);
+    border-inline: none;
+  }
+  .jr-kal-panel { margin-inline: 0; }
 }
