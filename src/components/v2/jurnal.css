@@ -325,18 +325,22 @@
   outline: none;
   resize: none;
   background-color: transparent;
+  /* Garisnya ditebalkan 1px -> 1.5px dan dinaikkan ke --jr-garis-kuat.
+     Ia bukan teks, tapi dialah yang bikin halaman ini terasa seperti buku;
+     begitu garisnya hilang yang tersisa cuma kotak kosong. */
   background-image: repeating-linear-gradient(
     to bottom,
     transparent 0,
-    transparent calc(var(--baris) - 1px),
-    var(--jr-garis) calc(var(--baris) - 1px),
-    var(--jr-garis) var(--baris)
+    transparent calc(var(--baris) - 1.5px),
+    var(--jr-garis-kuat) calc(var(--baris) - 1.5px),
+    var(--jr-garis-kuat) var(--baris)
   );
   /* Tulisannya duduk DI ATAS garis, bukan menembusnya. */
   background-position: 0 0.25rem;
   color: var(--jr-tinta);
   font-family: var(--huruf-judul, Georgia, serif);
-  font-size: 1.02rem;
+  font-weight: 500;
+  font-size: 1.06rem;
   line-height: var(--baris);
   caret-color: var(--jr-sorot);
 }
@@ -909,3 +913,139 @@
   --jr-sorot-kaca: rgba(244, 228, 176, 0.16);
   color: var(--jr-tinta);
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * AWAN — pengganti bintang waktu langitnya bukan malam
+ *
+ * Digambar dari radial-gradient bertumpuk, bukan gambar. Awan yang punya
+ * tepi tajam terbaca sebagai stiker; yang dibutuhkan gumpal yang batasnya
+ * tidak jelas, dan gradien memang begitu bentuknya.
+ *
+ * Warnanya PUTIH tetap, bukan var(--jr-tinta). Ini satu-satunya benda di
+ * jurnal yang tidak ikut tinta, dan alasannya sederhana: awan memang putih
+ * di langit terang, dan ia latar yang tidak perlu dibaca. Menjadikannya
+ * gelap "supaya kontras" justru mengubahnya jadi asap.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr-awan {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  overflow: hidden;
+}
+/* Kebalikan dari bintang: muncul justru waktu langitnya TIDAK gelap. */
+.jr:not(.jr-gelap) .jr-awan { opacity: 1; }
+
+.jr-awan span {
+  position: absolute;
+  border-radius: 999px;
+  background:
+    radial-gradient(closest-side, rgba(255, 255, 255, 0.55), transparent 78%) 8% 60% / 58% 92% no-repeat,
+    radial-gradient(closest-side, rgba(255, 255, 255, 0.62), transparent 76%) 42% 32% / 52% 100% no-repeat,
+    radial-gradient(closest-side, rgba(255, 255, 255, 0.5), transparent 78%) 78% 62% / 46% 84% no-repeat;
+  filter: blur(1.5px);
+  animation-name: jrHanyut;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+/* Hanyut dari kiri ke kanan lalu mengulang. Jaraknya dalam vw supaya
+   waktunya terasa sama di layar lebar maupun sempit. */
+@keyframes jrHanyut {
+  from { transform: translateX(-40vw); }
+  to   { transform: translateX(140vw); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jr-awan span { animation: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * WAJAH PERASAAN
+ *
+ * Tombolnya sekarang berisi SVG yang ikut `currentColor`, jadi wajahnya
+ * berubah warna bersama tulisannya waktu terpilih. Emoji tidak bisa begitu.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr-rasa-baris {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.jr-rasa-tombol {
+  /* Tebal, bukan tipis. Dengan sembilan pilihan, tepi yang samar membuat
+     barisnya terbaca sebagai satu blok abu-abu panjang. */
+  border-width: 1.5px;
+  padding: 0.6rem 0.5rem 0.5rem;
+  min-width: 4.6rem;
+  gap: 0.3rem;
+}
+
+.jr-rasa-tombol svg { display: block; margin-inline: auto; }
+
+/* Yang terpilih dibedakan TIGA cara sekaligus: warna, tebal tepi, dan
+   latar. Satu cara saja tidak cukup di layar terang, dan warna saja tidak
+   cukup untuk orang yang sulit membedakan warna. */
+.jr-rasa-tombol.on {
+  color: var(--jr-sorot);
+  border-color: var(--jr-sorot);
+  border-width: 2px;
+  background: var(--jr-sorot-kaca);
+}
+.jr-rasa-tombol.on svg { stroke-width: 2; }
+
+.jr-rasa-nama {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* Perasaan yang ditampilkan di catatan lama dan di sel kalender: sejajar
+   dengan tulisannya, bukan mengambang. */
+.jr-rasa-cap { display: inline-flex; align-items: center; gap: 0.28rem; }
+.jr-rasa-cap svg { flex: none; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * DITEBALKAN
+ *
+ * Yaya: "di tebelin lagi semuanya biar lebih jelas dan keliatan."
+ *
+ * Kontrasnya sudah dibetulkan sebelum ini, dan angkanya lolos. Tapi kontras
+ * mengukur warna huruf terhadap latar, dan tidak tahu apa-apa soal
+ * KETEBALAN batangnya. Huruf tipis dengan kontras 7:1 tetap lebih susah
+ * dibaca daripada huruf sedang dengan kontras 5:1, karena yang sampai ke
+ * mata bukan warnanya melainkan berapa banyak piksel yang membawanya.
+ *
+ * Jadi ini bukan pengulangan perbaikan yang tadi; ini setengahnya yang lain.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr { font-weight: 500; }
+
+.jr-kepala,
+.jr-tanya,
+.jr-tulisan-lama,
+.jr-arsip,
+.jr-kalender,
+.jr-laci { font-weight: 500; }
+
+.jr-tanya { font-weight: 600; }
+
+/* Angka kalender. Yang paling parah di tangkapan layar: tanggal tanpa
+   catatan nyaris hilang. Ia tetap lebih redup daripada tanggal berisi, tapi
+   redup harus tetap terbaca. */
+.jr-kal-tgl { font-weight: 600; }
+.jr-kal-tgl.ada { font-weight: 700; }
+
+/* Nama hari dan label kecil lain. Huruf renggang berjarak lebar kehilangan
+   banyak sekali ketebalan tampak, jadi justru ini yang paling perlu naik. */
+.jr-kal-hari,
+.jr-arsip-tombol,
+.jr-laci-baris { font-weight: 600; letter-spacing: 0.08em; }
+
+.jr-judul-isian { font-weight: 700; }
+.jr-subjudul-isian { font-weight: 500; }

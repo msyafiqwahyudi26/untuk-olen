@@ -10,6 +10,8 @@ import { PALET, type Waktu } from "./waktu";
 import { warnaLangitDi } from "./ketinggian";
 import Settings, { type Pengaturan } from "./Settings";
 import { variabelTema } from "@/design/tema";
+import RupaRasa from "./RupaRasa";
+import type { Mood } from "@/lib/mood";
 import { alfaSecukupnya, rgba, sorotSecukupnya, tintaTerbaik } from "@/design/warna";
 import { aset } from "@/lib/basis";
 import "./jurnal.css";
@@ -66,13 +68,6 @@ function pecahTanggal(s: string) {
   };
 }
 
-const RASA: Record<string, string> = {
-  senang: "😊",
-  tenang: "🌤",
-  capek: "😮‍💨",
-  sedih: "🥺",
-  kesal: "😤",
-};
 
 export default function Jurnal({
   waktu,
@@ -200,17 +195,24 @@ export default function Jurnal({
   const rias = {
     "--jr-tinta": tinta,
     "--jr-lembut": rgba(tinta, alfaSecukupnya(langit, tinta, 7)),
-    "--jr-samar": rgba(tinta, alfaSecukupnya(langit, tinta, 4.5)),
-    "--jr-hantu": rgba(tinta, alfaSecukupnya(langit, tinta, 3)),
+    /* Dinaikkan 1 September 2026, sesudah Yaya lihat layarnya: "ini masih
+       terlalu nggak keliatan". Angka lamanya 4,5 dan 3, yaitu ambang minimum
+       WCAG untuk teks biasa dan untuk unsur bukan-teks.
+       Yang keliru bukan pengukurannya melainkan yang diukur: ambang minimum
+       itu untuk teks HITAM DI ATAS PUTIH dengan huruf tegas. Di sini
+       hurufnya serif tipis di atas langit biru, dan minimum yang lolos di
+       kertas tidak lolos di sini. Naik ke 5,5 dan 4,5. */
+    "--jr-samar": rgba(tinta, alfaSecukupnya(langit, tinta, 5.5)),
+    "--jr-hantu": rgba(tinta, alfaSecukupnya(langit, tinta, 4.5)),
     /* Garis dan lapisan kaca BUKAN teks: yang dijaga cuma supaya bentuknya
        kelihatan. Ambangnya 1,4 sampai 2, jauh di bawah ambang teks, karena
        garis setebal ambang teks berubah jadi kotak yang berteriak. */
-    "--jr-garis": rgba(tinta, alfaSecukupnya(langit, tinta, 1.35)),
-    "--jr-garis-kuat": rgba(tinta, alfaSecukupnya(langit, tinta, 1.7)),
-    "--jr-kaca-1": rgba(tinta, alfaSecukupnya(langit, tinta, 1.12)),
-    "--jr-kaca-2": rgba(tinta, alfaSecukupnya(langit, tinta, 1.2)),
-    "--jr-kaca-3": rgba(tinta, alfaSecukupnya(langit, tinta, 1.35)),
-    "--jr-kaca-4": rgba(tinta, alfaSecukupnya(langit, tinta, 1.6)),
+    "--jr-garis": rgba(tinta, alfaSecukupnya(langit, tinta, 1.55)),
+    "--jr-garis-kuat": rgba(tinta, alfaSecukupnya(langit, tinta, 2.1)),
+    "--jr-kaca-1": rgba(tinta, alfaSecukupnya(langit, tinta, 1.18)),
+    "--jr-kaca-2": rgba(tinta, alfaSecukupnya(langit, tinta, 1.3)),
+    "--jr-kaca-3": rgba(tinta, alfaSecukupnya(langit, tinta, 1.5)),
+    "--jr-kaca-4": rgba(tinta, alfaSecukupnya(langit, tinta, 1.85)),
     "--jr-sorot": sorot,
     "--jr-sorot-tepi": rgba(sorot, alfaSecukupnya(langit, sorot, 1.7)),
     "--jr-sorot-kaca": rgba(sorot, alfaSecukupnya(langit, sorot, 1.25)),
@@ -423,6 +425,49 @@ export default function Jurnal({
       }}
     >
       <div className="jr-latar" aria-hidden>
+        {/*
+          LANGIT SIANG PUNYA AWAN, LANGIT MALAM PUNYA BINTANG.
+
+          Yaya: "langit kalo nggak malam bintangnya hilangin ganti awan-awan."
+
+          Benar, dan bukan cuma soal masuk akal: bintang di langit terang
+          harus digambar dengan warna yang kontras terhadap langitnya, dan
+          satu-satunya warna yang kontras di sana adalah GELAP. Bintang gelap
+          di siang bolong terbaca sebagai kotoran di layar, bukan bintang.
+
+          Keduanya dipasang berdampingan dan yang menentukan mana yang
+          terlihat cuma opasitas, jadi pergantian waktu tetap memudar halus
+          dan tidak ada yang muncul mendadak.
+        */}
+        <div className="jr-awan">
+          {/* Sembilan gumpal, letak dan ukurannya ditulis tetap. Bukan acak:
+              nilai acak berarti server dan peramban menggambar awan di tempat
+              yang berbeda, dan React melaporkannya sebagai hydration
+              mismatch. Ini sudah pernah terjadi di berkas lain di repo ini. */}
+          {[
+            { k: 6, a: 12, l: 30, t: 62 },
+            { k: 24, a: 30, l: 22, t: 52 },
+            { k: 47, a: 8, l: 34, t: 70 },
+            { k: 68, a: 26, l: 26, t: 58 },
+            { k: 86, a: 15, l: 30, t: 66 },
+            { k: 14, a: 58, l: 24, t: 48 },
+            { k: 40, a: 70, l: 30, t: 56 },
+            { k: 63, a: 52, l: 20, t: 44 },
+            { k: 82, a: 66, l: 26, t: 52 },
+          ].map((g, i) => (
+            <span
+              key={i}
+              style={{
+                left: `${g.k}%`,
+                top: `${g.a}%`,
+                width: `${g.l}vmin`,
+                height: `${g.t}px`,
+                animationDelay: `${-i * 7}s`,
+                animationDuration: `${74 + i * 9}s`,
+              }}
+            />
+          ))}
+        </div>
         <div className="jr-bintang" />
         <div className="jr-jatuh">
           {[
@@ -497,7 +542,7 @@ export default function Jurnal({
                 <p className="jr-rasa-lama">
                   {bacaMood(sedangDibaca.mood).map((m) => (
                     <span key={m} className="jr-rasa-cap">
-                      <span aria-hidden>{RASA[m]}</span> {m}
+                      <RupaRasa rasa={m as Mood} ukuran={16} /> {m}
                     </span>
                   ))}
                 </p>
@@ -616,7 +661,7 @@ export default function Jurnal({
                       setRasa((r) => (r.includes(m) ? r.filter((x) => x !== m) : [...r, m]))
                     }
                   >
-                    <span aria-hidden>{RASA[m]}</span>
+                    <RupaRasa rasa={m} ukuran={26} />
                     <span className="jr-rasa-nama">{m}</span>
                   </button>
                 ))}
@@ -802,7 +847,7 @@ export default function Jurnal({
                       <span className="jr-arsip-tgl">{t.pendek}</span>
                       {n.penting ? <span aria-hidden className="jr-arsip-penting">★</span> : null}
                       {bacaMood(n.mood).map((m) => (
-                        <span key={m} aria-hidden>{RASA[m]}</span>
+                        <RupaRasa key={m} rasa={m as Mood} ukuran={14} />
                       ))}
                       <span className="jr-arsip-cuplik">
                         {n.judul || n.body.slice(0, 42)}

@@ -30,7 +30,42 @@
  * saja" adalah jawaban yang paling mudah dipakai untuk tidak menjawab.
  */
 
-export const MOOD = ["senang", "tenang", "capek", "sedih", "kesal"] as const;
+/*
+ * ── DARI LIMA JADI SEMBILAN (1 September 2026) ──
+ *
+ * Catatan di atas sebelumnya berbunyi "sengaja sedikit: pilihan yang panjang
+ * berubah jadi tugas memilih". Alasan itu tidak salah, tapi ia menjawab
+ * pertanyaan yang salah. Yang bikin memilih jadi tugas bukan JUMLAHNYA,
+ * melainkan pilihan yang mirip-mirip sehingga harus dibanding-bandingkan.
+ *
+ * Dan lima ternyata terlalu sedikit untuk alasan yang lebih penting: marah
+ * tidak ada di daftar. Anak yang lagi marah lalu disuruh memilih antara
+ * "kesal" dan "sedih" bukan sedang dibantu menamai perasaannya, dia sedang
+ * dipaksa mengecilkannya. Begitu juga bingung, yang bukan sedih dan bukan
+ * capek tapi punya rasanya sendiri.
+ *
+ * Sembilan ini disusun berurutan dari yang paling ringan ke yang paling
+ * berat, jadi barisnya sendiri sudah jadi tangga dan mata tidak perlu
+ * membandingkan satu-satu.
+ *
+ * MENAMBAH nilai baru AMAN untuk data lama. Kolomnya teks berisi daftar
+ * dipisah koma, dan `baca()` menyaring dengan `sahMood`, jadi catatan yang
+ * ditulis sebelum hari ini tetap terbaca apa adanya. Yang TIDAK aman adalah
+ * MENGHAPUS atau MENGGANTI NAMA nilai yang sudah pernah dipakai: itu
+ * membuat perasaan yang pernah dicatat Olen hilang tanpa jejak. Kalau suatu
+ * saat perlu, tambahkan yang baru dan biarkan yang lama tetap ada.
+ */
+export const MOOD = [
+  "senang",
+  "semangat",
+  "tenang",
+  "bingung",
+  "capek",
+  "cemas",
+  "sedih",
+  "kesal",
+  "marah",
+] as const;
 
 export type Mood = (typeof MOOD)[number];
 
