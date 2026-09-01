@@ -1448,12 +1448,39 @@
 @media (min-width: 1080px) {
   .jr { padding-inline: clamp(1.5rem, 3vw, 3.5rem); }
 
+  /*
+   * ═══ KOLOM KIRI DIPATOK SELEBAR BACANYA ═══
+   *
+   * Yaya: "ada bagian tengah yang kosong, rapatkan aja, pindahkan kosongnya
+   * ke kiri dan kanan."
+   *
+   * Sebabnya kolom kiri berupa PECAHAN (1,35fr) sementara isinya dibatasi
+   * 46rem. Di layar 1920 selisihnya besar sekali:
+   *
+   *     ruang dalam        1792 px
+   *     kolom kanan         544 px
+   *     jarak antar kolom    88 px
+   *     kolom kiri (1fr)   1160 px
+   *     lebar baca dipakai  736 px
+   *     KOSONG di tengah    424 px
+   *
+   * Empat ratus dua puluh empat piksel kosong, dan letaknya di tengah, yaitu
+   * tempat yang paling terlihat. Batas 46rem itu benar dan tidak diubah:
+   * baris lebih dari sekitar 80 huruf membuat mata kehilangan awal baris
+   * berikutnya. Yang salah kolomnya, bukan batasnya.
+   *
+   * Sekarang kolom kiri DIPATOK selebar bacanya, dan kisinya ditengahkan.
+   * Sisanya jatuh ke kiri dan kanan, masing-masing 276 px di layar 1920.
+   */
   .jr-lembar {
     width: min(104rem, 100%);
-    /* Kolom kiri lebih lega dari sebelumnya, karena sekarang ia satu-satunya
-       tempat menulis. Kolom kanan cukup selebar kalender. */
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
-    column-gap: clamp(2.5rem, 5vw, 5.5rem);
+    grid-template-columns: minmax(0, var(--lebar-baca)) minmax(0, 34rem);
+    /* justify-content, bukan margin auto: yang ditengahkan KOLOMNYA di dalam
+       kisi, sementara kisinya sendiri tetap selebar yang tersedia. Dengan
+       margin auto, kisinya yang menyusut dan penanda babak di dalamnya ikut
+       kehilangan lebar. */
+    justify-content: center;
+    column-gap: clamp(var(--jarak-8), 4vw, 64px);
   }
 
   /* Batas lebar BACA, bukan batas lebar kolom. Halaman boleh selebar layar;
@@ -1462,18 +1489,16 @@
   .jr-judul-isian,
   .jr-subjudul-isian,
   .jr-garis,
-  .jr-tulisan-lama { max-width: 46rem; }
+  .jr-tulisan-lama { max-width: var(--lebar-baca); }
 
   .jr-kal-tgl { font-size: 0.9rem; }
   .jr-garis { --baris: 2.35rem; font-size: 1.12rem; }
 }
 
-/* Di layar sangat lebar, kolom kanan berhenti melebar dan menempel ke kanan.
-   Kalender yang ikut melebar sampai 700 px punya sel setinggi 90 px berisi
-   satu angka, dan itu bukan kalender lagi, itu papan catur. */
-@media (min-width: 1600px) {
-  .jr-lembar { grid-template-columns: minmax(0, 1fr) 34rem; }
-}
+/* Aturan 1600px yang dulu di sini sudah tidak diperlukan. Ia ada untuk
+   menahan kolom kanan supaya tidak ikut melebar jadi papan catur; sekarang
+   KEDUA kolom sudah berupa lebar tetap, jadi tidak ada lagi yang melebar
+   waktu layarnya bertambah. Yang bertambah cuma ruang di kiri dan kanan. */
 
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -2065,4 +2090,39 @@
     border-inline: none;
   }
   .jr-kal-panel { margin-inline: 0; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * PANAH KALENDER: LEGA, DIHITUNG DARI TOMBOLNYA
+ *
+ * Yaya: "tanda panahnya masih terasa terlalu rapat."
+ *
+ * Hitungannya di layar lebar. Panel 544 px, tepi 24 px, jadi ruang dalam
+ * 496 px. Panah 48 px, jarak antar kolom 16 px:
+ *
+ *     ruang untuk nama bulan  496 - 96 - 32 = 368 px
+ *
+ * Cukup, tapi yang terasa sempit bukan nama bulannya melainkan JARAK PANAH
+ * KE TEPI dan KE NAMA BULAN. Keduanya dinaikkan satu tingkat:
+ *
+ *     tepi panel   24 -> 32 px  (lebih besar dari lebar panah dibagi 1,5)
+ *     jarak kolom  16 -> 24 px
+ *     ruang nama   544 - 64 - 96 - 48 = 336 px, masih lapang
+ *
+ * Dan panahnya sendiri diberi bentuk: lingkaran berlatar tipis, jadi ia
+ * terbaca sebagai tombol dan bukan sebagai tanda kutip yang mengambang.
+ * Tombol tanpa bentuk selalu terasa rapat, berapa pun jaraknya, karena tidak
+ * ada yang menunjukkan di mana ia mulai dan berakhir.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 1080px) {
+  .jr-kalender { padding: var(--jarak-8); padding-top: var(--jarak-6); }
+  .jr-kal-kepala { gap: var(--jarak-6); margin-bottom: var(--jarak-6); }
+}
+
+.jr-kal-panah {
+  border-radius: 999px;
+  border: 1px solid var(--jr-garis);
+  background: var(--jr-kaca-2);
 }
