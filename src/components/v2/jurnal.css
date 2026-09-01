@@ -1804,3 +1804,62 @@
   height: var(--sentuh);
   transform: translate(-50%, -50%);
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * KEPALA: KISI, BUKAN TUMPUKAN MUTLAK
+ *
+ * Yaya, dari HP: "kembali ke buminya nempel."
+ *
+ * Sebabnya rancangan lamanya: judul di tengah dalam alir dokumen, sementara
+ * menu dan tombol pulang dipasang `position: absolute` di kiri dan kanan.
+ * Elemen mutlak DIANGKAT KELUAR dari alir, jadi judul di tengah tidak tahu
+ * apa-apa soal keberadaan mereka dan tetap memakai lebar penuh. Selama
+ * layarnya lebar, ketiganya kebetulan tidak bersinggungan. Di 390 px, judul
+ * "1 September 2026" memanjang sampai ke bawah tombolnya.
+ *
+ * Ini bukan soal menggeser beberapa piksel. Selama tata letaknya mutlak,
+ * tabrakan itu selalu mungkin, cuma menunggu layar yang cukup sempit.
+ *
+ * Sekarang kisi tiga kolom. Judul duduk di kolom TENGAH, jadi lebarnya
+ * dibatasi kolomnya sendiri dan bertabrakan menjadi MUSTAHIL, bukan sekadar
+ * tidak terjadi.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr-kepala {
+  display: grid;
+  grid-template-columns: var(--sentuh) minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: var(--jarak-3);
+}
+
+.jr-setelan { grid-column: 1; grid-row: 1 / span 3; justify-self: start; }
+.jr-kop { grid-column: 2; grid-row: 1; }
+.jr-tgl { grid-column: 2; grid-row: 2; }
+.jr-hari { grid-column: 2; grid-row: 3; }
+
+/* Tombol pulang keluar dari `position: absolute`. Selama ia mutlak, ia tidak
+   pernah ikut diperhitungkan waktu kolom tengah dihitung. */
+.jr-pulang {
+  position: static;
+  grid-column: 3;
+  grid-row: 1 / span 3;
+  justify-self: end;
+  align-self: start;
+  white-space: nowrap;
+}
+
+/* Di layar sempit, tiga di satu baris berarti judulnya tinggal sekitar
+   160 px. Jadi tombolnya turun ke barisnya sendiri, penuh dan di tengah.
+   Angkanya: 390 px layar, kurang 32 px tepi, kurang 48 px menu, kurang dua
+   jarak 12 px, kurang tombol sekitar 150 px, sisa 136 px untuk tanggal.
+   Itu tidak cukup, dan itulah alasannya. */
+@media (max-width: 719px) {
+  .jr-kepala { grid-template-columns: var(--sentuh) minmax(0, 1fr) var(--sentuh); }
+  .jr-pulang {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    justify-self: center;
+    margin-top: var(--jarak-4);
+  }
+}

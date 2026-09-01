@@ -10,7 +10,7 @@ import { PALET, type Waktu } from "./waktu";
 import { warnaLangitDi } from "./ketinggian";
 import Settings, { type Pengaturan } from "./Settings";
 import { variabelTema } from "@/design/tema";
-import { alfaSecukupnya, rgba, sorotSecukupnya, tintaTerbaik } from "@/design/warna";
+import { alfaSecukupnya, rgba, sorotSecukupnya, tintaTerbaik, tumpuk } from "@/design/warna";
 
 /**
  * ═══ WAJAH PERASAAN ═══
@@ -239,9 +239,53 @@ export default function Jurnal({
    * dibaca lama butuh 7, keterangan butuh 4,5, dan yang cuma penanda
    * kehadiran butuh 3.
    */
+  /*
+   * ═══ LATAR TERBURUK, BUKAN LANGIT POLOS ═══
+   *
+   * Semua alfa tinta sebelumnya diukur terhadap `langit`. Itu benar untuk
+   * teks yang duduk langsung di atas langit, dan SALAH untuk teks yang duduk
+   * di dalam panel kaca.
+   *
+   * Panel kalender memakai --jr-kaca-1 dan panel agenda di dalamnya memakai
+   * --jr-kaca-2. Keduanya lapisan TINTA di atas langit, jadi di langit terang
+   * mereka menggelapkan latarnya. Tinta gelap di atas latar yang lebih gelap
+   * berarti kontras yang LEBIH RENDAH daripada yang diukur, dan itu persis
+   * yang terlihat di HP: "what's your agenda?" hampir tidak terbaca padahal
+   * angkanya sudah lolos 4,5 : 1.
+   *
+   * Yang salah bukan ambangnya, melainkan latar yang dipakai mengukur.
+   * Sekarang semua tinta diukur terhadap latar PALING BURUK yang mungkin ia
+   * tempati, yaitu langit ditumpuk dua lapis kaca. Akibatnya teks di atas
+   * langit polos jadi sedikit lebih pekat dari yang diperlukan, dan itu
+   * arah kesalahan yang benar.
+   */
+  /*
+   * ═══ KACA TIDAK BOLEH TERBUAT DARI TINTA ═══
+   *
+   * Versi pertama perbaikan ini cuma memindahkan tempat mengukur, dan
+   * hasilnya masih gagal di tiga dari empat waktu. Sebabnya lebih dalam:
+   * lapisan kacanya sendiri dibuat dari TINTA. Di langit terang, kaca tinta
+   * menggelapkan latar, yaitu menarik latar MENDEKAT ke warna tulisannya.
+   * Berapa pun alfanya disetel, kontras di dalam panel turun.
+   *
+   * Angkanya waktu itu: bahkan tinta PEKAT di dalam panel cuma mencapai
+   * 3,35 : 1 di sore. Tidak ada alfa yang bisa menyelamatkan itu, karena
+   * batasnya bukan alfa melainkan warna panelnya.
+   *
+   * Kaca sekarang KEBALIKAN tinta: putih waktu tintanya gelap, hitam waktu
+   * tintanya terang. Jadi panel selalu mendorong latar MENJAUH dari warna
+   * tulisan, dan kontras di dalam panel justru lebih tinggi daripada di luar.
+   * Ini juga yang membuat panel kaca sungguhan terlihat seperti kaca: ia
+   * memutihkan yang di belakangnya, bukan mengaburkannya jadi kelabu.
+   */
+  const kaca = tinta === "#eef6ff" ? "#02080f" : "#ffffff";
+  const aKaca1 = alfaSecukupnya(langit, kaca, 1.18);
+  const aKaca2 = alfaSecukupnya(langit, kaca, 1.3);
+  const latarPanel = tumpuk(kaca, aKaca2, tumpuk(kaca, aKaca1, langit));
+
   const rias = {
     "--jr-tinta": tinta,
-    "--jr-lembut": rgba(tinta, alfaSecukupnya(langit, tinta, 7)),
+    "--jr-lembut": rgba(tinta, alfaSecukupnya(latarPanel, tinta, 7)),
     /* Dinaikkan 1 September 2026, sesudah Yaya lihat layarnya: "ini masih
        terlalu nggak keliatan". Angka lamanya 4,5 dan 3, yaitu ambang minimum
        WCAG untuk teks biasa dan untuk unsur bukan-teks.
@@ -249,20 +293,29 @@ export default function Jurnal({
        itu untuk teks HITAM DI ATAS PUTIH dengan huruf tegas. Di sini
        hurufnya serif tipis di atas langit biru, dan minimum yang lolos di
        kertas tidak lolos di sini. Naik ke 5,5 dan 4,5. */
-    "--jr-samar": rgba(tinta, alfaSecukupnya(langit, tinta, 5.5)),
-    "--jr-hantu": rgba(tinta, alfaSecukupnya(langit, tinta, 4.5)),
+    "--jr-samar": rgba(tinta, alfaSecukupnya(latarPanel, tinta, 5.5)),
+    "--jr-hantu": rgba(tinta, alfaSecukupnya(latarPanel, tinta, 4.5)),
     /* Garis dan lapisan kaca BUKAN teks: yang dijaga cuma supaya bentuknya
        kelihatan. Ambangnya 1,4 sampai 2, jauh di bawah ambang teks, karena
        garis setebal ambang teks berubah jadi kotak yang berteriak. */
-    "--jr-garis": rgba(tinta, alfaSecukupnya(langit, tinta, 1.55)),
-    "--jr-garis-kuat": rgba(tinta, alfaSecukupnya(langit, tinta, 2.1)),
-    "--jr-kaca-1": rgba(tinta, alfaSecukupnya(langit, tinta, 1.18)),
-    "--jr-kaca-2": rgba(tinta, alfaSecukupnya(langit, tinta, 1.3)),
-    "--jr-kaca-3": rgba(tinta, alfaSecukupnya(langit, tinta, 1.5)),
-    "--jr-kaca-4": rgba(tinta, alfaSecukupnya(langit, tinta, 1.85)),
-    "--jr-sorot": sorot,
-    "--jr-sorot-tepi": rgba(sorot, alfaSecukupnya(langit, sorot, 1.7)),
-    "--jr-sorot-kaca": rgba(sorot, alfaSecukupnya(langit, sorot, 1.25)),
+    "--jr-garis": rgba(tinta, alfaSecukupnya(latarPanel, tinta, 1.55)),
+    "--jr-garis-kuat": rgba(tinta, alfaSecukupnya(latarPanel, tinta, 2.1)),
+    /* Lapisan kaca tetap diukur terhadap langit: yang diatur di sini seberapa
+       kentara LAPISANNYA terhadap yang di belakangnya, bukan keterbacaan
+       teks di atasnya. */
+    "--jr-kaca-1": rgba(kaca, aKaca1),
+    "--jr-kaca-2": rgba(kaca, aKaca2),
+    "--jr-kaca-3": rgba(kaca, alfaSecukupnya(langit, kaca, 1.5)),
+    "--jr-kaca-4": rgba(kaca, alfaSecukupnya(langit, kaca, 1.85)),
+    /* Sorot dipilih ulang terhadap latar panel juga: tombol "tambah" duduk
+       di dalam panel agenda, dan di sanalah ia paling sering tidak terbaca. */
+    "--jr-sorot": sorotSecukupnya(
+      latarPanel,
+      ["#f4e4b0", "#a8801a", "#7d5c08", "#5c4204", "#3d2b00", "#241900"],
+      4.5,
+    ),
+    "--jr-sorot-tepi": rgba(sorot, alfaSecukupnya(latarPanel, sorot, 1.7)),
+    "--jr-sorot-kaca": rgba(sorot, alfaSecukupnya(latarPanel, sorot, 1.25)),
   } as React.CSSProperties;
 
   const hariIni = useMemo(() => {
@@ -685,7 +738,7 @@ export default function Jurnal({
           <p className="jr-kop">sky notes</p>
 
           <button type="button" className="jr-tombol jr-pulang" onClick={onTurun}>
-            kembali ke bumi
+            back to the beach
           </button>
 
           {/* Tanpa kelas `serif`. Kelas itu milik v1 dan memaksa Playfair
