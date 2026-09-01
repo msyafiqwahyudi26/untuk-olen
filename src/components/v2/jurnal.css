@@ -2126,3 +2126,128 @@
   border: 1px solid var(--jr-garis);
   background: var(--jr-kaca-2);
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * TOMBOL SIMPAN DAN BARIS KAKI
+ *
+ * Yaya: "simpan itu warnanya beda sendiri dan ketika ada ketikan pun dia
+ * masih terlalu gelap. Tulisan tempel foto aneh placementnya."
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+/*
+ * KENAPA SIMPAN JADI GELAP.
+ *
+ * Ia memakai `background: var(--jr-sorot-kaca)`, yaitu warna sorot dengan
+ * alfa. Masalahnya warna sorot di sini bukan emas terang:
+ *
+ *     pagi   #7d5c08   luminansi 0,120
+ *     siang  #7d5c08   luminansi 0,120
+ *     sore   #5c4204   luminansi 0,062
+ *     malam  #f4e4b0   luminansi 0,779
+ *
+ * Sorot memang HARUS gelap di langit terang, karena ia dipilih supaya
+ * TULISAN berwarna itu terbaca di atas latar terang. Tapi warna yang bagus
+ * untuk tulisan tidak otomatis bagus untuk LATAR: dipakai sebagai latar, ia
+ * jadi noda gelap di halaman yang seluruhnya biru muda. Itu yang bikin ia
+ * "beda sendiri", dan bedanya bukan ke arah yang diinginkan.
+ *
+ * Sekarang latarnya kaca yang sama dengan tombol lain, cuma lebih pekat.
+ * Yang menandainya sebagai tombol utama: tepi lebih tebal, tulisan berwarna
+ * sorot, dan bobot huruf lebih berat. Tiga penanda tanpa satu pun mengubah
+ * terangnya.
+ */
+.jr-simpan {
+  background: var(--jr-kaca-pekat);
+  border-color: var(--jr-sorot);
+  border-width: 2px;
+  color: var(--jr-sorot);
+  font-weight: 700;
+}
+.jr-simpan:hover:not(:disabled) { background: var(--jr-kaca-4); }
+
+/* Waktu belum ada yang diketik, tombolnya kembali jadi tombol biasa: tidak
+   ada tulisan sorot, tidak ada tepi tebal. Yang mati tidak boleh terlihat
+   lebih penting daripada yang hidup. */
+.jr-simpan:disabled {
+  background: var(--jr-kaca-1);
+  border-color: var(--jr-garis);
+  border-width: 1px;
+  color: var(--jr-tinta);
+  font-weight: 600;
+  opacity: 0.45;
+}
+
+/*
+ * BARIS KAKI.
+ *
+ * Tiga benda dengan lebar yang jauh berbeda ("tempel foto", "0 kata",
+ * "simpan") disebar dengan space-between. Di layar lebar itu aman; di HP
+ * ketiganya memenuhi baris sampai mepet, dan karena lebarnya tidak sama,
+ * tidak ada satu pun yang sejajar dengan apa pun.
+ *
+ * Di HP jadi kisi: jumlah kata sendirian di atas, dua tombol SAMA LEBAR di
+ * bawah. Sama lebar itu yang menentukan, bukan jaraknya: dua tombol yang
+ * lebarnya berbeda selalu terlihat seperti salah satunya lebih penting.
+ */
+@media (max-width: 719px) {
+  .jr-kaki {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--jarak-3);
+    align-items: stretch;
+  }
+  .jr-hitung {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    text-align: center;
+  }
+  .jr-tempel { grid-column: 1; grid-row: 2; }
+  .jr-simpan { grid-column: 2; grid-row: 2; }
+  /* Tulisan di dalam tombol ditengahkan; tanpa ini, label yang isinya teks
+     panjang duduk rata kiri sementara tombol sebelahnya rata tengah. */
+  .jr-tempel,
+  .jr-simpan { display: grid; place-items: center; text-align: center; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * TANDA "TERPILIH" BERHENTI MEMAKAI EMAS SEBAGAI LATAR
+ *
+ * Sesudah tombol simpan dibetulkan, hal yang sama diperiksa pada semua
+ * penanda terpilih yang lain. Ternyata sakitnya sama, cuma lebih halus.
+ *
+ * Dihitung, latar "terpilih" yang dihasilkan emas tua di atas panel:
+ *
+ *     pagi   #CACCC6   teks sorot di atasnya 3,81 : 1
+ *     siang  #B2CAC7   3,57 : 1
+ *     sore   #9FA8B0   3,89 : 1
+ *
+ * Tiga-tiganya di bawah 4,5, dan warnanya kelabu kehijauan, yaitu warna yang
+ * tidak ada di mana pun lagi di halaman ini. Itu yang bikin benda terpilih
+ * terlihat kotor, bukan terpilih.
+ *
+ * Aturannya sekarang satu dan berlaku di semua: EMAS UNTUK TULISAN DAN TEPI,
+ * KACA UNTUK LATAR. Terpilih ditandai oleh kaca yang lebih pekat, tepi emas
+ * yang lebih tebal, dan tulisan emas. Tiga penanda, tidak satu pun mengubah
+ * warna dasar halamannya.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr-rasa-tombol.on,
+.jr-arsip-tombol.on,
+.jr-kal-tgl.penting {
+  background: var(--jr-kaca-pekat);
+  border-color: var(--jr-sorot);
+  color: var(--jr-sorot);
+}
+.jr-rasa-tombol.on { border-width: 2px; }
+.jr-kal-tgl.penting { box-shadow: inset 0 0 0 1.5px var(--jr-sorot); }
+
+/* Tanggal terpilih TETAP terisi penuh emas: ia satu-satunya benda di halaman
+   yang harus ditemukan di antara empat puluh angka yang mirip, dan isian
+   penuh itu satu-satunya penanda yang tidak bisa terlewat.
+   Yang diperbaiki tulisannya: sebelumnya memakai warna langit, dan di siang
+   itu cuma 3,8 : 1 karena langit dan emas tua kebetulan berdekatan
+   terangnya. Sekarang tintanya DIPILIH terhadap emasnya. */
+.jr-kal-tgl.pilih { color: var(--jr-sorot-tinta); }
+.jr-kal-tgl.pilih .jr-kal-titik { background: var(--jr-sorot-tinta); }

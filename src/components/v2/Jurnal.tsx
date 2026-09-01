@@ -307,6 +307,12 @@ export default function Jurnal({
     "--jr-kaca-2": rgba(kaca, aKaca2),
     "--jr-kaca-3": rgba(kaca, alfaSecukupnya(langit, kaca, 1.5)),
     "--jr-kaca-4": rgba(kaca, alfaSecukupnya(langit, kaca, 1.85)),
+    /* Kaca paling pekat, untuk tombol utama. Cukup kentara supaya ia
+       terbaca berbeda dari tombol lain, tapi tetap KACA: putih di langit
+       terang, gelap di langit malam. Yang tidak boleh dipakai di sini warna
+       sorot, karena di tiga dari empat waktu sorot itu emas TUA
+       (luminansi 0,06 sampai 0,12) dan sebagai latar ia jadi noda gelap. */
+    "--jr-kaca-pekat": rgba(kaca, alfaSecukupnya(langit, kaca, 2.6)),
     /* Sorot dipilih ulang terhadap latar panel juga: tombol "tambah" duduk
        di dalam panel agenda, dan di sanalah ia paling sering tidak terbaca. */
     "--jr-sorot": sorotSecukupnya(
@@ -314,6 +320,11 @@ export default function Jurnal({
       ["#f4e4b0", "#a8801a", "#7d5c08", "#5c4204", "#3d2b00", "#241900"],
       4.5,
     ),
+    /* Tinta yang dipakai DI ATAS warna sorot, waktu sorot jadi latar penuh
+       (tanggal terpilih). Dipilih, bukan dipatok: sebelumnya memakai warna
+       langit, dan itu cuma 3,8 : 1 di siang karena langit dan emas tua
+       kebetulan berdekatan terangnya. */
+    "--jr-sorot-tinta": tintaTerbaik(sorot, ["#0b1726", "#ffffff"]),
     "--jr-sorot-tepi": rgba(sorot, alfaSecukupnya(latarPanel, sorot, 1.7)),
     "--jr-sorot-kaca": rgba(sorot, alfaSecukupnya(latarPanel, sorot, 1.25)),
   } as React.CSSProperties;
