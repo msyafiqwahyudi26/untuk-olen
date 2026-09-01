@@ -136,6 +136,26 @@ export function db(): DatabaseSync {
     "ALTER TABLE notes ADD COLUMN diubah TEXT",
     "ALTER TABLE notes ADD COLUMN judul TEXT",
     "ALTER TABLE notes ADD COLUMN subjudul TEXT",
+    /* Foto momen. Disimpan sebagai daftar nama berkas dipisah koma, bukan
+       tabel tersendiri.
+
+       Alasannya sama dengan mood: kolom teks yang berisi daftar tetap
+       terbaca sebagai nilai tunggal oleh kode lama, jadi catatan yang
+       ditulis sebelum hari ini tidak perlu disentuh. Tabel terpisah akan
+       lebih rapi secara teori dan menambah satu sambungan yang bisa putus,
+       untuk paling banyak enam berkas per catatan.
+
+       Yang disimpan cuma NAMANYA. Berkasnya sendiri di public/momen/, di
+       luar git dan di luar basis data. Basis data yang menyimpan gambar
+       akan membuat cadangan .backup jadi ratusan megabita, dan yang paling
+       ingin diselamatkan dari sana justru tulisannya. */
+    "ALTER TABLE notes ADD COLUMN foto TEXT",
+    /* Revisi ikut menyimpan daftar fotonya. Tanpa ini, jaminan "tidak ada
+       yang benar-benar hilang" cuma berlaku untuk tulisan: Olen menghapus
+       foto dari catatannya, lalu memulihkannya, dan fotonya tidak kembali.
+       Berkasnya sendiri tidak pernah dihapus dari disk, jadi yang perlu
+       diselamatkan cuma daftar namanya. */
+    "ALTER TABLE note_revisi ADD COLUMN foto TEXT",
   ]) {
     try {
       d.exec(kolom);
@@ -172,6 +192,7 @@ export type NoteRow = {
   dihapus: string | null;
   judul: string | null;
   subjudul: string | null;
+  foto: string | null;
 };
 
 export type AcaraRow = {
@@ -204,7 +225,7 @@ export const getShifts  = () => all<ShiftRow>("SELECT then_text,now_text FROM sh
 export const getQuotes  = () => all<QuoteRow>("SELECT text,date,weight FROM quotes ORDER BY ord");
 export const getStars   = () => all<StarRow>("SELECT key,title,date,body,photo,audio,ra,dec,mag,grp FROM stars ORDER BY ord");
 export const getStarLinks = () => all<{ a: string; b: string }>("SELECT a,b FROM star_links");
-const KOLOM = "id,body,created_at,mood,penting,diubah,dihapus,judul,subjudul";
+const KOLOM = "id,body,created_at,mood,penting,diubah,dihapus,judul,subjudul,foto";
 
 /** Yang masih ada. Yang dihapus tidak ikut, tapi tidak hilang. */
 export const getNotes = () =>
@@ -231,24 +252,50 @@ function rekam(id: number, sebab: "diubah" | "dihapus") {
   const n = satu(id);
   if (!n) return;
   db()
-    .prepare("INSERT INTO note_revisi (note_id, body, mood, sebab) VALUES (?, ?, ?, ?)")
-    .run(n.id, n.body, n.mood, sebab);
+    .prepare("INSERT INTO note_revisi (note_id, body, mood, foto, sebab) VALUES (?, ?, ?, ?, ?)")
+    .run(n.id, n.body, n.mood, n.foto, sebab);
 }
 
 const potong = (v: unknown, n: number) =>
   typeof v === "string" && v.trim() ? v.trim().slice(0, n) : null;
+
+/**
+ * Membersihkan daftar nama berkas foto.
+ *
+ * Yang masuk ke sini datang dari peramban, jadi ia tidak boleh dipercaya.
+ * Yang dijaga khusus: nama berkas TIDAK BOLEH mengandung garis miring atau
+ * titik ganda. Tanpa itu, "../../data/olen.db" adalah nama berkas yang sah
+ * menurut basis data, dan halaman yang menampilkannya akan meminta berkas di
+ * luar folder foto.
+ *
+ * Polanya daftar-putih (hanya huruf, angka, strip, satu titik sebelum
+ * ekstensi), bukan daftar-hitam. Daftar-hitam selalu ketinggalan satu bentuk
+ * yang belum terpikirkan.
+ */
+function bersihFoto(v: unknown): string | null {
+  const daftar = (typeof v === "string" ? v.split(",") : Array.isArray(v) ? v : [])
+    .map((s) => String(s).trim())
+    .filter((s) => /^[a-z0-9-]{1,80}\.(jpg|jpeg|png|webp|gif)$/i.test(s))
+    .slice(0, 6);
+  return daftar.length ? daftar.join(",") : null;
+}
 
 export function addNote(
   body: string,
   mood?: string | null,
   judul?: string | null,
   subjudul?: string | null,
+  foto?: unknown,
 ) {
   const trimmed = body.trim().slice(0, 4000);
-  if (!trimmed) return null;
+  /* Catatan yang isinya cuma foto tanpa tulisan tetap sah. Sebelumnya body
+     kosong berarti ditolak, dan itu benar waktu foto belum ada; sekarang
+     "hari ini cuma mau naruh foto" adalah cara memakai yang wajar. */
+  const berkas = bersihFoto(foto);
+  if (!trimmed && !berkas) return null;
   db()
-    .prepare("INSERT INTO notes (body, mood, judul, subjudul) VALUES (?, ?, ?, ?)")
-    .run(trimmed, tulisMood(bacaMood(mood)), potong(judul, 160), potong(subjudul, 240));
+    .prepare("INSERT INTO notes (body, mood, judul, subjudul, foto) VALUES (?, ?, ?, ?, ?)")
+    .run(trimmed, tulisMood(bacaMood(mood)), potong(judul, 160), potong(subjudul, 240), berkas);
   return getNotes()[0] ?? null;
 }
 
@@ -258,15 +305,21 @@ export function ubahNote(
   mood?: string | null,
   judul?: string | null,
   subjudul?: string | null,
+  foto?: unknown,
 ) {
   const trimmed = body.trim().slice(0, 4000);
-  if (!trimmed) return null;
+  const berkas = bersihFoto(foto);
+  if (!trimmed && !berkas) return null;
+  /* rekam() menyimpan potret SEBELUM perubahan, termasuk daftar fotonya.
+     Jadi kalau Olen menghapus foto lalu menyesal, nama berkasnya masih ada
+     di note_revisi dan berkasnya sendiri tidak pernah dihapus dari disk.
+     Ini jaminan yang sama dengan yang berlaku untuk tulisannya. */
   rekam(id, "diubah");
   db()
     .prepare(
-      "UPDATE notes SET body = ?, mood = ?, judul = ?, subjudul = ?, diubah = datetime('now') WHERE id = ?",
+      "UPDATE notes SET body = ?, mood = ?, judul = ?, subjudul = ?, foto = ?, diubah = datetime('now') WHERE id = ?",
     )
-    .run(trimmed, tulisMood(bacaMood(mood)), potong(judul, 160), potong(subjudul, 240), id);
+    .run(trimmed, tulisMood(bacaMood(mood)), potong(judul, 160), potong(subjudul, 240), berkas, id);
   return satu(id);
 }
 

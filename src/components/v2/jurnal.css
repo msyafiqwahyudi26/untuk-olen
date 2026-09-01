@@ -166,67 +166,12 @@
   top: -0.2rem;
 }
 
-.jr-menu-tombol {
-  position: absolute;
-  right: 0;
-  top: -0.4rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  width: 44px;
-  height: 44px;
-  padding: 0 10px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.jr-menu-tombol span {
-  display: block;
-  height: 1.5px;
-  border-radius: 2px;
-  background: currentColor;
-  opacity: 0.8;
-  transition: transform 220ms ease, opacity 220ms ease;
-}
-.jr-menu-tombol[aria-expanded="true"] span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-.jr-menu-tombol[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
-.jr-menu-tombol[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-.jr-menu-tombol:focus-visible { outline: 2px solid var(--jr-sorot); outline-offset: 2px; }
 
-.jr-menu {
-  position: absolute;
-  right: 0;
-  top: 44px;
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  min-width: 11rem;
-  padding: 0.4rem;
-  border-radius: 14px;
-  border: 1px solid var(--jr-garis);
-  background: rgba(8, 20, 40, 0.9);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  text-align: left;
-}
 
-.jr-menu-isi {
-  min-height: 44px;
-  padding: 0.6rem 0.8rem;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: lowercase;
-  text-align: left;
-  cursor: pointer;
-}
-.jr-menu-isi:hover { background: var(--jr-kaca-2); }
+
+
+
+
 
 .jr-kop {
   margin: 0;
@@ -896,7 +841,6 @@
  * aturan yang ditambahkan nanti.
  * ═══════════════════════════════════════════════════════════════════════ */
 
-.jr-menu,
 .jr-setelan .ui-panel {
   --jr-tinta: #eef6ff;
   --jr-lembut: rgba(238, 246, 255, 0.78);
@@ -1049,3 +993,401 @@
 
 .jr-judul-isian { font-weight: 700; }
 .jr-subjudul-isian { font-weight: 500; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * BAHASA DESAIN: DREAMY, BUKAN EDITORIAL
+ *
+ * Yaya: "fontnya terlalu tipis, kurang dreamy, designnya terlalu tegas dan
+ * lurus-lurus, kurang kartunis, terlalu realis, bahasa designnya gak masuk
+ * sama halaman utama."
+ *
+ * Halaman utama itu pantai bergambar: siluet bulat, warna lembut, tidak ada
+ * satu pun sudut tajam. Jurnal dibangun belakangan sebagai tata letak
+ * majalah: serif, garis lurus tipis, kotak bersudut kecil. Dua bahasa
+ * berbeda di satu kapsul, dan yang belakangan menang di layar karena dialah
+ * yang isinya paling banyak.
+ *
+ * Yang diubah bukan warna, tapi TIGA hal yang membentuk kesan "tegas":
+ *   1. huruf serif -> huruf bulat yang sama dengan layar cerita
+ *   2. sudut kecil -> lengkung besar, hampir semua jadi pil
+ *   3. bayangan tajam -> pendar lebar yang memudar jauh
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr {
+  /* Sama seperti `.tr` di turunan.css: ditimpa di SATU tempat, dan semua
+     aturan di berkas ini ikut karena semuanya sudah memanggil variabel.
+     Jadi tidak ada satu pun aturan huruf di bawah yang perlu disentuh. */
+  --huruf-judul: var(--huruf-kartun);
+  --huruf-badan: var(--huruf-cerita);
+  --lengkung: 18px;
+  --lengkung-kecil: 13px;
+  font-weight: 500;
+}
+
+/* Tanggal besar di kepala. Ini yang paling dulu dilihat, jadi ia yang paling
+   menentukan kesan seluruh halaman.
+
+   Namanya `.jr-tgl`, bukan `.jr-tanggal`. Versi pertama aturan ini memakai
+   nama yang salah dan karena itu tidak berlaku sama sekali: CSS tidak pernah
+   mengeluh soal selektor yang tidak cocok dengan apa pun, jadi build lolos,
+   halaman tampil, dan tidak ada satu tanda pun bahwa aturannya mati. */
+.jr-tgl {
+  font-family: var(--huruf-judul, sans-serif);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.jr-tanya {
+  font-family: var(--huruf-judul, sans-serif);
+  font-weight: 700;
+  font-size: clamp(1.05rem, 2.6vw, 1.25rem);
+}
+
+.jr-judul-isian {
+  font-family: var(--huruf-judul, sans-serif);
+  font-weight: 700;
+}
+.jr-subjudul-isian { font-weight: 500; font-style: normal; }
+.jr-subjudul-isian::placeholder { font-style: normal; }
+
+/* Area tulis: huruf badan yang bulat, bukan serif. Serif di atas garis buku
+   memang terasa "buku tulis", tapi buku tulis yang formal. Yang dicari di
+   sini buku harian anak SMP. */
+.jr-garis {
+  font-family: var(--huruf-badan, system-ui, sans-serif);
+  font-weight: 500;
+  font-size: 1.08rem;
+}
+.jr-garis::placeholder { font-style: normal; }
+
+/* ── lengkung ──
+   Ditulis satu per satu, bukan `* { border-radius }`, supaya benda yang
+   memang harus lurus (garis buku, garis pemisah) tidak ikut membulat. */
+.jr-rasa-tombol,
+.jr-tombol,
+.jr-kal-tgl,
+.jr-kal-panel,
+.jr-kal-tambah input[type="text"],
+.jr-kal-tambah input:not([type]),
+.jr-arsip-tombol,
+.jr-laci-baris { border-radius: var(--lengkung); }
+
+.jr-kal-panah,
+.jr-kal-buang,
+.jr-bintang-tombol { border-radius: 999px; }
+
+/* ── pendar, bukan bayangan ──
+   Bayangan pendek berarti benda yang menempel di kaca. Pendar lebar yang
+   memudar jauh berarti benda yang mengambang di udara, dan itu yang cocok
+   untuk halaman yang isinya langit. */
+.jr-rasa-tombol,
+.jr-kal-panel,
+.jr-tombol {
+  box-shadow: 0 10px 30px rgba(2, 12, 28, 0.1);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * AWAN YANG LEBIH TEBAL
+ *
+ * Yaya: "awannya di rapihin jangan terlalu tipis."
+ *
+ * Yang bikin tipis bukan warnanya melainkan BENTUKNYA: tiga gumpal dalam
+ * satu kotak setinggi 50 sampai 70 piksel menghasilkan pita mendatar, bukan
+ * awan. Tingginya dinaikkan, gumpalnya jadi lima dan saling menumpuk lebih
+ * banyak, dan alasnya diberi satu gumpal lebar yang rata di bawah supaya
+ * awannya punya DASAR. Awan sungguhan rata di bawah dan menggumpal di atas.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr-awan span {
+  background:
+    radial-gradient(closest-side, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0) 72%) 50% 88% / 96% 52% no-repeat,
+    radial-gradient(closest-side, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0) 74%) 16% 58% / 46% 74% no-repeat,
+    radial-gradient(closest-side, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 72%) 44% 34% / 52% 92% no-repeat,
+    radial-gradient(closest-side, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0) 74%) 72% 50% / 44% 78% no-repeat,
+    radial-gradient(closest-side, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 76%) 88% 66% / 34% 60% no-repeat;
+  filter: blur(0.5px);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * KALENDER: PANEL KACA, TANGGAL TEBAL, PILIHAN YANG JELAS
+ *
+ * Yaya: "kalendernya di pakein background clear bisa nggak? dan juga ketika
+ * di klik di tanggalnya berubah warnanya. terus buat tanggalnya lebih tebal
+ * lagi lebih bold."
+ *
+ * Sebelumnya kalender cuma angka-angka yang mengambang di atas langit,
+ * dipisahkan garis tipis di atasnya. Di layar terang itu berubah jadi
+ * kumpulan angka tanpa wadah, dan mata tidak punya tempat untuk berhenti.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr-kalender {
+  /* Panel kaca: lapisan tipis dari tinta + blur. Diturunkan dari tinta
+     seperti yang lain, jadi ia gelap tipis di langit terang dan terang tipis
+     di langit malam. Satu rumus, dua hasil. */
+  margin-top: 1.4rem;
+  padding: 1.1rem clamp(0.7rem, 2vw, 1.15rem) 1.3rem;
+  border: 1px solid var(--jr-garis);
+  border-radius: calc(var(--lengkung) + 6px);
+  background: var(--jr-kaca-1);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  box-shadow: 0 14px 40px rgba(2, 12, 28, 0.12);
+  /* Garis pemisah lama tidak diperlukan lagi: yang memisahkan sekarang
+     tepinya sendiri. Dua pemisah untuk satu batas berarti satu di antaranya
+     cuma kotor. */
+  border-top: 1px solid var(--jr-garis);
+}
+
+.jr-kal-bulan {
+  font-family: var(--huruf-judul, sans-serif);
+  font-weight: 700;
+  font-size: clamp(1.02rem, 2.6vw, 1.2rem);
+  letter-spacing: 0;
+}
+
+.jr-kal-panah {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  opacity: 0.75;
+  border: 1px solid var(--jr-garis);
+  background: var(--jr-kaca-1);
+}
+.jr-kal-panah:hover { opacity: 1; background: var(--jr-kaca-3); }
+
+.jr-kal-hari {
+  font-weight: 700;
+  font-size: 0.62rem;
+  opacity: 0.72;
+}
+
+/* ── tanggal ──
+   Tebal, dan tebalnya BERTINGKAT sesuai isinya: kosong 600, ada catatan 800.
+   Tingkatan itu yang bikin bulan yang ramai bisa dipindai sekali lihat. */
+.jr-kal-tgl {
+  font-family: var(--huruf-judul, sans-serif);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+.jr-kal-tgl.ada { font-weight: 800; background: var(--jr-kaca-3); }
+.jr-kal-tgl:hover { background: var(--jr-kaca-2); transform: translateY(-1px); }
+.jr-kal-tgl.ada:hover { background: var(--jr-kaca-4); }
+
+/* Hari ini: dilingkari, tidak diisi. Ia penanda tempat, bukan pilihan. */
+.jr-kal-tgl.kini { border-color: var(--jr-garis-kuat); }
+
+/*
+ * TANGGAL TERPILIH — berubah warnanya, bukan cuma berbingkai.
+ *
+ * Sebelumnya `box-shadow: inset 0 0 0 1.5px`, yaitu garis tipis di dalam.
+ * Di antara empat puluh angka lain, satu garis tipis bukan penanda; ia
+ * tenggelam. Sekarang warnanya benar-benar bertukar: latar jadi sorot,
+ * tulisan jadi warna langit. Itu perubahan yang tidak bisa tidak terlihat.
+ */
+.jr-kal-tgl.pilih {
+  background: var(--jr-sorot);
+  color: var(--langit, #0b1726);
+  border-color: var(--jr-sorot);
+  font-weight: 800;
+  box-shadow: 0 6px 18px rgba(2, 12, 28, 0.22);
+}
+.jr-kal-tgl.pilih:hover { background: var(--jr-sorot); transform: translateY(-1px); }
+/* Titik penanda catatan ikut berbalik warna, kalau tidak ia hilang di atas
+   latar sorot yang terang. */
+.jr-kal-tgl.pilih .jr-kal-titik { background: var(--langit, #0b1726); }
+
+.jr-kal-titik { width: 5px; height: 5px; }
+
+/* Panel isi tanggal: melayang di bawah kisinya, bukan menempel. */
+.jr-kal-panel {
+  margin-top: 1rem;
+  border: 1px solid var(--jr-garis);
+  background: var(--jr-kaca-2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.jr-kal-panel-tgl {
+  font-family: var(--huruf-judul, sans-serif);
+  font-weight: 700;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * MOMEN — foto yang ditempel ke catatan
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr-momen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0 0.2rem;
+  padding: 0;
+}
+
+.jr-momen-satu {
+  position: relative;
+  margin: 0;
+  width: clamp(5.5rem, 22%, 7.5rem);
+  aspect-ratio: 1;
+  border-radius: var(--lengkung-kecil);
+  overflow: hidden;
+  border: 1px solid var(--jr-garis);
+  background: var(--jr-kaca-2);
+  box-shadow: 0 8px 22px rgba(2, 12, 28, 0.14);
+}
+
+.jr-momen-satu img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* `cover`, bukan `contain`. Kotak persegi berisi foto tegak akan punya dua
+     jalur kosong di kiri-kanan, dan sembilan jalur kosong dalam satu baris
+     terbaca sebagai kisi yang rusak. Terpotong lebih baik daripada
+     berlubang; yang utuh tetap tersimpan dan tampil penuh waktu dibuka. */
+  object-fit: cover;
+}
+
+.jr-momen-buang {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  /* Gelap tetap dengan tulisan terang, TIDAK ikut tinta halaman. Tombol ini
+     duduk di atas foto, dan warna fotonya tidak bisa ditebak: tinta yang
+     ikut langit akan hilang di atas foto yang kebetulan sewarna. */
+  background: rgba(6, 16, 32, 0.72);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.jr-momen-buang:hover { background: rgba(6, 16, 32, 0.9); }
+
+.jr-momen-tunggu {
+  align-self: center;
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+/* Waktu dibaca (bukan disunting) fotonya lebih besar: di situ ia yang jadi
+   isi, bukan lampiran. */
+.jr-momen-baca .jr-momen-satu { width: clamp(7rem, 30%, 10rem); }
+
+.jr-tempel { cursor: pointer; }
+.jr-tempel.sibuk { opacity: 0.6; cursor: progress; }
+/* `label` yang dipakai sebagai tombol tidak dapat fokus keyboard dari
+   dirinya sendiri; yang fokus adalah input di dalamnya, dan input itu
+   hidden. Jadi cincin fokusnya digambar dari input ke labelnya. */
+.jr-tempel:focus-within { outline: 2px solid var(--jr-sorot); outline-offset: 2px; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * ARSIP — daftar catatan lama
+ *
+ * Yaya: "UI/UX untuk melihat note yang lama-lama juga di rapihin ya."
+ *
+ * Dulu satu baris mendatar: tanggal, bintang, emoji, 42 huruf. Judul yang
+ * susah-susah ditulis Olen tampil sekecil keterangan tanggal, dan di layar
+ * lebar barisnya jadi pita panjang berisi ruang kosong.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr-arsip-daftar { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.jr-arsip-tombol {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  text-align: left;
+  border: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  background: var(--jr-kaca-1);
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+.jr-arsip-tombol:hover { background: var(--jr-kaca-3); transform: translateX(2px); }
+.jr-arsip-tombol.on {
+  background: var(--jr-sorot-kaca);
+  border-color: var(--jr-sorot-tepi);
+}
+
+.jr-arsip-foto {
+  flex: none;
+  width: 3.1rem;
+  height: 3.1rem;
+  object-fit: cover;
+  border-radius: var(--lengkung-kecil);
+  border: 1px solid var(--jr-garis);
+}
+
+.jr-arsip-isi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.jr-arsip-atas {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.jr-arsip-judul-baris {
+  font-family: var(--huruf-judul, sans-serif);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.25;
+  letter-spacing: 0;
+  text-transform: none;
+  /* Dua baris, lalu dipotong. Satu baris memotong judul yang bagus di tengah
+     kata; tanpa batas, satu judul panjang bisa mengambil setengah daftar. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.jr-arsip-cuplik {
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.jr-arsip-tgl { letter-spacing: 0.16em; }
+.jr-arsip-penting { color: var(--jr-sorot); font-size: 0.8rem; }

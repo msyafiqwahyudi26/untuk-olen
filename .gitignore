@@ -61,3 +61,7 @@ scripts/_kandidat-vn.json
 # Hasil cari-kalimat.py — berisi kalimat Olen berikut percakapan sekitarnya.
 # Alasan yang sama dengan _kandidat-vn.json: skripnya ikut, hasilnya tidak.
 scripts/_kalimat.json
+
+# Foto momen yang diunggah Olen dari jurnal. Sama seperti public/memori:
+# isinya pribadi dan tidak boleh ikut repo.
+public/momen/

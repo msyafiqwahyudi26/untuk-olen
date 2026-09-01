@@ -10,9 +10,40 @@ import { PALET, type Waktu } from "./waktu";
 import { warnaLangitDi } from "./ketinggian";
 import Settings, { type Pengaturan } from "./Settings";
 import { variabelTema } from "@/design/tema";
-import RupaRasa from "./RupaRasa";
-import type { Mood } from "@/lib/mood";
 import { alfaSecukupnya, rgba, sorotSecukupnya, tintaTerbaik } from "@/design/warna";
+
+/**
+ * ═══ WAJAH PERASAAN ═══
+ *
+ * Kembali ke emoji, 1 September 2026.
+ *
+ * Sempat digambar sendiri sebagai SVG, dengan alasan yang waktu itu terdengar
+ * kuat: emoji tidak bisa diatur warnanya dan bentuknya beda tiap perangkat.
+ * Keduanya benar. Tapi Yaya melihat hasilnya dan bilang "aneh", dan begitu
+ * dilihat lagi memang jelas kenapa: supaya sembilan wajah itu terlihat
+ * satu keluarga, semuanya dibangun dari lingkaran, dua mata, dan satu mulut.
+ * Hasilnya sembilan wajah yang sekilas SAMA SEMUA, dan bedanya baru
+ * ketahuan kalau diperhatikan satu-satu.
+ *
+ * Emoji punya hal yang justru tidak bisa ditiru dengan konsistensi: tiap
+ * wajah dirancang orang berbeda untuk dikenali dalam sepersekian detik. Di
+ * baris pilihan yang harus dipindai sekali lihat, itu lebih penting daripada
+ * keseragaman.
+ *
+ * Pelajarannya: "konsisten" bukan tujuan, ia alat. Di sini ia justru
+ * menghapus yang sedang dibutuhkan, yaitu perbedaan.
+ */
+const RASA: Record<string, string> = {
+  senang: "😊",
+  semangat: "🤩",
+  tenang: "😌",
+  bingung: "😕",
+  capek: "🥱",
+  cemas: "😟",
+  sedih: "😢",
+  kesal: "😒",
+  marah: "😠",
+};
 import { aset } from "@/lib/basis";
 import "./jurnal.css";
 
@@ -58,13 +89,22 @@ const HARI = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
 function pecahTanggal(s: string) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
-  if (!m) return { panjang: s, hari: "", pendek: s };
+  /* Angka -1 untuk yang gagal diurai, bukan 0: 0 itu bulan Januari yang sah,
+     dan tanggal rusak yang menyamar jadi Januari akan menandai hari yang
+     salah di kalender tanpa ada yang tahu. */
+  if (!m) return { panjang: s, hari: "", pendek: s, tahun: -1, bulan: -1, tanggal: -1 };
   const [, y, bl, d] = m;
   const tgl = new Date(`${y}-${bl}-${d}T00:00:00`);
   return {
     panjang: `${Number(d)} ${BULAN[Number(bl) - 1]} ${y}`,
     pendek: `${Number(d)} ${BULAN[Number(bl) - 1].slice(0, 3)}`,
     hari: HARI[tgl.getDay()] ?? "",
+    /* Angkanya ikut dikembalikan supaya yang butuh membandingkan tanggal
+       tidak perlu mengurai ulang teksnya sendiri. Dua tempat yang mengurai
+       format yang sama adalah dua tempat yang bisa berbeda. */
+    tahun: Number(y),
+    bulan: Number(bl) - 1,
+    tanggal: Number(d),
   };
 }
 
@@ -107,6 +147,9 @@ export default function Jurnal({
   const [tglDipilih, setTglDipilih] = useState<string | null>(null);
   const [acaraBaru, setAcaraBaru] = useState("");
   const [acaraUltah, setAcaraUltah] = useState(false);
+  /** Nama berkas foto yang sudah terunggah dan siap ikut disimpan. */
+  const [foto, setFoto] = useState<string[]>([]);
+  const [unggah, setUnggah] = useState(false);
 
   useEffect(() => {
     fetch(aset("/api/acara"))
@@ -240,16 +283,55 @@ export default function Jurnal({
    * Yang tetap dipertahankan dari versi itu: mood bisa diubah kapan saja
    * lewat layar baca tiap catatan, jadi salah pencet tidak permanen.
    */
+  /**
+   * Unggah dulu, simpan belakangan.
+   *
+   * Fotonya dikirim begitu dipilih, bukan ikut waktu tombol simpan ditekan.
+   * Dua alasan: unggahan besar yang menumpang tombol simpan bikin tombolnya
+   * terasa menggantung tanpa ada yang tahu kenapa, dan kalau salah satu
+   * berkas ditolak, Olen tahu SEKARANG dan bisa ganti, bukan sesudah selesai
+   * menulis panjang.
+   *
+   * Berkas yang sudah terunggah tapi catatannya tidak jadi disimpan akan
+   * jadi berkas yatim di public/momen. Itu diterima: berkas yatim beberapa
+   * ratus kilobita jauh lebih murah daripada foto yang hilang, dan tidak ada
+   * satu pun yang menghapusnya berarti tidak ada satu pun yang bisa salah
+   * menghapus.
+   */
+  async function tempelFoto(berkas: FileList | null) {
+    if (!berkas?.length || unggah) return;
+    if (foto.length + berkas.length > 6) {
+      setGalat("maksimal 6 foto per catatan ya");
+      return;
+    }
+    setUnggah(true);
+    setGalat(null);
+    try {
+      const data = new FormData();
+      for (const f of Array.from(berkas)) data.append("foto", f);
+      const r = await fetch(aset("/api/momen"), { method: "POST", body: data });
+      const j = (await r.json()) as { foto?: string[]; error?: string };
+      if (!r.ok) throw new Error(j.error ?? "gagal");
+      setFoto((f) => [...f, ...(j.foto ?? [])]);
+    } catch (e) {
+      setGalat(e instanceof Error && e.message !== "gagal" ? e.message : "fotonya belum kekirim.");
+    } finally {
+      setUnggah(false);
+    }
+  }
+
   async function simpan() {
     const isi = draft.trim();
-    if (!isi || sibuk) return;
+    /* Catatan yang isinya cuma foto tetap boleh disimpan. "Hari ini nggak
+       mau nulis, cuma mau naruh foto" itu cara memakai yang wajar. */
+    if ((!isi && !foto.length) || sibuk) return;
     setSibuk(true);
     setGalat(null);
     try {
       const r = await fetch(aset("/api/notes"), {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ body: isi, mood: tulisMood(rasa), judul, subjudul }),
+        body: JSON.stringify({ body: isi, mood: tulisMood(rasa), judul, subjudul, foto }),
       });
       if (!r.ok) throw new Error();
       const n = (await r.json()) as NoteRow;
@@ -258,6 +340,7 @@ export default function Jurnal({
       setJudul("");
       setSubjudul("");
       setRasa([]);
+      setFoto([]);
     } catch {
       setGalat("belum kesimpan. coba lagi sebentar.");
     } finally {
@@ -445,15 +528,19 @@ export default function Jurnal({
               yang berbeda, dan React melaporkannya sebagai hydration
               mismatch. Ini sudah pernah terjadi di berkas lain di repo ini. */}
           {[
-            { k: 6, a: 12, l: 30, t: 62 },
-            { k: 24, a: 30, l: 22, t: 52 },
-            { k: 47, a: 8, l: 34, t: 70 },
-            { k: 68, a: 26, l: 26, t: 58 },
-            { k: 86, a: 15, l: 30, t: 66 },
-            { k: 14, a: 58, l: 24, t: 48 },
-            { k: 40, a: 70, l: 30, t: 56 },
-            { k: 63, a: 52, l: 20, t: 44 },
-            { k: 82, a: 66, l: 26, t: 52 },
+            /* Tinggi dalam vmin, bukan piksel. Sebelumnya piksel tetap
+               (44 sampai 70), dan di layar besar itu jadi pita tipis
+               melintang: lebarnya ikut layar tapi tingginya tidak, jadi
+               awannya makin gepeng makin besar layarnya. */
+            { k: 4, a: 10, l: 34, t: 15 },
+            { k: 26, a: 28, l: 26, t: 12 },
+            { k: 49, a: 6, l: 38, t: 17 },
+            { k: 70, a: 24, l: 30, t: 14 },
+            { k: 88, a: 13, l: 33, t: 16 },
+            { k: 12, a: 56, l: 28, t: 12 },
+            { k: 38, a: 68, l: 34, t: 15 },
+            { k: 62, a: 50, l: 24, t: 11 },
+            { k: 84, a: 64, l: 30, t: 13 },
           ].map((g, i) => (
             <span
               key={i}
@@ -461,7 +548,7 @@ export default function Jurnal({
                 left: `${g.k}%`,
                 top: `${g.a}%`,
                 width: `${g.l}vmin`,
-                height: `${g.t}px`,
+                height: `${g.t}vmin`,
                 animationDelay: `${-i * 7}s`,
                 animationDuration: `${74 + i * 9}s`,
               }}
@@ -526,7 +613,13 @@ export default function Jurnal({
             kembali ke bumi
           </button>
 
-          <h1 className="jr-tgl serif">
+          {/* Tanpa kelas `serif`. Kelas itu milik v1 dan memaksa Playfair
+              lewat globals.css, jadi tanggal di sini tidak pernah ikut huruf
+              jurnal berapa kali pun aturannya ditulis ulang di jurnal.css.
+              Aturan yang lebih spesifik kalah bukan karena spesifisitas,
+              tapi karena ia mengatur variabel sementara `serif` menyebut
+              nama hurufnya langsung. */}
+          <h1 className="jr-tgl">
             {sedangDibaca ? pecahTanggal(sedangDibaca.created_at).panjang : hariIni.panjang}
           </h1>
           <p className="jr-hari">
@@ -542,7 +635,7 @@ export default function Jurnal({
                 <p className="jr-rasa-lama">
                   {bacaMood(sedangDibaca.mood).map((m) => (
                     <span key={m} className="jr-rasa-cap">
-                      <RupaRasa rasa={m as Mood} ukuran={16} /> {m}
+                      <span aria-hidden>{RASA[m]}</span> {m}
                     </span>
                   ))}
                 </p>
@@ -594,6 +687,15 @@ export default function Jurnal({
               </>
             ) : (
               <>
+                {sedangDibaca.foto && (
+                  <div className="jr-momen jr-momen-baca">
+                    {sedangDibaca.foto.split(",").map((f) => (
+                      <figure key={f} className="jr-momen-satu">
+                        <img src={aset(`/momen/${f}`)} alt="" loading="lazy" decoding="async" />
+                      </figure>
+                    ))}
+                  </div>
+                )}
                 <p className="jr-tulisan-lama">{sedangDibaca.body}</p>
                 {sedangDibaca.diubah && (
                   <p className="jr-diubah">pernah diubah</p>
@@ -661,7 +763,7 @@ export default function Jurnal({
                       setRasa((r) => (r.includes(m) ? r.filter((x) => x !== m) : [...r, m]))
                     }
                   >
-                    <RupaRasa rasa={m} ukuran={26} />
+                    <span className="jr-rasa-emoji" aria-hidden>{RASA[m]}</span>
                     <span className="jr-rasa-nama">{m}</span>
                   </button>
                 ))}
@@ -679,7 +781,55 @@ export default function Jurnal({
               aria-label="Tulisan hari ini"
             />
 
+            {/*
+              MOMEN — foto yang ditempel ke catatan hari ini.
+
+              Diletakkan SESUDAH area tulis dan SEBELUM tombol simpan, jadi
+              urutannya mengikuti cara orang menulis: tulis dulu, tempel
+              fotonya, baru simpan. Kalau ditaruh di atas, ia jadi pintu
+              yang harus dilewati sebelum boleh menulis.
+            */}
+            {(foto.length > 0 || unggah) && (
+              <div className="jr-momen">
+                {foto.map((f) => (
+                  <figure key={f} className="jr-momen-satu">
+                    <img src={aset(`/momen/${f}`)} alt="" loading="lazy" decoding="async" />
+                    <button
+                      type="button"
+                      className="jr-momen-buang"
+                      aria-label="Lepas foto ini"
+                      /* "Lepas", bukan "hapus". Berkasnya tetap ada di
+                         server; yang dilepas cuma kaitannya ke catatan ini.
+                         Kata yang dipakai harus sesuai dengan yang terjadi. */
+                      onClick={() => setFoto((v) => v.filter((x) => x !== f))}
+                    >
+                      ×
+                    </button>
+                  </figure>
+                ))}
+                {unggah && <p className="jr-momen-tunggu">lagi ngirim…</p>}
+              </div>
+            )}
+
             <div className="jr-kaki">
+              <label className={`jr-tombol jr-tempel${unggah ? " sibuk" : ""}`}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden
+                  disabled={unggah || foto.length >= 6}
+                  onChange={(e) => {
+                    void tempelFoto(e.target.files);
+                    /* Dikosongkan supaya memilih berkas yang SAMA dua kali
+                       tetap memicu onChange. Tanpa ini, Olen yang salah
+                       hapus lalu mau menempel foto itu lagi tidak akan
+                       terjadi apa-apa, dan tidak ada galat yang muncul. */
+                    e.target.value = "";
+                  }}
+                />
+                {foto.length >= 6 ? "cukup ya" : "tempel foto"}
+              </label>
               <span className="jr-hitung">
                 {galat ?? `${draft.trim().split(/\s+/).filter(Boolean).length} kata`}
               </span>
@@ -692,7 +842,7 @@ export default function Jurnal({
                    berarti daftar mood. Ditangkap TypeScript sebelum sempat
                    tayang. */
                 onClick={() => simpan()}
-                disabled={!draft.trim() || sibuk}
+                disabled={(!draft.trim() && !foto.length) || sibuk}
               >
                 {sibuk ? "menyimpan" : "simpan"}
               </button>
@@ -752,7 +902,17 @@ export default function Jurnal({
                   type="button"
                   className={
                     `jr-kal-tgl${isi.length ? " ada" : ""}${penting ? " penting" : ""}` +
-                    `${ac.length ? " acara" : ""}${hariDipilih === d ? " pilih" : ""}`
+                    `${ac.length ? " acara" : ""}${hariDipilih === d ? " pilih" : ""}` +
+                    /* Hari ini ditandai TERPISAH dari tanggal terpilih. Dua
+                       hal yang berbeda: "kamu ada di sini" dan "kamu sedang
+                       melihat ini". Sebelumnya cuma ada yang kedua, jadi
+                       waktu Olen menjelajah bulan lain dia kehilangan
+                       jejak di mana hari ini berada. */
+                    `${
+                      bulan.y === hariIni.tahun && bulan.b === hariIni.bulan && d === hariIni.tanggal
+                        ? " kini"
+                        : ""
+                    }`
                   }
                   aria-label={`${d} ${BULAN[bulan.b]}${isi.length ? `, ${isi.length} catatan` : ""}${
                     ac.length ? `, ${ac.length} acara` : ""
@@ -839,18 +999,52 @@ export default function Jurnal({
                 const t = pecahTanggal(n.created_at);
                 return (
                   <li key={n.id}>
+                    {/*
+                      SATU BARIS ARSIP, DISUSUN ULANG 1 September 2026.
+
+                      Sebelumnya semuanya dijejer mendatar dalam satu baris:
+                      tanggal, bintang, emoji, lalu 42 huruf pertama. Di layar
+                      sempit potongannya tinggal beberapa kata, dan di layar
+                      lebar barisnya jadi pita panjang yang isinya kebanyakan
+                      ruang kosong. Yang paling penting, judul yang sudah
+                      susah-susah ditulis Olen ditampilkan sekecil dan setipis
+                      keterangan tanggal.
+
+                      Sekarang bertingkat, mengikuti apa yang dicari mata
+                      waktu mengingat sesuatu:
+                        baris 1  tanggal, perasaan, penanda penting
+                        baris 2  JUDUL, tebal dan paling besar
+                        baris 3  cuplikan isi, redup
+                      Plus satu foto kecil kalau catatannya punya, karena
+                      gambar jauh lebih cepat mengembalikan ingatan daripada
+                      empat puluh dua huruf pertama.
+                    */}
                     <button
                       type="button"
                       className={`jr-arsip-tombol${dibaca === n.id ? " on" : ""}`}
                       onClick={() => setDibaca(dibaca === n.id ? null : n.id)}
                     >
-                      <span className="jr-arsip-tgl">{t.pendek}</span>
-                      {n.penting ? <span aria-hidden className="jr-arsip-penting">★</span> : null}
-                      {bacaMood(n.mood).map((m) => (
-                        <RupaRasa key={m} rasa={m as Mood} ukuran={14} />
-                      ))}
-                      <span className="jr-arsip-cuplik">
-                        {n.judul || n.body.slice(0, 42)}
+                      {n.foto && (
+                        <img
+                          className="jr-arsip-foto"
+                          src={aset(`/momen/${n.foto.split(",")[0]}`)}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
+                      <span className="jr-arsip-isi">
+                        <span className="jr-arsip-atas">
+                          <span className="jr-arsip-tgl">{t.pendek}</span>
+                          {bacaMood(n.mood).map((m) => (
+                            <span key={m} aria-hidden>{RASA[m]}</span>
+                          ))}
+                          {n.penting ? (
+                            <span aria-hidden className="jr-arsip-penting">★</span>
+                          ) : null}
+                        </span>
+                        {n.judul && <span className="jr-arsip-judul-baris">{n.judul}</span>}
+                        <span className="jr-arsip-cuplik">{n.body.slice(0, 90)}</span>
                       </span>
                     </button>
                   </li>

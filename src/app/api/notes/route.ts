@@ -37,24 +37,30 @@ export async function POST(req: Request) {
   let mood: string | null = null;
   let judul: string | null = null;
   let subjudul: string | null = null;
+  let foto: unknown = null;
   try {
     const json = (await req.json()) as {
       body?: unknown;
       mood?: unknown;
       judul?: unknown;
       subjudul?: unknown;
+      foto?: unknown;
     };
     body = typeof json.body === "string" ? json.body : "";
     mood = typeof json.mood === "string" ? json.mood : null;
     judul = typeof json.judul === "string" ? json.judul : null;
     subjudul = typeof json.subjudul === "string" ? json.subjudul : null;
+    /* Diteruskan mentah. Yang menyaring nama berkasnya `bersihFoto` di
+       db.ts, dan itu satu-satunya tempat. Menyaring di sini juga berarti
+       dua penyaring yang bisa berbeda, dan yang lebih longgar yang menang. */
+    foto = json.foto ?? null;
   } catch {
     return NextResponse.json({ error: "bad request" }, { status: 400 });
   }
   /* addNote sendiri yang menyaring moodnya terhadap daftar yang sah; di sini
      cukup diteruskan. Menyaring di dua tempat berarti dua tempat yang bisa
      berbeda. */
-  const note = addNote(body, mood, judul, subjudul);
+  const note = addNote(body, mood, judul, subjudul, foto);
   if (!note) return NextResponse.json({ error: "kosong" }, { status: 400 });
   return NextResponse.json(note, { status: 201 });
 }
@@ -73,6 +79,7 @@ export async function PATCH(req: Request) {
     pulih?: unknown;
     judul?: unknown;
     subjudul?: unknown;
+    foto?: unknown;
   };
   try {
     d = (await req.json()) as typeof d;
@@ -100,6 +107,7 @@ export async function PATCH(req: Request) {
       typeof d.mood === "string" ? d.mood : null,
       typeof d.judul === "string" ? d.judul : null,
       typeof d.subjudul === "string" ? d.subjudul : null,
+      d.foto ?? null,
     );
     return n
       ? NextResponse.json(n)
