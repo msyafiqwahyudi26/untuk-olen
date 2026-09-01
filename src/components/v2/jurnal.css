@@ -1391,3 +1391,177 @@
 
 .jr-arsip-tgl { letter-spacing: 0.16em; }
 .jr-arsip-penting { color: var(--jr-sorot); font-size: 0.8rem; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * PUTARAN 1 September 2026 (sore): melengkung, satu baris, kolom penuh
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr {
+  /* Comfortaa untuk SEMUANYA di jurnal, judul maupun badan. Sebelumnya judul
+     Baloo dan badan Nunito; keduanya bulat, tapi keduanya punya batang lurus
+     dan itu yang bikin halamannya masih terbaca tegas. */
+  --huruf-judul: var(--huruf-lengkung);
+  --huruf-badan: var(--huruf-lengkung);
+  font-weight: 600;
+}
+
+/* Comfortaa berjalan lebih "kecil" pada ukuran yang sama dibanding Nunito,
+   dan batangnya lebih tipis pada bobot yang sama. Jadi ukuran DAN bobotnya
+   sama-sama naik, bukan salah satu. */
+.jr-tgl { font-weight: 700; letter-spacing: -0.005em; }
+.jr-tanya { font-weight: 700; }
+.jr-judul-isian { font-weight: 700; font-size: clamp(1.7rem, 4.6vw, 2.5rem); }
+.jr-subjudul-isian { font-weight: 600; font-size: 1rem; }
+.jr-garis { font-weight: 600; font-size: 1.1rem; }
+.jr-tulisan-lama { font-weight: 600; }
+.jr-kal-tgl { font-weight: 700; }
+.jr-kal-tgl.ada { font-weight: 700; }
+.jr-arsip-judul-baris { font-weight: 700; }
+
+/* Garis buku ikut melengkung: bukan garis penuh, tapi titik-titik rapat.
+   Garis lurus penuh melintasi halaman adalah satu-satunya benda paling lurus
+   di layar ini, dan justru dialah yang paling menentukan kesan "tegas". */
+.jr-garis {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--baris) - 2px),
+    var(--jr-garis-kuat) calc(var(--baris) - 2px),
+    var(--jr-garis-kuat) var(--baris)
+  );
+  background-repeat: repeat;
+}
+
+/* ── perasaan: SATU BARIS ──
+   Sembilan tombol dalam satu baris berarti tiap tombol sempit, jadi namanya
+   dikecilkan dan emojinya yang jadi penanda utama. Digulir mendatar kalau
+   memang tidak muat, bukan dibungkus ke baris kedua: baris kedua yang cuma
+   berisi dua tombol persis yang terlihat berantakan di tangkapan layar. */
+.jr-rasa-baris {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+  /* Sembunyikan batang gulir tapi tetap bisa digulir. Batang gulir mendatar
+     di bawah sembilan tombol kecil terlihat seperti kesalahan tata letak. */
+  scrollbar-width: none;
+}
+.jr-rasa-baris::-webkit-scrollbar { display: none; }
+
+.jr-rasa-tombol {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.5rem 0.2rem 0.42rem;
+  gap: 0.18rem;
+}
+.jr-rasa-emoji { font-size: 1.35rem; line-height: 1; }
+.jr-rasa-nama {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+
+/* ── lebar halaman: sampai ke tepi ──
+ * Yaya: "aku merasa kok aneh ya nggak full kiri kanan."
+ *
+ * Sebabnya `width: min(74rem, 100%)` pada .jr-lembar. Di layar 1920 itu
+ * berhenti di 1184 px, jadi ada 350 px kosong di kiri dan kanan yang tidak
+ * mengerjakan apa-apa. Angka 74rem masuk akal untuk halaman yang isinya SATU
+ * kolom teks panjang, karena baris yang terlalu lebar susah dibaca. Tapi
+ * halaman ini dua kolom, dan lebar bacanya sudah dijaga oleh kolomnya
+ * sendiri, bukan oleh lebar halaman.
+ *
+ * Batasnya dinaikkan ke 104rem dan padding tepinya dikecilkan. Kolom tulis
+ * tetap punya batas bacanya sendiri di bawah, jadi barisnya tidak ikut
+ * memanjang tanpa batas. */
+@media (min-width: 1080px) {
+  .jr { padding-inline: clamp(1.5rem, 3vw, 3.5rem); }
+
+  .jr-lembar {
+    width: min(104rem, 100%);
+    /* Kolom kiri lebih lega dari sebelumnya, karena sekarang ia satu-satunya
+       tempat menulis. Kolom kanan cukup selebar kalender. */
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
+    column-gap: clamp(2.5rem, 5vw, 5.5rem);
+  }
+
+  /* Batas lebar BACA, bukan batas lebar kolom. Halaman boleh selebar layar;
+     satu baris tulisan tidak boleh, karena mata kehilangan awal baris
+     berikutnya kalau barisnya lebih dari sekitar 80 huruf. */
+  .jr-judul-isian,
+  .jr-subjudul-isian,
+  .jr-garis,
+  .jr-tulisan-lama { max-width: 46rem; }
+
+  .jr-kal-tgl { font-size: 0.9rem; }
+  .jr-garis { --baris: 2.35rem; font-size: 1.12rem; }
+}
+
+/* Di layar sangat lebar, kolom kanan berhenti melebar dan menempel ke kanan.
+   Kalender yang ikut melebar sampai 700 px punya sel setinggi 90 px berisi
+   satu angka, dan itu bukan kalender lagi, itu papan catur. */
+@media (min-width: 1600px) {
+  .jr-lembar { grid-template-columns: minmax(0, 1fr) 34rem; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * DINDING MOMEN
+ *
+ * Semua foto dari semua catatan, diacak, kecil-kecil.
+ *
+ * Kecil disengaja. Foto besar menuntut dilihat satu-satu; yang dicari di
+ * sini justru kesan menyeluruh, seperti melihat papan foto di kamar dari
+ * jauh. Yang menarik perhatian nanti bisa dibuka lewat arsipnya.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr-dinding {
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--jr-garis);
+}
+
+.jr-dinding-kepala {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.jr-kocok {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+}
+
+.jr-dinding-kisi {
+  display: grid;
+  /* auto-fill, bukan auto-fit. Bedanya kelihatan waktu fotonya cuma dua:
+     auto-fit meregangkan keduanya sampai selebar kolom, dan dua foto raksasa
+     bukan dinding. auto-fill menyisakan kolom kosong dan ukurannya tetap. */
+  grid-template-columns: repeat(auto-fill, minmax(3.6rem, 1fr));
+  gap: 0.35rem;
+}
+
+.jr-dinding-kisi img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--lengkung-kecil);
+  border: 1px solid var(--jr-garis);
+  /* Sedikit redup supaya dindingnya jadi latar, bukan saingan bagi kotak
+     tulis. Terang penuh waktu disentuh. */
+  opacity: 0.86;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.jr-dinding-kisi img:hover { opacity: 1; transform: scale(1.06); }
+
+@media (prefers-reduced-motion: reduce) {
+  .jr-dinding-kisi img:hover { transform: none; }
+}

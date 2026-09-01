@@ -69,6 +69,8 @@
      jadi bobot berapa pun boleh dipakai tanpa unduhan tambahan. */
   --huruf-kartun: var(--font-kartun), 'Trebuchet MS', Verdana, sans-serif;
   --huruf-cerita: var(--font-cerita), -apple-system, 'Segoe UI', sans-serif;
+  /* Khusus jurnal: seluruhnya busur lingkaran, tidak ada batang lurus. */
+  --huruf-lengkung: var(--font-lengkung), 'Trebuchet MS', Verdana, sans-serif;
 
   /* Fraunces punya sumbu SOFT dan WONK; Fredoka tidak. Dikosongkan, BUKAN
      dihapus, karena empat berkas memakainya lewat font-variation-settings

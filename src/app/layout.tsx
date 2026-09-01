@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Baloo_2, Nunito } from "next/font/google";
+import { Baloo_2, Comfortaa, Nunito } from "next/font/google";
 import "./globals.css";
 /* Design system. Urutannya penting: token dulu (nilai), lalu ui (bentuk yang
    memakai nilai itu), baru CSS tiap halaman (penempatan) yang dimuat sendiri
@@ -39,6 +39,25 @@ const nunito = Nunito({
   variable: "--font-cerita",
   display: "swap",
 });
+/*
+ * Huruf ketiga, khusus jurnal.
+ *
+ * Yaya: "font tulisan pake yang dreamy yang melengkung lengkung yang agak
+ * lebih tebel."
+ *
+ * Comfortaa dibangun hampir seluruhnya dari busur lingkaran: tidak ada satu
+ * pun ujung yang lurus, dan huruf seperti a, e, g melengkung penuh. Baloo
+ * bulat tapi tetap punya batang lurus, jadi ia terbaca gemuk, bukan
+ * melengkung. Bedanya persis yang diminta.
+ *
+ * Dipakai HANYA di jurnal. Turunan laut tetap Baloo, karena di sana yang
+ * dibutuhkan ketegasan kutipan, bukan kelembutan.
+ */
+const comfortaa = Comfortaa({
+  subsets: ["latin"],
+  variable: "--font-lengkung",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Len",
@@ -55,7 +74,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${baloo.variable} ${nunito.variable}`}>
+    <html lang="id" className={`${baloo.variable} ${nunito.variable} ${comfortaa.variable}`}>
       <head>
         {/* Kalau JavaScript mati atau gagal dimuat, semua yang menunggu
             animasi masuk tetap harus terbaca. */}

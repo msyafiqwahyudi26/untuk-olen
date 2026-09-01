@@ -304,3 +304,50 @@
 .lg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .lg-lapis { position: absolute; inset: 0; }
 .lg-atas { opacity: 0; transition: opacity var(--ease); }
+
+
+/* ═══════════════ ISI BARU PANEL PENGATURAN (1 September 2026) ═══════════════ */
+
+/* Keterangan kecil di bawah nama tempat. Nama saja tidak cukup: "langit"
+   tidak memberi tahu apa-apa sampai ada yang bilang isinya sky notes. */
+.st-ket {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  opacity: 0.62;
+  text-transform: none;
+}
+
+/* Tombol tempat jadi dua baris, jadi ia butuh tinggi dan perataan sendiri. */
+.ui-pilih.ui-lebar { line-height: 1.25; padding-block: 0.5rem; }
+
+/* Tempat yang belum dibuka: terlihat tapi mati. */
+.ui-pilih:disabled { opacity: 0.42; cursor: not-allowed; }
+
+.st-pin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.st-pin-isian {
+  flex: 1 1 6rem;
+  min-width: 0;
+  min-height: 38px;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  font: inherit;
+  font-size: 0.78rem;
+  /* Jarak antar huruf lebar supaya empat angka terbaca sebagai empat, bukan
+     sebagai satu bilangan. Ini kolom PIN, bukan kolom jumlah. */
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+.st-pin-isian::placeholder { letter-spacing: 0.06em; opacity: 0.55; }
+.st-pin-isian:focus-visible { outline: 2px solid rgba(244, 228, 176, 0.9); outline-offset: 2px; }

@@ -139,7 +139,7 @@ export function Things({ items }: { items: ThingRow[] }) {
       id="menempel"
       eyebrow="Garis pantai"
       title="Yang menempel"
-      lede="Orang biasanya dikenal dari hal besar. Kamu enggak. Kamu dikenal dari hal-hal ini — yang kelihatannya kecil, tapi konsisten selama tiga tahun."
+      lede="Orang biasanya dikenal dari hal besar. Kamu enggak. Kamu dikenal dari hal-hal ini, yang kelihatannya kecil, tapi konsisten selama tiga tahun."
     >
       <ul style={{ listStyle: "none", margin: 0, padding: 0, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
         {items.map((t, i) => {
@@ -244,7 +244,7 @@ export function Moments({ items }: { items: MomentRow[] }) {
       id="lewati"
       eyebrow="Turun"
       title="Yang sudah kamu lewati"
-      lede="Nggak ada yang bisa lihat dirinya sendiri tumbuh — terlalu dekat. Jadi ini dicatat dari luar, apa adanya, dengan tanggalnya."
+      lede="Nggak ada yang bisa lihat dirinya sendiri tumbuh, terlalu dekat. Jadi ini dicatat dari luar, apa adanya, dengan tanggalnya."
     >
       <ol
         style={{
@@ -434,7 +434,7 @@ export function Sky({ stars, links }: { stars: StarRow[]; links: { a: string; b:
       id="langit"
       eyebrow="Langit"
       title="Yang nggak hilang"
-      lede="Tiga belas hal yang disimpan di atas. Ada yang berfoto, ada yang cuma percakapan, dan tiga yang bersuara — bintang bercincin itu bisa didengar. Sentuh salah satu."
+      lede="Tiga belas hal yang disimpan di atas. Ada yang berfoto, ada yang cuma percakapan, dan tiga yang bersuara. Bintang bercincin itu bisa didengar. Sentuh salah satu."
     >
       <Reveal>
         <Constellation stars={stars} links={links} />

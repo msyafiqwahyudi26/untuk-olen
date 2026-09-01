@@ -395,7 +395,7 @@ if (typeof process !== "undefined" && process.argv[1]?.endsWith("kedalaman.ts"))
         `${warnaAirDi(d, PERMUKAAN)}   ` +
         `${keruhDi(d).toFixed(2)}   ` +
         `${suhuDi(d).toFixed(1).padStart(4)}°  ` +
-        (huni || "—"),
+        (huni || "-"),
     );
   }
 

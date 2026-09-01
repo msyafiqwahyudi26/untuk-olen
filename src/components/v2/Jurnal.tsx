@@ -150,6 +150,8 @@ export default function Jurnal({
   /** Nama berkas foto yang sudah terunggah dan siap ikut disimpan. */
   const [foto, setFoto] = useState<string[]>([]);
   const [unggah, setUnggah] = useState(false);
+  /** Pemicu acak untuk dinding momen. Naik satu tiap kali tombolnya ditekan. */
+  const [kocok, setKocok] = useState(0);
 
   useEffect(() => {
     fetch(aset("/api/acara"))
@@ -485,6 +487,41 @@ export default function Jurnal({
 
   const namaBulan = `${BULAN[bulan.b]} ${bulan.y}`;
 
+  /**
+   * ═══ DINDING MOMEN ═══
+   *
+   * Semua foto dari semua catatan, diacak.
+   *
+   * Bukan galeri berurutan. Urutan waktu bikin foto dibaca sebagai riwayat,
+   * dan riwayat dibaca dari ujung: yang lama tidak pernah dilihat lagi.
+   * Diacak, foto dari November 2024 punya peluang yang sama muncul di baris
+   * pertama dengan foto kemarin, dan itu justru gunanya.
+   *
+   * Diacak DI DALAM useMemo dengan `kocok` sebagai pemicu, bukan tiap
+   * render. Mengacak tiap render berarti dindingnya berubah susunan tiap
+   * kali Olen mengetik satu huruf di kotak tulis.
+   *
+   * Dan diacak di KLIEN sesudah terpasang, bukan waktu render pertama:
+   * `Math.random()` yang jalan di server memberi urutan berbeda dari yang di
+   * peramban, dan React melaporkannya sebagai hydration mismatch. Karena
+   * `kocok` mulai dari 0 dan urutan awalnya urutan apa adanya, render
+   * pertama di kedua sisi selalu sama.
+   */
+  const dinding = useMemo(() => {
+    const semua = tulisan.flatMap((n) => (n.foto ? n.foto.split(",") : []));
+    if (kocok === 0) return semua;
+    /* Fisher-Yates. Bukan `sort(() => Math.random() - 0.5)`, yang terlihat
+       lebih pendek dan menghasilkan sebaran yang TIDAK rata: pembanding yang
+       tidak konsisten membuat hasilnya bergantung pada algoritma sort-nya,
+       dan sebagian posisi jauh lebih sering terisi daripada yang lain. */
+    const a = [...semua];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }, [tulisan, kocok]);
+
   return (
     /*
      * variabelTema() dipasang di sini juga, bukan cuma di layar pembuka.
@@ -528,29 +565,61 @@ export default function Jurnal({
               yang berbeda, dan React melaporkannya sebagai hydration
               mismatch. Ini sudah pernah terjadi di berkas lain di repo ini. */}
           {[
-            /* Tinggi dalam vmin, bukan piksel. Sebelumnya piksel tetap
-               (44 sampai 70), dan di layar besar itu jadi pita tipis
-               melintang: lebarnya ikut layar tapi tingginya tidak, jadi
-               awannya makin gepeng makin besar layarnya. */
-            { k: 4, a: 10, l: 34, t: 15 },
-            { k: 26, a: 28, l: 26, t: 12 },
-            { k: 49, a: 6, l: 38, t: 17 },
-            { k: 70, a: 24, l: 30, t: 14 },
-            { k: 88, a: 13, l: 33, t: 16 },
-            { k: 12, a: 56, l: 28, t: 12 },
-            { k: 38, a: 68, l: 34, t: 15 },
-            { k: 62, a: 50, l: 24, t: 11 },
-            { k: 84, a: 64, l: 30, t: 13 },
+            /*
+             * Tiap awan punya EMPAT angka, dan tiga di antaranya baru
+             * ditambahkan 1 September 2026.
+             *
+             * Yaya: "tempat muncul awannya gak dari ujung dan nggak berjalan
+             * secara simultan, ada awan tiba-tiba muncul di tengah, buat awan
+             * ada yang jalannya cepat dan lambat."
+             *
+             * Ketiganya satu sebab. Versi sebelumnya memberi tiap awan
+             * `animationDelay: -i * 7` dan durasi `74 + i * 9`, yaitu deret
+             * hitung. Dua deret hitung yang berjalan bersamaan menghasilkan
+             * pola yang berulang rapi: awannya berbaris dengan jarak yang
+             * sama dan kecepatan yang naik teratur, dan mata langsung
+             * menangkap barisan itu sebagai buatan.
+             *
+             * Yang lebih parah: karena tundanya negatif tapi durasinya
+             * berbeda-beda, sebagian awan memulai animasinya di tengah jalan
+             * dan MUNCUL BEGITU SAJA di tengah layar, bukan masuk dari tepi.
+             *
+             * Sekarang:
+             *   `t`  tinggi, dalam vmin
+             *   `d`  durasi, dipilih supaya ada yang lambat dan ada yang
+             *        cepat tanpa kelipatan yang rapi
+             *   `m`  mulai, sebagai PECAHAN dari durasinya sendiri. Karena
+             *        pecahan, awan yang mulai di 0,5 selalu berada di
+             *        setengah lintasan berapa pun durasinya, jadi tidak ada
+             *        lagi yang tiba-tiba nongol di tengah tanpa sebab.
+             *
+             * Angkanya ditulis tetap, bukan acak: acak berarti server dan
+             * peramban menggambar awan di tempat berbeda, dan itu hydration
+             * mismatch.
+             */
+            { a: 9, l: 36, t: 16, d: 96, m: 0.0 },
+            { a: 27, l: 24, t: 11, d: 61, m: 0.42 },
+            { a: 5, l: 44, t: 19, d: 134, m: 0.17 },
+            { a: 22, l: 29, t: 13, d: 78, m: 0.73 },
+            { a: 14, l: 33, t: 15, d: 112, m: 0.31 },
+            { a: 55, l: 27, t: 12, d: 69, m: 0.58 },
+            { a: 67, l: 39, t: 17, d: 148, m: 0.09 },
+            { a: 48, l: 22, t: 10, d: 54, m: 0.86 },
+            { a: 63, l: 31, t: 14, d: 89, m: 0.25 },
+            { a: 37, l: 26, t: 12, d: 121, m: 0.64 },
           ].map((g, i) => (
             <span
               key={i}
               style={{
-                left: `${g.k}%`,
+                /* Tanpa `left`. Letak mendatarnya sepenuhnya diurus animasi,
+                   yang berangkat dari luar tepi kiri. Memberi `left` juga
+                   berarti dua hal menentukan satu posisi, dan yang satu
+                   ditulis di sini sementara yang lain di keyframes. */
                 top: `${g.a}%`,
                 width: `${g.l}vmin`,
                 height: `${g.t}vmin`,
-                animationDelay: `${-i * 7}s`,
-                animationDuration: `${74 + i * 9}s`,
+                animationDuration: `${g.d}s`,
+                animationDelay: `-${(g.m * g.d).toFixed(1)}s`,
               }}
             />
           ))}
@@ -604,7 +673,7 @@ export default function Jurnal({
               sama. Dua panel serupa yang mengatur hal yang sama adalah cara
               paling mudah membuat "sudah saya matikan" jadi tidak benar. */}
           <div className="jr-setelan" data-buka={menu ? "1" : "0"}>
-            <Settings buka={menu} onBuka={setMenu} nilai={set} onUbah={ubahSet} garisTiga />
+            <Settings buka={menu} onBuka={setMenu} nilai={set} onUbah={ubahSet} garisTiga tempat="langit" />
           </div>
 
           <p className="jr-kop">sky notes</p>
@@ -738,7 +807,7 @@ export default function Jurnal({
               value={judul}
               onChange={(e) => setJudul(e.target.value)}
               maxLength={160}
-              placeholder="judul hari ini"
+              placeholder="judul"
               aria-label="Judul"
             />
             <input
@@ -746,29 +815,10 @@ export default function Jurnal({
               value={subjudul}
               onChange={(e) => setSubjudul(e.target.value)}
               maxLength={240}
-              placeholder="satu baris tambahan — boleh dikosongkan"
+              placeholder="sub judul (opsional)"
               aria-label="Sub-judul"
             />
 
-            <section className="jr-rasa">
-              <p className="jr-tanya">how is your day?</p>
-              <div className="jr-rasa-baris" role="group" aria-label="Perasaan hari ini">
-                {MOOD.map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    className={`jr-rasa-tombol${rasa.includes(m) ? " on" : ""}`}
-                    aria-pressed={rasa.includes(m)}
-                    onClick={() =>
-                      setRasa((r) => (r.includes(m) ? r.filter((x) => x !== m) : [...r, m]))
-                    }
-                  >
-                    <span className="jr-rasa-emoji" aria-hidden>{RASA[m]}</span>
-                    <span className="jr-rasa-nama">{m}</span>
-                  </button>
-                ))}
-              </div>
-            </section>
 
             {/* Garis, bukan kotak. */}
             <textarea
@@ -853,6 +903,41 @@ export default function Jurnal({
         </div>
 
         <div className="jr-kolom-samping">
+        {/*
+          PERASAAN PINDAH KE KOLOM KANAN, DI ATAS KALENDER.
+
+          Yaya: "yang how your day di atas kalender aja biar bagian kiri full
+          untuk notes."
+
+          Benar, dan alasannya lebih dari sekadar ruang. Kolom kiri sekarang
+          punya SATU pekerjaan: menulis. Judul, sub judul, halaman bergaris.
+          Tidak ada yang menyela di tengahnya.
+
+          Sembilan tombol perasaan yang duduk di antara sub judul dan halaman
+          tulis memaksa Olen melewati sebuah pilihan sebelum boleh mulai
+          menulis, padahal yang paling sering ingin dia lakukan justru
+          langsung menulis.
+        */}
+        <section className="jr-rasa">
+          <p className="jr-tanya">how is your day?</p>
+          <div className="jr-rasa-baris" role="group" aria-label="Perasaan hari ini">
+            {MOOD.map((m) => (
+              <button
+                key={m}
+                type="button"
+                className={`jr-rasa-tombol${rasa.includes(m) ? " on" : ""}`}
+                aria-pressed={rasa.includes(m)}
+                onClick={() =>
+                  setRasa((r) => (r.includes(m) ? r.filter((x) => x !== m) : [...r, m]))
+                }
+              >
+                <span className="jr-rasa-emoji" aria-hidden>{RASA[m]}</span>
+                <span className="jr-rasa-nama">{m}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
         <section className="jr-kalender" aria-label="Kalender catatan">
           <div className="jr-kal-kepala">
             <button
@@ -1051,6 +1136,32 @@ export default function Jurnal({
                 );
               })}
             </ul>
+          </section>
+        )}
+
+        {dinding.length > 0 && (
+          <section className="jr-dinding" aria-label="Dinding momen">
+            <div className="jr-dinding-kepala">
+              <p className="jr-arsip-judul">dinding momen</p>
+              <button
+                type="button"
+                className="jr-tombol jr-kocok"
+                onClick={() => setKocok((k) => k + 1)}
+              >
+                acak lagi
+              </button>
+            </div>
+            <div className="jr-dinding-kisi">
+              {dinding.slice(0, 24).map((f, i) => (
+                <img
+                  key={`${f}-${i}`}
+                  src={aset(`/momen/${f}`)}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+              ))}
+            </div>
           </section>
         )}
 

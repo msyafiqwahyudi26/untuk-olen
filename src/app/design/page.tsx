@@ -5,7 +5,7 @@ import { RIAS, PANEL, latarZona, variabelTema, TINTA, type Zona } from "@/design
 import { kontras, tumpuk } from "@/design/warna";
 
 export const metadata: Metadata = {
-  title: "Design system — untuk Olen",
+  title: "Design system untuk Olen",
   robots: { index: false, follow: false },
 };
 
@@ -53,8 +53,8 @@ export default function Design() {
         <p className="ds-lede">
           Satu aturan yang menjelaskan hampir semua isi halaman ini:{" "}
           <strong>kalau sebuah angka bisa diturunkan dari angka lain, turunkan.</strong>{" "}
-          Warna tombol tidak dipilih — ia dihitung dari langit di belakangnya.
-          Ukuran tidak ditebak — ia diambil dari tangga yang sudah ada.
+          Warna tombol tidak dipilih. Ia dihitung dari langit di belakangnya.
+          Ukuran tidak ditebak. Ia diambil dari tangga yang sudah ada.
         </p>
       </header>
 
@@ -65,7 +65,7 @@ export default function Design() {
           Semua tombol di layar pembuka putih di atas kaca putih 16%. Itu benar
           waktu langitnya cuma satu. Sekarang langitnya empat, dan di pagi serta
           golden hour dasar layar hampir putih. Angka di bawah dihitung, bukan
-          dikira-kira — ambang untuk teks kecil adalah 4,5&nbsp;:&nbsp;1.
+          dikira-kira. Ambang untuk teks kecil adalah 4,5&nbsp;:&nbsp;1.
         </p>
 
         <div className="ds-tabel-bungkus">
@@ -107,7 +107,7 @@ export default function Design() {
 
         <p className="ds-teks ds-kecil">
           Perhatikan golden hour di panel settings: hitungannya berhenti di{" "}
-          <code>{PANEL.sore.kaca}</code> — persis nilai yang dulu disetel dengan
+          <code>{PANEL.sore.kaca}</code>, persis nilai yang dulu disetel dengan
           tangan sampai terasa pas. Yang berubah bukan hasilnya, melainkan
           bahwa sekarang ada alasannya.
         </p>
@@ -118,7 +118,7 @@ export default function Design() {
         <h2>Kontrol di atas langitnya sendiri</h2>
         <p className="ds-teks">
           Tiap kotak adalah satu waktu, dengan langit dan pasir yang sebenarnya.
-          Kontrol yang sama, warna yang berbeda — dan yang berbeda cuma kacanya,
+          Kontrol yang sama, warna yang berbeda, dan yang berbeda cuma kacanya,
           tulisannya tetap putih di keempatnya.
         </p>
 
@@ -210,7 +210,7 @@ export default function Design() {
                   ))}
                 </div>
                 <p className="ui-catatan" style={{ marginTop: ".75rem" }}>
-                  {PANEL[w].rasio.toFixed(2)} : 1 — {PANEL[w].kaca}
+                  {PANEL[w].rasio.toFixed(2)} : 1 · {PANEL[w].kaca}
                 </p>
               </div>
               <figcaption>{NAMA[w]}</figcaption>
@@ -225,7 +225,7 @@ export default function Design() {
         <p className="ds-teks">
           Dua huruf, empat peran. Fraunces hanya untuk nama dan judul; Outfit
           untuk sisanya. Tiap tulisan baru harus jadi salah satu dari empat
-          peran ini — kalau tidak ada yang cocok, itu tanda perannya belum
+          peran ini. Kalau tidak ada yang cocok, itu tanda perannya belum
           jelas, bukan tanda perlu ukuran baru.
         </p>
         <div
@@ -286,7 +286,7 @@ export default function Design() {
 
         <p className="ds-teks ds-kecil">
           Satu lengkung gerak untuk semuanya:{" "}
-          <code>cubic-bezier(0.22, 1, 0.36, 1)</code> — cepat di awal, berhenti
+          <code>cubic-bezier(0.22, 1, 0.36, 1)</code>, cepat di awal, berhenti
           pelan. Gerakan yang berhenti mendadak terasa seperti mesin; yang
           berhenti pelan terasa seperti benda yang punya berat. Tempo:{" "}
           <code>--d-cepat .25s</code>, <code>--d-sedang .45s</code>,{" "}
@@ -298,7 +298,7 @@ export default function Design() {
         <p>
           Angka di halaman ini tidak ditulis dua kali. Semuanya dibaca langsung
           dari <code>src/design/tema.ts</code> dan{" "}
-          <code>src/components/v2/waktu.ts</code> — kalau palet berubah, halaman
+          <code>src/components/v2/waktu.ts</code>. Kalau palet berubah, halaman
           ini ikut berubah, dan kalau ada yang jatuh di bawah ambang ia akan
           terlihat merah di tabel paling atas.
         </p>

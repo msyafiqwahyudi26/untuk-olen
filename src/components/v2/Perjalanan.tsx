@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import Opening from "./Opening";
 import dynamic from "next/dynamic";
 import { LAUT_TERBUKA } from "@/lib/pintu";
@@ -94,6 +94,15 @@ const TUJUAN: Record<Pindah, Layar> = {
 
 export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
   const [layar, setLayar] = useState<Layar>("pembuka");
+  /* Layar sekarang, disalin ke ref supaya penangan peristiwa bisa membacanya
+     tanpa ikut jadi ketergantungan useEffect. useEffect pendaftar peristiwa
+     sengaja berjalan SEKALI; kalau `layar` masuk daftar ketergantungannya,
+     pendengarnya dilepas dan dipasang ulang tiap kali layar berganti, dan
+     peristiwa yang datang tepat di antaranya hilang tanpa jejak. */
+  const layarRef = useRef<Layar>("pembuka");
+  /** Kaki kedua perjalanan dua-kaki, atau null. */
+  const lanjut = useRef<Layar | null>(null);
+
   /* null = tidak sedang berpindah. Selama bukan null, tirainya terpasang di
      atas segalanya dan pergantian layarnya terjadi DI BALIKNYA. */
   const [selam, setSelam] = useState<Pindah | null>(null);
@@ -165,11 +174,48 @@ export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
       setSelam("ke-langit");
     };
 
+    /*
+     * ═══ PINDAH TEMPAT DARI MENU ═══
+     *
+     * Tiga tempat: pantai (pembuka), langit (jurnal), laut (turunan). Yang
+     * sudah ada cuma jalan langsung dari pantai ke salah satu, dan jalan
+     * pulang dari keduanya.
+     *
+     * Dari langit ke laut TIDAK ADA jalannya, dan itu bukan kelalaian: laut
+     * naik dari bawah, langit turun dari atas, jadi satu tirai tidak bisa
+     * melayani keduanya sekaligus tanpa terasa seperti dilempar.
+     *
+     * Jadi perjalanan yang butuh dua kaki dijalankan sebagai dua kaki: pulang
+     * dulu ke pantai, lalu berangkat lagi. Kaki keduanya disimpan di
+     * `lanjut` dan dijalankan `tukar()` tepat waktu layarnya berganti, yaitu
+     * saat tirainya masih menutup penuh. Dari mata Olen ia satu perjalanan;
+     * yang berubah cuma pemandangan yang dilewatinya.
+     */
+    const pergi = (e: Event) => {
+      const ke = (e as CustomEvent<{ ke?: "pantai" | "langit" | "laut" }>).detail?.ke;
+      if (!ke) return;
+      const sekarang: Layar = layarRef.current;
+      const tujuan: Layar = ke === "pantai" ? "pembuka" : ke === "langit" ? "naik" : "turun";
+      if (sekarang === tujuan) return;
+      if (tujuan === "turun" && !LAUT_TERBUKA) return;
+
+      if (sekarang === "pembuka") {
+        setSelam(tujuan === "turun" ? "ke-laut" : "ke-langit");
+        return;
+      }
+      /* Sedang tidak di pantai: pulang dulu. Kalau tujuannya memang pantai,
+         tidak ada kaki kedua. */
+      lanjut.current = tujuan === "pembuka" ? null : tujuan;
+      setSelam(sekarang === "turun" ? "dari-laut" : "dari-langit");
+    };
+
     window.addEventListener("olen:next", turun);
     window.addEventListener("olen:up", keLangit);
+    window.addEventListener("olen:pergi", pergi);
     return () => {
       window.removeEventListener("olen:next", turun);
       window.removeEventListener("olen:up", keLangit);
+      window.removeEventListener("olen:pergi", pergi);
     };
   }, []);
 
@@ -184,7 +230,17 @@ export default function Perjalanan({ catatan }: { catatan: NoteRow[] }) {
    */
   const tukar = (ke: Layar) => {
     setLayar(ke);
+    layarRef.current = ke;
     window.scrollTo(0, 0);
+    /* Kaki kedua sebuah perjalanan dua-kaki. Dijalankan DI SINI, bukan lewat
+       useEffect yang mengamati `layar`: di sini tirainya masih menutup
+       penuh, jadi kaki keduanya berangkat sebelum ada yang sempat melihat
+       pantainya. */
+    const berikut = lanjut.current;
+    if (berikut) {
+      lanjut.current = null;
+      setSelam(berikut === "turun" ? "ke-laut" : "ke-langit");
+    }
   };
 
   const naik = () => setSelam("dari-laut");

@@ -3,7 +3,7 @@ import Galeri from "./Galeri";
 import "./aset.css";
 
 export const metadata: Metadata = {
-  title: "Aset 3D — untuk Olen",
+  title: "Aset 3D untuk Olen",
   robots: { index: false, follow: false },
 };
 

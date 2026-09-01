@@ -64,7 +64,7 @@ export const ASSETS: AssetEntry[] = [
     id: "lumba-lumba",
     nama: "Lumba-lumba",
     catatan:
-      "Bukan paus yang dikecilkan. Tiga hal yang membedakan: lekuk antara jidat dan moncong, sirip punggung berbentuk sabit (tepi belakang CEKUNG — kalau lurus jadi hiu), dan badan 5,6:1 bukan 2:1. Ekornya mengayun naik-turun, bukan ke samping.",
+      "Bukan paus yang dikecilkan. Tiga hal yang membedakan: lekuk antara jidat dan moncong, sirip punggung berbentuk sabit (tepi belakang CEKUNG, kalau lurus jadi hiu), dan badan 5,6:1 bukan 2:1. Ekornya mengayun naik-turun, bukan ke samping.",
     tinggi: 9.5,
     angkat: 1.4,
     ruang: "laut",
@@ -74,7 +74,7 @@ export const ASSETS: AssetEntry[] = [
     id: "ubur-ubur",
     nama: "Ubur-ubur",
     catatan:
-      "Denyutnya tidak simetris — mengatup cepat, mengembang pelan — dan tentakelnya tertinggal 0,18 periode di belakang payung. Dua hal itu yang membuatnya berenang, bukan bernapas. Empat tapal kuda di dalam payung yang membuatnya terbaca sebagai ubur-ubur.",
+      "Denyutnya tidak simetris (mengatup cepat, mengembang pelan) dan tentakelnya tertinggal 0,18 periode di belakang payung. Dua hal itu yang membuatnya berenang, bukan bernapas. Empat tapal kuda di dalam payung yang membuatnya terbaca sebagai ubur-ubur.",
     tinggi: 4.6,
     ruang: "laut",
     Comp: load(() => import("./UburUbur")),
@@ -89,7 +89,7 @@ export const ASSETS: AssetEntry[] = [
   {
     id: "bintang-laut",
     nama: "Bintang Laut",
-    catatan: "Permukaan parametrik, bukan hasil extrude — lengannya gemuk dan lembahnya tetap terbuka.",
+    catatan: "Permukaan parametrik, bukan hasil extrude. Lengannya gemuk dan lembahnya tetap terbuka.",
     tinggi: 2.2,
     pandang: "atas",
     Comp: load(() => import("./BintangLaut")),
@@ -135,7 +135,7 @@ export const ASSETS: AssetEntry[] = [
   {
     id: "piring",
     nama: "Piring & Cookies",
-    catatan: "Bibir piring direbahkan — kalau tidak, torus-nya berdiri dan piringnya jadi mirip tas.",
+    catatan: "Bibir piring direbahkan. Kalau tidak, torus-nya berdiri dan piringnya jadi mirip tas.",
     tinggi: 1.3,
     pandang: "atas",
     Comp: load(() => import("./Piring")),
@@ -167,7 +167,7 @@ export const ASSETS: AssetEntry[] = [
   {
     id: "bunga-kecil",
     nama: "Bunga Kecil Putih",
-    catatan: "Daisy yang tergeletak di sudut tikar. Kelopaknya ramping dan banyak — itu yang membedakannya dari bunga matahari yang dicat putih.",
+    catatan: "Daisy yang tergeletak di sudut tikar. Kelopaknya ramping dan banyak, itu yang membedakannya dari bunga matahari yang dicat putih.",
     tinggi: 1.1,
     pandang: "atas",
     Comp: load(() => import("./BungaKecil")),
@@ -175,7 +175,7 @@ export const ASSETS: AssetEntry[] = [
   {
     id: "buah",
     nama: "Buah",
-    catatan: "Apel, jeruk, pisang. Menggantikan piring di sisi kiri tikar — piring selalu bersinggungan dengan keranjang karena sama-sama lebar dan datar.",
+    catatan: "Apel, jeruk, pisang. Menggantikan piring di sisi kiri tikar. Piring selalu bersinggungan dengan keranjang karena sama-sama lebar dan datar.",
     tinggi: 0.8,
     pandang: "miring",
     Comp: load(() => import("./Buah")),
