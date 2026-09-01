@@ -208,15 +208,7 @@
   opacity: 0.9;
 }
 
-.jr-rasa-baris {
-  display: flex;
-  gap: 0.5rem;
-  /* Di layar sempit lima tombol tidak muat berjajar; digulir menyamping jauh
-     lebih baik daripada dipaksa turun jadi dua baris yang timpang. */
-  overflow-x: auto;
-  padding-bottom: 0.3rem;
-  scrollbar-width: none;
-}
+
 .jr-rasa-baris::-webkit-scrollbar { display: none; }
 
 .jr-rasa-tombol {
@@ -908,18 +900,7 @@
 }
 
 
-/* ═══════════════════════════════════════════════════════════════════════
- * WAJAH PERASAAN
- *
- * Tombolnya sekarang berisi SVG yang ikut `currentColor`, jadi wajahnya
- * berubah warna bersama tulisannya waktu terpilih. Emoji tidak bisa begitu.
- * ═══════════════════════════════════════════════════════════════════════ */
 
-.jr-rasa-baris {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-}
 
 .jr-rasa-tombol {
   /* Tebal, bukan tipis. Dengan sembilan pilihan, tepi yang samar membuat
@@ -1433,21 +1414,7 @@
   background-repeat: repeat;
 }
 
-/* ── perasaan: SATU BARIS ──
-   Sembilan tombol dalam satu baris berarti tiap tombol sempit, jadi namanya
-   dikecilkan dan emojinya yang jadi penanda utama. Digulir mendatar kalau
-   memang tidak muat, bukan dibungkus ke baris kedua: baris kedua yang cuma
-   berisi dua tombol persis yang terlihat berantakan di tangkapan layar. */
-.jr-rasa-baris {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.4rem;
-  overflow-x: auto;
-  padding-bottom: 0.3rem;
-  /* Sembunyikan batang gulir tapi tetap bisa digulir. Batang gulir mendatar
-     di bawah sembilan tombol kecil terlihat seperti kesalahan tata letak. */
-  scrollbar-width: none;
-}
+
 .jr-rasa-baris::-webkit-scrollbar { display: none; }
 
 .jr-rasa-tombol {
@@ -1607,25 +1574,7 @@
   --jarak-8: 32px;
 }
 
-/* ── perasaan: kisi, bukan barisan sempit ──
- *
- * Yaya: "terlalu sempit emotenya, dan juga terlalu jauh. Kalo nggak bisa 1
- * baris ya gpp 2 baris tapi lebih rapih."
- *
- * Sembilan tombol dipaksa satu baris di kolom selebar 34rem menghasilkan
- * tombol selebar 3,4rem, dan nama seperti "semangat" tidak muat di situ.
- *
- * Sekarang kisi 5 kolom: 5 di atas, 4 di bawah. Yang kurang satu itu
- * DITENGAHKAN lewat `grid-column: span 1` pada semua dan `justify-content:
- * center` pada barisnya, jadi baris kedua tidak menggantung di kiri.
- * Lebarnya seragam karena kolomnya seragam, bukan karena isinya kebetulan
- * sama panjang. */
-.jr-rasa-baris {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--jarak-2);
-  overflow: visible;
-}
+
 
 .jr-rasa-tombol {
   /* Tinggi minimum sasaran sentuh, bukan hasil kebetulan dari padding. */
@@ -1633,12 +1582,6 @@
   padding: var(--jarak-2) var(--jarak-1);
   gap: var(--jarak-1);
 }
-
-/* Empat tombol terakhir ditengahkan di baris kedua. `nth-child(6)` adalah
-   yang pertama di baris kedua; setengah kolom digeser supaya 4 tombol duduk
-   simetris di bawah 5 tombol. */
-.jr-rasa-tombol:nth-child(6) { grid-column: 1 / span 1; margin-left: 50%; }
-.jr-rasa-tombol:nth-child(n + 6) { transform: translateX(0); }
 
 .jr-rasa-emoji { font-size: 1.5rem; }
 .jr-rasa-nama { font-size: 0.62rem; }
@@ -1742,13 +1685,15 @@
   .jr-dinding,
   .jr-laci { margin-top: var(--jarak-8); }
 
-  .jr-rasa-baris {
-    /* 9 = 3 x 3. Di layar sempit ini satu-satunya susunan yang tidak
-       menyisakan baris menggantung, dan tiap tombol dapat sepertiga lebar
-       layar, jauh di atas batas 48 px. */
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .jr-rasa-tombol:nth-child(6) { grid-column: auto; margin-left: 0; }
+  /* 9 = 3 x 3. Di layar sempit ini satu-satunya susunan yang tidak
+     menyisakan baris menggantung, dan tiap tombol dapat sepertiga lebar
+     layar (114 px di layar 390 px), jauh di atas batas 48 px.
+
+     Diatur lewat flex-basis, BUKAN grid-template-columns. Aturan yang
+     ditulis lebih dulu memakai grid, dan begitu dasarnya diubah jadi flex
+     baris itu berhenti berpengaruh tanpa satu pun tanda: tidak ada galat,
+     tidak ada peringatan, cuma tidak terjadi apa-apa. */
+  .jr-rasa-tombol { flex: 0 0 calc((100% - 2 * var(--jarak-2)) / 3); }
 
   /* Semua isian teks 16 px. Sekali lagi: ini mencegah iOS memperbesar
      halaman, bukan soal selera ukuran. */
@@ -1862,4 +1807,68 @@
     justify-self: center;
     margin-top: var(--jarak-4);
   }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * PERBAIKAN 1 September 2026 (malam)
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+/*
+ * SATU TOMBOL PERASAAN LEBIH KECIL DARI YANG LAIN.
+ *
+ * Yaya: "ada emote yang besarnya berbeda, dia kecil sendirian, kenapa bisa
+ * seperti itu."
+ *
+ * Kesalahan saya, dan sebabnya bisa ditunjuk persis. Untuk menengahkan empat
+ * tombol di baris kedua, saya beri tombol keenam `margin-left: 50%`.
+ *
+ * Margin dalam PERSEN dihitung dari lebar INDUKNYA, bukan dari lebar
+ * kolomnya. Jadi tombol itu digeser setengah lebar seluruh baris, sementara
+ * lebar kotaknya sendiri adalah lebar kolom dikurangi margin tadi. Ia bukan
+ * bergeser, ia MENYUSUT. Dan karena cuma satu tombol yang kena, hasilnya
+ * satu tombol kecil sendirian di antara delapan yang seukuran.
+ *
+ * Kisi memang tidak bisa menengahkan baris terakhir yang tidak penuh. Jadi
+ * yang dipakai flex: lebar tiap tombol dihitung dari pecahan yang sama untuk
+ * SEMUA (seperlima dikurangi jaraknya), dan `justify-content: center`
+ * menengahkan baris yang tidak penuh tanpa menyentuh ukuran satu pun.
+ */
+.jr-rasa-baris {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--jarak-2);
+}
+.jr-rasa-tombol {
+  /* 5 per baris. `flex-grow: 0` supaya baris kedua yang cuma berisi empat
+     TIDAK melar jadi selebar lima. Itu yang bikin baris terakhir terlihat
+     berbeda di banyak tata letak. */
+  flex: 0 0 calc((100% - 4 * var(--jarak-2)) / 5);
+  min-width: 0;
+}
+
+/*
+ * TOMBOL SIMPAN SEJAJAR DENGAN GARIS KETIK.
+ *
+ * Yaya: "di tengah ada ruang kosong yang ganggu. Harusnya tulisan simpan itu
+ * ditaro sejajar dengan garis ketik."
+ *
+ * Benar. Area tulis dibatasi 46rem supaya barisnya tidak lebih dari sekitar
+ * 80 huruf, tapi baris kakinya tidak ikut dibatasi. Jadi di layar lebar
+ * garisnya berhenti di 46rem sementara "simpan" terus ke tepi kolom, dan di
+ * antaranya menganga ruang kosong yang tidak ada isinya.
+ *
+ * Batas yang sama dipakai, jadi ujung tombol berhenti persis di ujung garis.
+ * Ditulis sebagai variabel supaya keduanya tidak bisa lagi berbeda.
+ */
+.jr { --lebar-baca: 46rem; }
+
+@media (min-width: 1080px) {
+  .jr-judul-isian,
+  .jr-subjudul-isian,
+  .jr-garis,
+  .jr-tulisan-lama,
+  .jr-kaki,
+  .jr-momen { max-width: var(--lebar-baca); }
 }
