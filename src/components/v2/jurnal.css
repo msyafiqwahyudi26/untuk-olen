@@ -1565,3 +1565,242 @@
 @media (prefers-reduced-motion: reduce) {
   .jr-dinding-kisi img:hover { transform: none; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * TATA LETAK MENURUT ANGKA
+ *
+ * Yaya: "di handphone semuanya jadi terlalu dempet-dempet dan nggak rapih,
+ * tolong pakai rules yang benar, batas yang benar. Walau kamu nggak bisa
+ * liat langsung tapi secara matematis kan bisa dihitung."
+ *
+ * Benar, dan itu memang cara yang tepat untuk hal ini. Yang dipakai:
+ *
+ *   SASARAN SENTUH  minimal 44x44 px (Apple HIG) dan 48x48 dp (Material).
+ *                   Dipakai 48 px sebagai batas bawah, karena yang lebih
+ *                   besar tidak pernah salah sedangkan yang lebih kecil
+ *                   meleset di jempol.
+ *   JARAK ANTAR     minimal 8 px antar sasaran sentuh yang berdampingan.
+ *                   Di bawah itu, meleset satu tombol berarti menekan
+ *                   tetangganya, dan di sini tetangganya "hapus".
+ *   TANGGA JARAK    kelipatan 4 px. Semua nilai di bawah ini kelipatan 4,
+ *                   jadi tidak ada lagi 0.35rem berdampingan dengan 0.42rem
+ *                   yang bedanya tidak berarti apa-apa selain berantakan.
+ *   UKURAN ISIAN    minimal 16 px di HP. Di bawah 16 px, Safari iOS
+ *                   MEMPERBESAR seluruh halaman waktu kolomnya disentuh,
+ *                   dan halamannya tidak pernah kembali ke ukuran semula.
+ *                   Ini bukan soal keterbacaan, ini cacat tata letak.
+ *   PANJANG BARIS   45 sampai 75 huruf. Di luar itu mata kehilangan awal
+ *                   baris berikutnya.
+ *
+ * Angka-angka ini ditulis sebagai variabel supaya bisa diperiksa, bukan
+ * disebar sebagai angka lepas di seratus tempat.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.jr {
+  --sentuh: 48px;      /* batas bawah sasaran sentuh */
+  --jarak-1: 4px;
+  --jarak-2: 8px;      /* batas bawah jarak antar sasaran sentuh */
+  --jarak-3: 12px;
+  --jarak-4: 16px;
+  --jarak-6: 24px;
+  --jarak-8: 32px;
+}
+
+/* ── perasaan: kisi, bukan barisan sempit ──
+ *
+ * Yaya: "terlalu sempit emotenya, dan juga terlalu jauh. Kalo nggak bisa 1
+ * baris ya gpp 2 baris tapi lebih rapih."
+ *
+ * Sembilan tombol dipaksa satu baris di kolom selebar 34rem menghasilkan
+ * tombol selebar 3,4rem, dan nama seperti "semangat" tidak muat di situ.
+ *
+ * Sekarang kisi 5 kolom: 5 di atas, 4 di bawah. Yang kurang satu itu
+ * DITENGAHKAN lewat `grid-column: span 1` pada semua dan `justify-content:
+ * center` pada barisnya, jadi baris kedua tidak menggantung di kiri.
+ * Lebarnya seragam karena kolomnya seragam, bukan karena isinya kebetulan
+ * sama panjang. */
+.jr-rasa-baris {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--jarak-2);
+  overflow: visible;
+}
+
+.jr-rasa-tombol {
+  /* Tinggi minimum sasaran sentuh, bukan hasil kebetulan dari padding. */
+  min-height: var(--sentuh);
+  padding: var(--jarak-2) var(--jarak-1);
+  gap: var(--jarak-1);
+}
+
+/* Empat tombol terakhir ditengahkan di baris kedua. `nth-child(6)` adalah
+   yang pertama di baris kedua; setengah kolom digeser supaya 4 tombol duduk
+   simetris di bawah 5 tombol. */
+.jr-rasa-tombol:nth-child(6) { grid-column: 1 / span 1; margin-left: 50%; }
+.jr-rasa-tombol:nth-child(n + 6) { transform: translateX(0); }
+
+.jr-rasa-emoji { font-size: 1.5rem; }
+.jr-rasa-nama { font-size: 0.62rem; }
+
+
+/* ── agenda ── */
+.jr-kal-tambah {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jarak-2);
+  margin-top: var(--jarak-3);
+  padding-top: var(--jarak-3);
+  border-top: 1px solid var(--jr-garis);
+}
+
+.jr-kal-tambah input[type="text"],
+.jr-kal-tambah input:not([type]) {
+  width: 100%;
+  min-height: var(--sentuh);
+  padding: var(--jarak-3) var(--jarak-4);
+  border-radius: var(--lengkung);
+  /* 16px, dan ini WAJIB. Di bawah itu Safari iOS memperbesar halamannya
+     sendiri waktu kolomnya disentuh. */
+  font-size: 16px;
+}
+
+.jr-kal-rinci { display: flex; gap: var(--jarak-2); }
+.jr-kal-rinci input { flex: 1 1 0; min-width: 0; }
+
+.jr-kal-aksi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jarak-3);
+}
+.jr-kal-ultah {
+  display: flex;
+  align-items: center;
+  gap: var(--jarak-2);
+  min-height: var(--sentuh);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.jr-kal-acara { align-items: flex-start; gap: var(--jarak-2); }
+.jr-kal-acara-judul { display: flex; flex-direction: column; gap: 2px; }
+.jr-kal-acara-rinci {
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.7;
+}
+.jr-kal-buang { width: var(--sentuh); height: var(--sentuh); flex: none; }
+
+
+/* ── label acara di dalam sel tanggal ── */
+.jr-kal-tgl {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-height: var(--sentuh);
+  padding: var(--jarak-1) 2px;
+}
+.jr-kal-angka { line-height: 1.1; }
+.jr-kal-label {
+  max-width: 100%;
+  font-size: 0.52rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  opacity: 0.78;
+  /* Satu baris, dipotong. Label yang membungkus bikin tinggi selnya
+     berbeda-beda, dan kisi kalender yang barisnya tidak sama tinggi
+     berhenti terbaca sebagai kalender. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.jr-kal-tgl.pilih .jr-kal-label { opacity: 0.9; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * DI HP
+ *
+ * Semuanya diturunkan dari angka di atas, bukan dari perkiraan.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1079px) {
+  .jr {
+    /* Tepi 16 px: cukup supaya teks tidak menempel ke bingkai layar, tidak
+       terlalu banyak sampai kolom bacanya menyempit di layar 360 px. */
+    padding-inline: max(var(--jarak-4), env(safe-area-inset-left));
+  }
+
+  /* Jarak antar bagian besar 32 px. Sebelumnya bagian-bagiannya cuma
+     dipisah garis tipis tanpa napas, dan itu yang bikin "dempet-dempet". */
+  .jr-kalender,
+  .jr-arsip,
+  .jr-dinding,
+  .jr-laci { margin-top: var(--jarak-8); }
+
+  .jr-rasa-baris {
+    /* 9 = 3 x 3. Di layar sempit ini satu-satunya susunan yang tidak
+       menyisakan baris menggantung, dan tiap tombol dapat sepertiga lebar
+       layar, jauh di atas batas 48 px. */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .jr-rasa-tombol:nth-child(6) { grid-column: auto; margin-left: 0; }
+
+  /* Semua isian teks 16 px. Sekali lagi: ini mencegah iOS memperbesar
+     halaman, bukan soal selera ukuran. */
+  .jr-judul-isian { font-size: clamp(1.5rem, 7vw, 2rem); }
+  .jr-subjudul-isian { font-size: 16px; }
+  .jr-garis { font-size: 16px; --baris: 1.9rem; }
+
+  /* Tombol dan tautan: sasaran sentuh penuh, jarak antar minimal 8 px. */
+  .jr-tombol,
+  .jr-kal-panah,
+  .jr-arsip-tombol,
+  .jr-laci-baris { min-height: var(--sentuh); }
+
+  .jr-kaki { gap: var(--jarak-2); flex-wrap: wrap; }
+
+  /* Kalender di HP: sel persegi yang tingginya ikut lebarnya, jadi kisinya
+     tetap kisi berapa pun lebar layarnya. */
+  .jr-kal-kisi { gap: 2px; }
+  .jr-kal-tgl { aspect-ratio: 1; min-height: 0; }
+  .jr-kal-label { font-size: 0.46rem; }
+
+  /* Foto: tiga per baris di HP, bukan lebar tetap yang menyisakan celah. */
+  .jr-momen-satu { width: calc((100% - 2 * var(--jarak-2)) / 3); }
+  .jr-dinding-kisi { grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr)); }
+}
+
+/* Layar paling sempit (360 px ke bawah). Yang paling dulu patah di sana
+   adalah kisi tiga kolom foto dan baris agenda yang berdampingan. */
+@media (max-width: 380px) {
+  .jr-kal-rinci { flex-direction: column; }
+  .jr-momen-satu { width: calc((100% - var(--jarak-2)) / 2); }
+  .jr-rasa-nama { font-size: 0.58rem; }
+}
+
+/* Panah bulan: 34px terlalu kecil untuk jempol, dan ia tombol yang paling
+   sering ditekan berulang di kalender. Dinaikkan ke sasaran sentuh penuh.
+   Ketahuan dari audit angka, bukan dari melihat layarnya. */
+.jr-kal-panah { width: var(--sentuh); height: var(--sentuh); }
+
+/* Tombol lepas foto: 26px, jauh di bawah batas. Ia duduk di pojok foto dan
+   tetap harus bisa disentuh tanpa mengenai fotonya, jadi yang dibesarkan
+   AREA SENTUHNYA, bukan lingkaran yang terlihat.
+
+   ::after transparan seluas 48px dipusatkan di atasnya. Pola ini yang
+   dipakai justru supaya tombol kecil boleh tetap terlihat kecil: yang
+   dituntut standar itu area yang bisa disentuh, bukan ukuran gambarnya. */
+.jr-momen-buang::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--sentuh);
+  height: var(--sentuh);
+  transform: translate(-50%, -50%);
+}

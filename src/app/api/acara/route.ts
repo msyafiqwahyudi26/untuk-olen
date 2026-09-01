@@ -12,8 +12,8 @@ export const dynamic = "force-dynamic";
  * akan atau selalu terjadi.
  *
  * Berbeda dari catatan, DELETE di sini benar-benar menghapus. Acara adalah
- * keterangan tanggal, bukan sesuatu yang pernah Olen rasakan — jaminan
- * "tidak ada yang hilang" tidak berlaku di sini, dan menyimpan sampah
+ * keterangan tanggal, bukan sesuatu yang pernah Olen rasakan, jadi jaminan
+ * "tidak ada yang hilang" tidak berlaku di sini dan menyimpan sampah
  * selamanya bukan kebaikan.
  */
 
@@ -22,7 +22,14 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  let d: { tanggal?: unknown; judul?: unknown; jenis?: unknown; tiapTahun?: unknown };
+  let d: {
+    tanggal?: unknown;
+    judul?: unknown;
+    jenis?: unknown;
+    tiapTahun?: unknown;
+    jam?: unknown;
+    tempat?: unknown;
+  };
   try {
     d = (await req.json()) as typeof d;
   } catch {
@@ -33,6 +40,8 @@ export async function POST(req: Request) {
     typeof d.judul === "string" ? d.judul : "",
     typeof d.jenis === "string" ? d.jenis : "acara",
     d.tiapTahun === true,
+    d.jam,
+    d.tempat,
   );
   return a
     ? NextResponse.json(a, { status: 201 })

@@ -147,6 +147,8 @@ export default function Jurnal({
   const [tglDipilih, setTglDipilih] = useState<string | null>(null);
   const [acaraBaru, setAcaraBaru] = useState("");
   const [acaraUltah, setAcaraUltah] = useState(false);
+  const [acaraJam, setAcaraJam] = useState("");
+  const [acaraTempat, setAcaraTempat] = useState("");
   /** Nama berkas foto yang sudah terunggah dan siap ikut disimpan. */
   const [foto, setFoto] = useState<string[]>([]);
   const [unggah, setUnggah] = useState(false);
@@ -360,6 +362,8 @@ export default function Jurnal({
         body: JSON.stringify({
           tanggal,
           judul: j,
+          jam: acaraJam,
+          tempat: acaraTempat,
           jenis: acaraUltah ? "ulang-tahun" : "acara",
           /* Ulang tahun otomatis berulang tiap tahun. Tanpa itu ia harus
              dimasukkan ulang tiap tahun, dan yang paling mungkin terjadi
@@ -372,6 +376,8 @@ export default function Jurnal({
       setAcara((a) => [...a, baru]);
       setAcaraBaru("");
       setAcaraUltah(false);
+      setAcaraJam("");
+      setAcaraTempat("");
     } catch {
       setGalat("acara belum tersimpan.");
     }
@@ -1004,7 +1010,18 @@ export default function Jurnal({
                   }`}
                   onClick={() => setTglDipilih(tglDipilih === kunciTanggal(d) ? null : kunciTanggal(d))}
                 >
-                  {d}
+                  <span className="jr-kal-angka">{d}</span>
+                  {/* Nama acara TAMPIL di selnya, bukan cuma titik.
+                      Yaya: "nanti di tanggal tersebut berlebel acaranya."
+                      Satu label saja, yang pertama; kalau ada lebih, jumlahnya
+                      yang disebut. Dua label di sel selebar 40 px akan
+                      terpotong dua-duanya, dan dua potongan tidak lebih
+                      berguna daripada satu yang utuh. */}
+                  {ac.length > 0 && (
+                    <span className="jr-kal-label">
+                      {ac.length > 1 ? `${ac.length} acara` : ac[0].judul}
+                    </span>
+                  )}
                   {ac.length > 0 && (
                     <span className="jr-kal-titik" aria-hidden>
                       {ultah ? "🎂" : "•"}
@@ -1022,7 +1039,21 @@ export default function Jurnal({
               {(kalender.acaraHari.get(hariDipilih ?? 0) ?? []).map((a) => (
                 <div key={a.id} className="jr-kal-acara">
                   <span aria-hidden>{a.jenis === "ulang-tahun" ? "🎂" : "•"}</span>
-                  <span className="jr-kal-acara-judul">{a.judul}</span>
+                  <span className="jr-kal-acara-judul">
+                    {a.judul}
+                    {/* Jam dan tempat di baris kedua, lebih kecil. Kalau
+                        keduanya sejajar dengan judul, tiga potongan teks
+                        berukuran sama berebut jadi yang dibaca duluan, dan
+                        yang paling penting (apa acaranya) kalah karena ia
+                        yang paling kiri. */}
+                    {(a.jam || a.tempat) && (
+                      <span className="jr-kal-acara-rinci">
+                        {a.jam}
+                        {a.jam && a.tempat ? " · " : ""}
+                        {a.tempat}
+                      </span>
+                    )}
+                  </span>
                   <button
                     type="button"
                     className="jr-kal-buang"
@@ -1046,31 +1077,69 @@ export default function Jurnal({
                 </button>
               ))}
 
+              {/*
+                AGENDA SUNGGUHAN.
+
+                Yaya: "bisa nulis selain agenda jam tempat dll kayak ngisi
+                kalender beneran."
+
+                Tiga kolom, dan urutannya mengikuti cara orang menyebut
+                sebuah janji: APA dulu, baru JAM, baru DI MANA. Yang pertama
+                wajib, dua sisanya tidak, dan itu ditulis di keterangannya
+                supaya tidak ada yang mengira harus diisi semua.
+
+                Jam dan tempat sengaja `type="text"`, bukan `type="time"`.
+                Pemilih jam bawaan menuntut HH:MM, sementara yang paling
+                sering ditulis anak SMP adalah "abis magrib" atau "pulang
+                sekolah". Keduanya jam yang sah baginya, dan kolom yang
+                menolaknya membuang catatannya, bukan merapikan datanya.
+              */}
               <div className="jr-kal-tambah">
                 <input
+                  className="jr-kal-apa"
                   value={acaraBaru}
                   onChange={(e) => setAcaraBaru(e.target.value)}
                   maxLength={120}
-                  placeholder="ulang tahun siapa? acara apa?"
-                  aria-label="Acara baru"
+                  placeholder="what's your agenda?"
+                  aria-label="Agenda"
                   onKeyDown={(e) => e.key === "Enter" && tambahAcara(tglDipilih)}
                 />
-                <label className="jr-kal-ultah">
+                <div className="jr-kal-rinci">
                   <input
-                    type="checkbox"
-                    checked={acaraUltah}
-                    onChange={(e) => setAcaraUltah(e.target.checked)}
+                    value={acaraJam}
+                    onChange={(e) => setAcaraJam(e.target.value)}
+                    maxLength={40}
+                    placeholder="jam (opsional)"
+                    aria-label="Jam"
+                    onKeyDown={(e) => e.key === "Enter" && tambahAcara(tglDipilih)}
                   />
-                  ulang tahun
-                </label>
-                <button
-                  type="button"
-                  className="jr-tombol"
-                  disabled={!acaraBaru.trim()}
-                  onClick={() => tambahAcara(tglDipilih)}
-                >
-                  tambah
-                </button>
+                  <input
+                    value={acaraTempat}
+                    onChange={(e) => setAcaraTempat(e.target.value)}
+                    maxLength={80}
+                    placeholder="tempat (opsional)"
+                    aria-label="Tempat"
+                    onKeyDown={(e) => e.key === "Enter" && tambahAcara(tglDipilih)}
+                  />
+                </div>
+                <div className="jr-kal-aksi">
+                  <label className="jr-kal-ultah">
+                    <input
+                      type="checkbox"
+                      checked={acaraUltah}
+                      onChange={(e) => setAcaraUltah(e.target.checked)}
+                    />
+                    ulang tahun
+                  </label>
+                  <button
+                    type="button"
+                    className="jr-tombol"
+                    disabled={!acaraBaru.trim()}
+                    onClick={() => tambahAcara(tglDipilih)}
+                  >
+                    tambah
+                  </button>
+                </div>
               </div>
             </div>
           )}

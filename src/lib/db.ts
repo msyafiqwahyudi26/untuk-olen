@@ -156,6 +156,17 @@ export function db(): DatabaseSync {
        Berkasnya sendiri tidak pernah dihapus dari disk, jadi yang perlu
        diselamatkan cuma daftar namanya. */
     "ALTER TABLE note_revisi ADD COLUMN foto TEXT",
+    /* Agenda sungguhan, bukan cuma judul. Jam dan tempat disimpan sebagai
+       teks bebas, BUKAN sebagai waktu yang diurai.
+
+       Alasannya: yang menulis di sini anak SMP yang mencatat "abis magrib"
+       atau "pulang sekolah", dan keduanya jam yang sah baginya. Kolom waktu
+       yang menuntut HH:MM akan menolak keduanya, dan yang hilang bukan
+       kerapian datanya melainkan catatannya. Kalau kelak butuh pengurutan
+       menurut jam, tambahkan kolom kedua yang berisi hasil uraiannya, dan
+       biarkan yang ini tetap apa adanya. */
+    "ALTER TABLE acara ADD COLUMN jam TEXT",
+    "ALTER TABLE acara ADD COLUMN tempat TEXT",
   ]) {
     try {
       d.exec(kolom);
@@ -201,6 +212,8 @@ export type AcaraRow = {
   judul: string;
   jenis: string;
   tiap_tahun: number;
+  jam: string | null;
+  tempat: string | null;
 };
 
 export type RevisiRow = {
@@ -326,14 +339,19 @@ export function ubahNote(
 /* ═══════════════ acara ═══════════════ */
 
 export const getAcara = () =>
-  (db().prepare("SELECT id,tanggal,judul,jenis,tiap_tahun FROM acara ORDER BY tanggal").all() as unknown[])
-    .map((r) => ({ ...(r as object) })) as AcaraRow[];
+  (
+    db()
+      .prepare("SELECT id,tanggal,judul,jenis,tiap_tahun,jam,tempat FROM acara ORDER BY tanggal, jam")
+      .all() as unknown[]
+  ).map((r) => ({ ...(r as object) })) as AcaraRow[];
 
 export function addAcara(
   tanggal: string,
   judul: string,
   jenis = "acara",
   tiapTahun = false,
+  jam?: unknown,
+  tempat?: unknown,
 ) {
   /* Tanggalnya harus berbentuk YYYY-MM-DD. Bentuk lain ditolak di sini, bukan
      dibetulkan diam-diam — tanggal yang ditebak lebih berbahaya daripada
@@ -342,8 +360,17 @@ export function addAcara(
   const j = potong(judul, 120);
   if (!j) return null;
   db()
-    .prepare("INSERT INTO acara (tanggal, judul, jenis, tiap_tahun) VALUES (?, ?, ?, ?)")
-    .run(tanggal, j, jenis === "ulang-tahun" ? "ulang-tahun" : "acara", tiapTahun ? 1 : 0);
+    .prepare(
+      "INSERT INTO acara (tanggal, judul, jenis, tiap_tahun, jam, tempat) VALUES (?, ?, ?, ?, ?, ?)",
+    )
+    .run(
+      tanggal,
+      j,
+      jenis === "ulang-tahun" ? "ulang-tahun" : "acara",
+      tiapTahun ? 1 : 0,
+      potong(jam, 40),
+      potong(tempat, 80),
+    );
   return getAcara().find((a) => a.tanggal === tanggal && a.judul === j) ?? null;
 }
 
